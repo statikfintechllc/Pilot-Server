@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { SettingsDialog } from '@/components/SettingsDialog';
 import { Chat } from '@/lib/types';
-import { ChatText, Trash, List, X, CaretLeft, CaretRight } from '@phosphor-icons/react';
+import { ChatText, Trash, List, X, CaretLeft, CaretRight, Gear } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 
 interface ChatSidebarProps {
@@ -163,11 +163,27 @@ export function ChatSidebar({
               <div className="flex items-center justify-between">
                 <ThemeToggle />
                 <SheetTitle className="text-lg font-semibold absolute left-1/2 transform -translate-x-1/2">Chat History</SheetTitle>
-                <SettingsDialog />
+                <div></div> {/* Empty space to balance layout */}
               </div>
             </SheetHeader>
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <SidebarContent isMobile={true} />
+            <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <SidebarContent isMobile={true} />
+              </div>
+              {/* Settings button at bottom left with proper padding */}
+              <div className="flex-shrink-0 p-4 pt-3 border-t bg-background/95 backdrop-blur-sm">
+                <SettingsDialog 
+                  trigger={
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start gap-2.5 text-sm font-medium h-9"
+                    >
+                      <Gear className="w-4 h-4" />
+                      Settings
+                    </Button>
+                  }
+                />
+              </div>
             </div>
           </SheetContent>
         </Sheet>
@@ -219,9 +235,20 @@ export function ChatSidebar({
               ))}
             </div>
             
-            {/* Settings button at bottom */}
+            {/* Settings button at bottom left */}
             <div className="flex-shrink-0 p-2 border-t bg-background/95">
-              <SettingsDialog />
+              <SettingsDialog 
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-8 h-8 p-0"
+                    title="Settings"
+                  >
+                    <Gear className="w-4 h-4" />
+                  </Button>
+                }
+              />
             </div>
           </div>
         ) : (
@@ -262,7 +289,7 @@ export function ChatSidebar({
                   </div>
                 </div>
                 
-                {/* Settings button at bottom */}
+                {/* Settings button at bottom left */}
                 <div className="flex-shrink-0 border-t bg-background/95 p-3">
                   <SettingsDialog 
                     trigger={
@@ -270,6 +297,7 @@ export function ChatSidebar({
                         variant="ghost" 
                         className="w-full justify-start gap-2.5 text-sm font-medium h-9"
                       >
+                        <Gear className="w-4 h-4" />
                         Settings
                       </Button>
                     }
