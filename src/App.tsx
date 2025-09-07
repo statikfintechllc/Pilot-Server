@@ -83,7 +83,7 @@ function App() {
             onNewChat={handleNewChat}
           />
           
-          <div className="flex-1 flex flex-col min-w-0 min-h-0 relative max-h-screen">
+          <div className="flex-1 flex flex-col min-w-0 min-h-0 relative max-h-screen overflow-hidden">
             <ChatHeader
               onNewChat={handleNewChat}
               isLoading={chatState.isLoading}
@@ -96,16 +96,18 @@ function App() {
               isLoading={chatState.isLoading}
             />
             
-            <ChatMessages
-              messages={currentChat?.messages || []}
-              isLoading={chatState.isLoading}
-              onEditMessage={editMessage}
-            />
-            
-            <MessageInput
-              onSendMessage={sendMessage}
-              isLoading={chatState.isLoading}
-            />
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              <ChatMessages
+                messages={currentChat?.messages || []}
+                isLoading={chatState.isLoading}
+                onEditMessage={editMessage}
+              />
+              
+              <MessageInput
+                onSendMessage={sendMessage}
+                isLoading={chatState.isLoading}
+              />
+            </div>
           </div>
           
           <Toaster position="top-right" />

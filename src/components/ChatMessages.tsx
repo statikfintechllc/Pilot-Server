@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 interface ChatMessagesProps {
   messages: Message[];
   isLoading: boolean;
-  onEditMessage?: (messageId: string, newContent: string) => void;
+  onEditMessage?: (messageId: string, newContent: string) => Promise<void> | void;
 }
 
 export function ChatMessages({ messages, isLoading, onEditMessage }: ChatMessagesProps) {

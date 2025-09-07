@@ -88,30 +88,124 @@ export function useChat() {
     }
   }, [setChats, setChatState, chatState.currentChatId]);
 
-  const editMessage = useCallback((messageId: string, newContent: string) => {
+  const editMessage = useCallback(async (messageId: string, newContent: string) => {
     if (!chatState.currentChatId) return;
 
-    setChats(currentChats => 
-      currentChats.map(chat => 
-        chat.id === chatState.currentChatId
-          ? {
-              ...chat,
-              messages: chat.messages.map(msg => 
-                msg.id === messageId
-                  ? {
-                      ...msg,
-                      content: newContent,
-                      isEdited: true,
-                      editedAt: Date.now()
-                    }
-                  : msg
-              ),
-              lastUpdated: Date.now()
-            }
-          : chat
-      )
-    );
-  }, [chatState.currentChatId, setChats]);
+    const currentChatData = chats.find(chat => chat.id === chatState.currentChatId);
+    if (!currentChatData) return;
+
+    // Find the message being edited
+    const messageIndex = currentChatData.messages.findIndex(msg => msg.id === messageId);
+    if (messageIndex === -1) return;
+
+    const messageToEdit = currentChatData.messages[messageIndex];
+    
+    // If this is a user message, truncate all subsequent messages and regenerate AI response
+    if (messageToEdit.role === 'user') {
+      setLoading(true);
+      
+      try {
+        // Update the user message and remove all subsequent messages
+        const truncatedMessages = currentChatData.messages.slice(0, messageIndex);
+        const updatedUserMessage = {
+          ...messageToEdit,
+          content: newContent,
+          isEdited: true,
+          editedAt: Date.now()
+        };
+
+        // Update chat with edited message and truncated conversation
+        setChats(currentChats => 
+          currentChats.map(chat => 
+            chat.id === chatState.currentChatId
+              ? {
+                  ...chat,
+                  messages: [...truncatedMessages, updatedUserMessage],
+                  lastUpdated: Date.now()
+                }
+              : chat
+          )
+        );
+
+        // Generate new AI response
+        if (typeof window !== 'undefined' && window.spark) {
+          const prompt = spark.llmPrompt`${newContent}`;
+          const response = await spark.llm(prompt, chatState.selectedModel);
+          
+          // Add new AI response
+          const aiMessage: Message = {
+            id: `msg-${Date.now()}-ai`,
+            content: response,
+            role: 'assistant',
+            timestamp: Date.now(),
+            model: chatState.selectedModel
+          };
+
+          setChats(currentChats => 
+            currentChats.map(chat => 
+              chat.id === chatState.currentChatId
+                ? {
+                    ...chat,
+                    messages: [...truncatedMessages, updatedUserMessage, aiMessage],
+                    lastUpdated: Date.now()
+                  }
+                : chat
+            )
+          );
+        } else {
+          throw new Error('Spark runtime not available');
+        }
+      } catch (error) {
+        console.error('Error regenerating AI response:', error);
+        // Add error message
+        const errorMessage: Message = {
+          id: `msg-${Date.now()}-error`,
+          content: 'Sorry, I encountered an error processing your edited message. Please try again.',
+          role: 'assistant',
+          timestamp: Date.now(),
+          model: chatState.selectedModel
+        };
+
+        setChats(currentChats => 
+          currentChats.map(chat => 
+            chat.id === chatState.currentChatId
+              ? {
+                  ...chat,
+                  messages: [...currentChatData.messages.slice(0, messageIndex), 
+                            { ...messageToEdit, content: newContent, isEdited: true, editedAt: Date.now() },
+                            errorMessage],
+                  lastUpdated: Date.now()
+                }
+              : chat
+          )
+        );
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // For AI messages, just update the content without regenerating
+      setChats(currentChats => 
+        currentChats.map(chat => 
+          chat.id === chatState.currentChatId
+            ? {
+                ...chat,
+                messages: chat.messages.map(msg => 
+                  msg.id === messageId
+                    ? {
+                        ...msg,
+                        content: newContent,
+                        isEdited: true,
+                        editedAt: Date.now()
+                      }
+                    : msg
+                ),
+                lastUpdated: Date.now()
+              }
+            : chat
+        )
+      );
+    }
+  }, [chatState.currentChatId, chatState.selectedModel, chats, setChats, setLoading]);
 
   const sendMessage = useCallback(async (content: string, imageUrl?: string) => {
     if (!content.trim() && !imageUrl) return;

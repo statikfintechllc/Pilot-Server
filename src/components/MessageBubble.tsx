@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Copy, Check, PencilSimple, X, FloppyDisk } from '@phosphor-icons/react';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -11,7 +12,7 @@ import { useThemeContext } from '@/components/ThemeProvider';
 
 interface MessageBubbleProps {
   message: Message;
-  onEdit?: (messageId: string, newContent: string) => void;
+  onEdit?: (messageId: string, newContent: string) => Promise<void> | void;
 }
 
 export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
@@ -31,14 +32,26 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
     }
   }, [isEditing]);
 
-  const handleEdit = () => {
+  const [isEditingLoading, setIsEditingLoading] = useState(false);
+
+  const handleEdit = async () => {
     if (!onEdit) return;
     
     if (editContent.trim() && editContent !== message.content) {
-      onEdit(message.id, editContent.trim());
-      toast.success('Message updated');
+      setIsEditingLoading(true);
+      try {
+        await onEdit(message.id, editContent.trim());
+        toast.success('Message updated - generating new response...');
+        setIsEditing(false);
+      } catch (error) {
+        toast.error('Failed to update message');
+        console.error('Edit error:', error);
+      } finally {
+        setIsEditingLoading(false);
+      }
+    } else {
+      setIsEditing(false);
     }
-    setIsEditing(false);
   };
 
   const handleCancelEdit = () => {
@@ -319,10 +332,20 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
                 <Button
                   size="sm"
                   onClick={handleEdit}
-                  className="h-6 px-2 text-xs bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                  disabled={isEditingLoading}
+                  className="h-6 px-2 text-xs bg-primary-foreground text-primary hover:bg-primary-foreground/90 disabled:opacity-50"
                 >
-                  <FloppyDisk className="w-3 h-3 mr-1" />
-                  Save
+                  {isEditingLoading ? (
+                    <>
+                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      Saving
+                    </>
+                  ) : (
+                    <>
+                      <FloppyDisk className="w-3 h-3 mr-1" />
+                      Save
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

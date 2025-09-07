@@ -347,6 +347,7 @@
     .desktop-chat-container {
       max-width: 100%;
       overflow: hidden;
+      contain: layout size;
     }
     
     .desktop-message-content {
@@ -354,6 +355,18 @@
       overflow-wrap: anywhere;
       word-break: break-word;
       hyphens: auto;
+      contain: layout;
+    }
+    
+    /* Better desktop sidebar layout */
+    .desktop-main-content {
+      width: 100%;
+      max-width: calc(100vw - 288px); /* Account for sidebar width */
+      overflow: hidden;
+    }
+    
+    .desktop-main-content.sidebar-collapsed {
+      max-width: calc(100vw - 48px); /* Account for collapsed sidebar */
     }
   }
 }
