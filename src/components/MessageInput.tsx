@@ -107,12 +107,15 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
         <div className="flex-1 relative">
           <Textarea
             ref={textareaRef}
-            placeholder="Type your message..."
+            placeholder="Type your message... (Use ``` for code blocks)"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isLoading}
-            className="resize-none min-h-[32px] md:min-h-[44px] max-h-24 md:max-h-32 pr-8 md:pr-12 text-xs md:text-base"
+            className={cn(
+              "resize-none min-h-[32px] md:min-h-[44px] max-h-32 md:max-h-48 pr-8 md:pr-12 text-xs md:text-sm",
+              message.includes('```') ? "font-mono" : ""
+            )}
             rows={1}
           />
           

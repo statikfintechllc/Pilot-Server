@@ -68,7 +68,7 @@ export function useChat() {
               messages: [...chat.messages, newMessage],
               lastUpdated: Date.now(),
               title: chat.title === 'New Chat' && chat.messages.length === 0 
-                ? message.content.slice(0, 50) + (message.content.length > 50 ? '...' : '')
+                ? message.content.slice(0, 150) + (message.content.length > 150 ? '...' : '')
                 : chat.title
             }
           : chat

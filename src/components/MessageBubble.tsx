@@ -1,8 +1,12 @@
 import { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Copy, User, Robot } from '@phosphor-icons/react';
+import { Copy, User, Robot, Check } from '@phosphor-icons/react';
 import { toast } from 'sonner';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useState } from 'react';
+import { useTheme } from '@/components/ThemeProvider';
 
 interface MessageBubbleProps {
   message: Message;
@@ -10,10 +14,20 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
+  const { theme } = useTheme();
+  const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
+  const [copiedMessage, setCopiedMessage] = useState(false);
   
-  const copyToClipboard = async (text: string) => {
+  const copyToClipboard = async (text: string, codeId?: string) => {
     try {
       await navigator.clipboard.writeText(text);
+      if (codeId) {
+        setCopiedCodeId(codeId);
+        setTimeout(() => setCopiedCodeId(null), 2000);
+      } else {
+        setCopiedMessage(true);
+        setTimeout(() => setCopiedMessage(false), 2000);
+      }
       toast.success('Copied to clipboard');
     } catch (error) {
       toast.error('Failed to copy');
@@ -29,8 +43,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   };
 
   const renderContent = (content: string) => {
-    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-    const inlineCodeRegex = /`([^`]+)`/g;
+    const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
     
     let processedContent = content;
     const codeBlocks: { match: string; language: string; code: string; id: string }[] = [];
@@ -59,27 +72,54 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         }
       }
       
-      if (parts[i + 1] && parts[i + 2]) {
-        const language = parts[i + 1];
+      if (parts[i + 1] !== undefined && parts[i + 2] !== undefined) {
+        const language = parts[i + 1] || 'text';
         const code = parts[i + 2];
+        const codeId = `code-${i}-${Date.now()}`;
+        const syntaxTheme = theme === 'dark' ? oneDark : oneLight;
+        
         result.push(
-          <div key={`code-${i}`} className="my-3 md:my-4 rounded-lg border bg-muted/30 overflow-hidden">
-            <div className="flex items-center justify-between px-3 py-2 bg-muted/50 border-b">
+          <div key={`code-${i}`} className="my-2 md:my-4 rounded-md md:rounded-lg border bg-muted/30 overflow-hidden">
+            <div className="flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 bg-muted/50 border-b">
               <span className="text-xs font-medium text-muted-foreground uppercase">
-                {language || 'code'}
+                {language}
               </span>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => copyToClipboard(code)}
-                className="h-6 px-2 text-xs"
+                onClick={() => copyToClipboard(code, codeId)}
+                className="h-5 md:h-6 px-1.5 md:px-2 text-xs hover:bg-muted/60"
               >
-                <Copy className="w-3 h-3" />
+                {copiedCodeId === codeId ? (
+                  <Check className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-500" />
+                ) : (
+                  <Copy className="w-2.5 h-2.5 md:w-3 md:h-3" />
+                )}
               </Button>
             </div>
-            <pre className="p-3 overflow-x-auto">
-              <code className="text-sm font-mono leading-relaxed">{code}</code>
-            </pre>
+            <div className="overflow-x-auto">
+              <SyntaxHighlighter
+                language={language.toLowerCase()}
+                style={syntaxTheme}
+                customStyle={{
+                  margin: 0,
+                  padding: '8px 12px',
+                  background: 'transparent',
+                  fontSize: '11px',
+                  lineHeight: '1.3'
+                }}
+                codeTagProps={{
+                  style: {
+                    fontFamily: "'JetBrains Mono', 'Courier New', monospace"
+                  }
+                }}
+                showLineNumbers={false}
+                wrapLines={true}
+                wrapLongLines={true}
+              >
+                {code}
+              </SyntaxHighlighter>
+            </div>
           </div>
         );
       }
@@ -199,9 +239,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       )}
       
       <div className={cn(
-        "max-w-[85%] md:max-w-[80%] rounded-lg md:rounded-2xl px-3 md:px-4 py-2 md:py-3 relative group",
+        "max-w-[90%] md:max-w-[80%] rounded-lg md:rounded-2xl px-2 md:px-4 py-2 md:py-3 relative group",
         isUser 
-          ? "bg-primary text-primary-foreground ml-8 md:ml-12" 
+          ? "bg-primary text-primary-foreground ml-6 md:ml-12" 
           : "bg-card border shadow-sm"
       )}>
         {message.imageUrl && (
@@ -214,7 +254,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           </div>
         )}
         
-        <div className="text-sm md:text-base leading-relaxed">
+        <div className="text-xs md:text-sm leading-relaxed">
           {renderContent(message.content)}
         </div>
         
@@ -235,7 +275,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             onClick={() => copyToClipboard(message.content)}
             className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
           >
-            <Copy className="w-3 h-3" />
+            {copiedMessage ? (
+              <Check className="w-3 h-3 text-green-500" />
+            ) : (
+              <Copy className="w-3 h-3" />
+            )}
           </Button>
         )}
       </div>
