@@ -30,7 +30,13 @@ export interface Chat {
   lastUpdated: number;
 }
 
-export type AIModel = 'gpt-4o' | 'gpt-4o-mini';
+export type AIModel = 
+  | 'gpt-4o' 
+  | 'gpt-4o-mini'
+  | 'claude-3-5-sonnet'
+  | 'claude-3-haiku'
+  | 'gemini-1.5-pro'
+  | 'gemini-1.5-flash';
 
 export interface ChatState {
   currentChatId: string | null;

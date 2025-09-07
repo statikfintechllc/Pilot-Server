@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { SettingsDialog } from '@/components/SettingsDialog';
 import { Chat } from '@/lib/types';
 import { ChatText, Trash, List, X, CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
@@ -162,7 +163,7 @@ export function ChatSidebar({
               <div className="flex items-center justify-between">
                 <ThemeToggle />
                 <SheetTitle className="text-lg font-semibold absolute left-1/2 transform -translate-x-1/2">Chat History</SheetTitle>
-                <div className="w-9"></div> {/* Spacer to balance the layout */}
+                <SettingsDialog />
               </div>
             </SheetHeader>
             <div className="flex-1 min-h-0 overflow-hidden">
@@ -217,6 +218,11 @@ export function ChatSidebar({
                 </Button>
               ))}
             </div>
+            
+            {/* Settings button at bottom */}
+            <div className="flex-shrink-0 p-2 border-t bg-background/95">
+              <SettingsDialog />
+            </div>
           </div>
         ) : (
           // Expanded Desktop Sidebar
@@ -254,6 +260,20 @@ export function ChatSidebar({
                   <div className="h-full overflow-auto p-2.5 desktop-sidebar-scroll">
                     <ChatList />
                   </div>
+                </div>
+                
+                {/* Settings button at bottom */}
+                <div className="flex-shrink-0 border-t bg-background/95 p-3">
+                  <SettingsDialog 
+                    trigger={
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start gap-2.5 text-sm font-medium h-9"
+                      >
+                        Settings
+                      </Button>
+                    }
+                  />
                 </div>
               </div>
             </div>

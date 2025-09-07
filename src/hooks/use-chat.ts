@@ -1,6 +1,7 @@
 import { useKV } from '@github/spark/hooks';
 import { useState, useCallback } from 'react';
 import { Chat, Message, AIModel, ChatState } from '@/lib/types';
+import { useAuth } from '@/hooks/use-auth';
 
 export function useChat() {
   const [chats, setChats] = useKV<Chat[]>('pilot-chats', []);
@@ -10,6 +11,7 @@ export function useChat() {
     isLoading: false
   });
 
+  const { authState } = useAuth();
   const currentChat = chats.find(chat => chat.id === chatState.currentChatId);
 
   const createNewChat = useCallback(() => {
@@ -258,6 +260,16 @@ export function useChat() {
   const sendMessage = useCallback(async (content: string, imageUrl?: string, fileData?: { name: string; url: string; type: string }) => {
     if (!content.trim() && !imageUrl && !fileData) return;
     
+    // Check if user is authenticated for advanced models
+    if (!authState.isAuthenticated && !['gpt-4o', 'gpt-4o-mini'].includes(chatState.selectedModel)) {
+      console.warn('Advanced models require GitHub authentication');
+      // Fallback to basic model
+      setChatState(prev => ({
+        ...prev,
+        selectedModel: 'gpt-4o'
+      }));
+    }
+    
     // Ensure we have a current chat
     let targetChatId = chatState.currentChatId;
     if (!targetChatId) {
@@ -310,15 +322,24 @@ export function useChat() {
       if (typeof window !== 'undefined' && window.spark) {
         // Construct prompt with file context if available
         let promptContent = content;
+        
+        if (imageUrl) {
+          promptContent += '\n\n[Image provided - please analyze the image in your response]';
+        }
+        
         if (fileData) {
           promptContent += `\n\nFile attached: ${fileData.name} (${fileData.type})`;
           if (fileData.type.includes('text') || fileData.type.includes('json') || fileData.type.includes('csv')) {
-            // For text-based files, we could include content in the prompt
             promptContent += '\nPlease analyze this file if needed.';
           }
         }
+
+        // Add GitHub context if authenticated
+        if (authState.isAuthenticated && authState.user) {
+          promptContent += `\n\n[User: ${authState.user.login} on GitHub]`;
+        }
         
-        // Get AI response
+        // Get AI response using the selected model
         const prompt = spark.llmPrompt`${promptContent}`;
         const response = await spark.llm(prompt, chatState.selectedModel);
         
@@ -370,7 +391,7 @@ export function useChat() {
     } finally {
       setLoading(false);
     }
-  }, [chatState.currentChatId, chatState.selectedModel, setChats, setChatState, setLoading]);
+  }, [chatState.currentChatId, chatState.selectedModel, authState.isAuthenticated, authState.user, setChats, setChatState, setLoading]);
 
   return {
     chats,

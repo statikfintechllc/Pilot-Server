@@ -1,4 +1,5 @@
 import { useChat } from '@/hooks/use-chat';
+import { useAuth } from '@/hooks/use-auth';
 import { ChatHeader } from '@/components/ChatHeader';
 import { ChatMessages } from '@/components/ChatMessages';
 import { MessageInput } from '@/components/MessageInput';
@@ -6,11 +7,13 @@ import { ChatSidebar } from '@/components/ChatSidebar';
 import { ModelBubble } from '@/components/ModelBubble';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { AuthGuard } from '@/components/AuthGuard';
 import { Toaster } from '@/components/ui/sonner';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 function App() {
+  const { authState } = useAuth();
   const {
     chats,
     currentChat,
@@ -119,52 +122,54 @@ function App() {
   return (
     <ThemeProvider>
       <ErrorBoundary>
-        <div className="h-screen flex bg-background overflow-hidden">
-          <ChatSidebar
-            chats={chats}
-            currentChatId={chatState.currentChatId}
-            onSelectChat={selectChat}
-            onDeleteChat={deleteChat}
-            onNewChat={handleNewChat}
-            onSidebarCollapse={handleSidebarCollapse}
-          />
-          
-          {/* Desktop main content with proper spacing */}
-          <div className={cn(
-            "flex-1 flex flex-col min-w-0 min-h-0 relative max-h-screen overflow-hidden transition-all duration-300",
-            "md:ml-72", // Default sidebar width
-            isSidebarCollapsed && "md:ml-12" // Collapsed sidebar width
-          )}>
-            <ChatHeader
+        <AuthGuard>
+          <div className="h-screen flex bg-background overflow-hidden">
+            <ChatSidebar
+              chats={chats}
+              currentChatId={chatState.currentChatId}
+              onSelectChat={selectChat}
+              onDeleteChat={deleteChat}
               onNewChat={handleNewChat}
-              isLoading={chatState.isLoading}
+              onSidebarCollapse={handleSidebarCollapse}
             />
             
-            {/* Floating Model Selector Bubble */}
-            <ModelBubble
-              selectedModel={chatState.selectedModel}
-              onModelChange={setModel}
-              isLoading={chatState.isLoading}
-              isSidebarCollapsed={isSidebarCollapsed}
-            />
-            
-            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-              <ChatMessages
-                messages={currentChat?.messages || []}
+            {/* Desktop main content with proper spacing */}
+            <div className={cn(
+              "flex-1 flex flex-col min-w-0 min-h-0 relative max-h-screen overflow-hidden transition-all duration-300",
+              "md:ml-72", // Default sidebar width
+              isSidebarCollapsed && "md:ml-12" // Collapsed sidebar width
+            )}>
+              <ChatHeader
+                onNewChat={handleNewChat}
                 isLoading={chatState.isLoading}
-                onEditMessage={editMessage}
-                onSwitchVersion={switchMessageVersion}
               />
               
-              <MessageInput
-                onSendMessage={sendMessage}
+              {/* Floating Model Selector Bubble */}
+              <ModelBubble
+                selectedModel={chatState.selectedModel}
+                onModelChange={setModel}
                 isLoading={chatState.isLoading}
+                isSidebarCollapsed={isSidebarCollapsed}
               />
+              
+              <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                <ChatMessages
+                  messages={currentChat?.messages || []}
+                  isLoading={chatState.isLoading}
+                  onEditMessage={editMessage}
+                  onSwitchVersion={switchMessageVersion}
+                />
+                
+                <MessageInput
+                  onSendMessage={sendMessage}
+                  isLoading={chatState.isLoading}
+                />
+              </div>
             </div>
+            
+            <Toaster position="top-right" />
           </div>
-          
-          <Toaster position="top-right" />
-        </div>
+        </AuthGuard>
       </ErrorBoundary>
     </ThemeProvider>
   );
