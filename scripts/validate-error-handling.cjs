@@ -77,23 +77,28 @@ class SimpleErrorValidator {
     let hasErrors = false;
     
     for (const pattern of this.patterns) {
-      const matches = content.match(pattern.pattern);
-      if (matches) {
-        if (pattern.severity === 'error') {
-          hasErrors = true;
-          console.error(`❌ ${path.basename(filePath)}: ${pattern.name}`);
-        } else {
-          console.warn(`⚠️  ${path.basename(filePath)}: ${pattern.name}`);
+      // Use RegExp.exec to get match indices for accurate line numbers
+      const regex = new RegExp(pattern.pattern.source, pattern.pattern.flags);
+      let match;
+      let matchCount = 0;
+      while ((match = regex.exec(content)) !== null && matchCount < 2) {
+        if (matchCount === 0) {
+          if (pattern.severity === 'error') {
+            hasErrors = true;
+            console.error(`❌ ${path.basename(filePath)}: ${pattern.name}`);
+          } else {
+            console.warn(`⚠️  ${path.basename(filePath)}: ${pattern.name}`);
+          }
+          console.log(`   💡 ${pattern.suggestion}`);
         }
-        console.log(`   💡 ${pattern.suggestion}`);
-        
-        // Show first few matches with line numbers
-        matches.slice(0, 2).forEach((match, index) => {
-          const lines = content.split('\n');
-          const lineIndex = lines.findIndex(l => l.includes(match.trim()));
-          const lineNumber = lineIndex >= 0 ? lineIndex + 1 : '?';
-          console.log(`   📍 Line ${lineNumber}: ${match.trim()}`);
-        });
+        // Calculate line number from match index
+        const beforeMatch = content.slice(0, match.index);
+        const lineNumber = beforeMatch.split('\n').length;
+        const matchText = match[0].replace(/\s+/g, ' ').trim();
+        console.log(`   📍 Line ${lineNumber}: ${matchText}`);
+        matchCount++;
+      }
+      if (matchCount > 0) {
         console.log('');
       }
     }
