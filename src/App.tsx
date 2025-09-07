@@ -145,6 +145,7 @@ function App() {
               selectedModel={chatState.selectedModel}
               onModelChange={setModel}
               isLoading={chatState.isLoading}
+              isSidebarCollapsed={isSidebarCollapsed}
             />
             
             <div className="flex-1 flex flex-col min-h-0 overflow-hidden">

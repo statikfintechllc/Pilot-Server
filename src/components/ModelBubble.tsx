@@ -7,9 +7,10 @@ interface ModelBubbleProps {
   selectedModel: AIModel;
   onModelChange: (model: AIModel) => void;
   isLoading: boolean;
+  isSidebarCollapsed: boolean;
 }
 
-export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelChange, isLoading }: ModelBubbleProps) {
+export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelChange, isLoading, isSidebarCollapsed }: ModelBubbleProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   
   const modelDisplayNames = {
@@ -67,7 +68,13 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
   return (
     <div 
       ref={containerRef}
-      className="absolute top-20 inset-x-0 flex justify-center z-50 model-bubble-container resize-stable"
+      className={`
+        absolute top-20 z-50 model-bubble-container resize-stable
+        inset-x-0 flex justify-center
+        md:inset-x-0 md:flex md:justify-center
+        ${isSidebarCollapsed ? 'md:left-12' : 'md:left-72'}
+        md:right-0
+      `}
       style={{ 
         contain: 'layout size style',
         willChange: 'auto',
