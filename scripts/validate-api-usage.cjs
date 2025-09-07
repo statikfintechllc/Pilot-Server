@@ -20,7 +20,7 @@ class SimpleAPIValidator {
         ]
       },
       {
-        pattern: /axios\.[get|post|put|delete|patch]/g,
+        pattern: /axios\.(get|post|put|delete|patch)/g,
         name: 'axios',
         requiredPatterns: [
           { pattern: /try\s*{[\s\S]*?}\s*catch/g, name: 'try-catch block' }
