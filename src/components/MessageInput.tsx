@@ -158,7 +158,7 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
         </div>
       )}
       
-      <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4">
+      <div className="flex flex-col gap-2 p-3 md:p-4">
         <input
           ref={imageInputRef}
           type="file"
@@ -175,29 +175,8 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
           className="hidden"
         />
         
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => imageInputRef.current?.click()}
-          disabled={isLoading}
-          className="flex-shrink-0 h-10 w-10 p-0 self-end"
-          title="Upload Image"
-        >
-          <ImageIcon className="w-4 h-4" />
-        </Button>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={isLoading}
-          className="flex-shrink-0 h-10 w-10 p-0 self-end"
-          title="Upload File"
-        >
-          <FileIcon className="w-4 h-4" />
-        </Button>
-        
-        <div className="flex-1 relative">
+        {/* Full width text input area */}
+        <div className="relative w-full">
           <Textarea
             ref={textareaRef}
             placeholder="Type your message... (Use ``` for code blocks)"
@@ -206,7 +185,7 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
             onKeyDown={handleKeyDown}
             disabled={isLoading}
             className={cn(
-              "resize-none min-h-[40px] max-h-48 md:max-h-72 text-sm border-border/50 focus:border-ring/50 transition-all pr-12",
+              "resize-none min-h-[40px] max-h-48 md:max-h-72 text-sm border-transparent focus:border-transparent focus:ring-0 bg-transparent transition-all pr-12 w-full",
               hasCompleteCodeBlocks(message) ? "font-mono" : ""
             )}
             rows={1}
@@ -229,6 +208,31 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
             )}
           >
             <PaperPlaneTilt className="w-4 h-4" />
+          </Button>
+        </div>
+        
+        {/* Upload buttons below input */}
+        <div className="flex items-center gap-2 md:gap-3 justify-start">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => imageInputRef.current?.click()}
+            disabled={isLoading}
+            className="flex-shrink-0 h-8 w-8 p-0"
+            title="Upload Image"
+          >
+            <ImageIcon className="w-4 h-4" />
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isLoading}
+            className="flex-shrink-0 h-8 w-8 p-0"
+            title="Upload File"
+          >
+            <FileIcon className="w-4 h-4" />
           </Button>
         </div>
       </div>
