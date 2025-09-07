@@ -238,4 +238,7 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
       </div>
     </div>
   );
+}      </div>
+    </div>
+  );
 }
