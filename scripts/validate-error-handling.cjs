@@ -82,7 +82,7 @@ class SimpleErrorValidator {
       const regex = new RegExp(pattern.pattern.source, pattern.pattern.flags);
       let match;
       let matchCount = 0;
-      while ((match = regex.exec(content)) !== null && matchCount < 2) {
+      while ((match = regex.exec(content)) !== null) {
         if (matchCount === 0) {
           if (pattern.severity === 'error') {
             hasErrors = true;
