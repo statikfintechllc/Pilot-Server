@@ -11,7 +11,7 @@ export function ChatHeader({ onNewChat, isLoading }: ChatHeaderProps) {
     <div className="p-3 md:p-4 border-b bg-card/50 backdrop-blur-sm">
       <div className="flex items-center relative max-w-full">
         {/* Left spacing for mobile sidebar button */}
-        <div className="w-10 md:w-0 flex-shrink-0" />
+        <div className="w-12 md:w-0 flex-shrink-0" />
         
         {/* Centered Title */}
         <div className="flex items-center gap-2 flex-1 justify-center">
@@ -20,12 +20,12 @@ export function ChatHeader({ onNewChat, isLoading }: ChatHeaderProps) {
         </div>
         
         {/* New Chat button positioned on the right */}
-        <div className="w-10 flex justify-end flex-shrink-0">
+        <div className="w-12 flex justify-end flex-shrink-0">
           <Button 
             onClick={onNewChat} 
             size="sm"
             disabled={isLoading}
-            className="w-8 h-8 p-0"
+            className="w-9 h-9 p-0 bg-primary/10 hover:bg-primary/20 border border-primary/20"
             title="New Chat"
           >
             <Plus className="w-4 h-4" />
