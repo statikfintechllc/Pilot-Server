@@ -8,12 +8,14 @@ import { ModelBubble } from '@/components/ModelBubble';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthGuard } from '@/components/AuthGuard';
+import { GitHubCallback } from '@/components/GitHubCallback';
 import { Toaster } from '@/components/ui/sonner';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
-function App() {
-  const { authState } = useAuth();
+function ChatApp() {
+  const { authState, signIn } = useAuth();
   const {
     chats,
     currentChat,
@@ -172,6 +174,17 @@ function App() {
         </AuthGuard>
       </ErrorBoundary>
     </ThemeProvider>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/auth/callback" element={<GitHubCallback />} />
+        <Route path="/*" element={<ChatApp />} />
+      </Routes>
+    </Router>
   );
 }
 
