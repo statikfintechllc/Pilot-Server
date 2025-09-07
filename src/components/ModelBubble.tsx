@@ -1,6 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronDown, Cpu } from '@phosphor-icons/react';
 import { AIModel } from '@/lib/types';
+import { memo } from 'react';
 
 interface ModelBubbleProps {
   selectedModel: AIModel;
@@ -8,7 +9,7 @@ interface ModelBubbleProps {
   isLoading: boolean;
 }
 
-export function ModelBubble({ selectedModel, onModelChange, isLoading }: ModelBubbleProps) {
+export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelChange, isLoading }: ModelBubbleProps) {
   const modelDisplayNames = {
     'gpt-4o': 'GPT-4o',
     'gpt-4o-mini': 'GPT-4o Mini'
@@ -25,7 +26,7 @@ export function ModelBubble({ selectedModel, onModelChange, isLoading }: ModelBu
           className={`
             bg-card/95 backdrop-blur-xl border border-border/30 rounded-full
             shadow-lg hover:shadow-xl transition-all duration-300 ease-out
-            px-4 py-1 min-w-[140px] h-auto
+            px-4 py-1 min-w-[140px] h-auto will-change-transform
             ${isLoading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}
             hover:bg-card active:scale-95 group focus:ring-2 focus:ring-primary/50 focus:ring-offset-0
           `}
@@ -61,4 +62,4 @@ export function ModelBubble({ selectedModel, onModelChange, isLoading }: ModelBu
       </Select>
     </div>
   );
-}
+});
