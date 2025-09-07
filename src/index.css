@@ -24,20 +24,11 @@
     }
     
     .overflow-x-auto {
-      scrollbar-width: thin;
+      scrollbar-width: none;
     }
     
     .overflow-x-auto::-webkit-scrollbar {
-      height: 4px;
-    }
-    
-    .overflow-x-auto::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    
-    .overflow-x-auto::-webkit-scrollbar-thumb {
-      background: hsl(var(--muted-foreground) / 0.3);
-      border-radius: 2px;
+      display: none;
     }
     
     /* Improve touch targets on mobile */
@@ -59,6 +50,11 @@
     /* Fix mobile sidebar scrolling */
     [data-radix-scroll-area-viewport] {
       overscroll-behavior: contain;
+      scrollbar-width: none;
+    }
+    
+    [data-radix-scroll-area-viewport]::-webkit-scrollbar {
+      display: none;
     }
     
     /* Prevent sidebar content from bleeding */
@@ -66,6 +62,29 @@
       height: 100%;
       max-height: 100%;
     }
+  }
+
+  /* Global scrollbar hiding for clean UI */
+  * {
+    scrollbar-width: none;
+  }
+  
+  *::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Ensure scroll functionality remains */
+  .overflow-auto,
+  .overflow-y-auto,
+  .overflow-x-auto {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .overflow-auto::-webkit-scrollbar,
+  .overflow-y-auto::-webkit-scrollbar,
+  .overflow-x-auto::-webkit-scrollbar {
+    display: none;
   }
 
   /* Performance optimizations for resize issues */
