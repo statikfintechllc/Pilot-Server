@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { PaperPlaneTilt, Image as ImageIcon, X, File as FileIcon } from '@phosphor-icons/react';
+import { PaperPlaneTilt, Image as ImageIcon, X, File as FileIcon, Microphone, MicrophoneSlash } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -14,9 +14,13 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
   const [message, setMessage] = useState('');
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<{ name: string; url: string; type: string } | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   const handleSubmit = () => {
     if ((!message.trim() && !uploadedImage && !uploadedFile) || isLoading) return;
@@ -119,6 +123,95 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
     }
   };
 
+  // Voice-to-text functionality
+  const startVoiceRecognition = useCallback(() => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast.error('Voice recognition not supported in this browser');
+      return;
+    }
+
+    try {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        toast.success('Voice recognition started');
+      };
+
+      recognition.onresult = (event: any) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+
+        if (finalTranscript) {
+          setMessage(prev => prev + (prev ? ' ' : '') + finalTranscript);
+          // Auto-resize textarea
+          if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            const newHeight = Math.min(textareaRef.current.scrollHeight, window.innerWidth < 768 ? 200 : 300);
+            textareaRef.current.style.height = `${newHeight}px`;
+          }
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        toast.error(`Voice recognition error: ${event.error}`);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (error) {
+      console.error('Error starting voice recognition:', error);
+      toast.error('Failed to start voice recognition');
+      setIsListening(false);
+    }
+  }, []);
+
+  const stopVoiceRecognition = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+    toast.info('Voice recognition stopped');
+  }, []);
+
+  const toggleVoiceRecognition = () => {
+    if (isListening) {
+      stopVoiceRecognition();
+    } else {
+      startVoiceRecognition();
+    }
+  };
+
+  // Cleanup voice recognition on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
   return (
     <div className="border-t bg-background/95 backdrop-blur-sm input-container">
       {(uploadedImage || uploadedFile) && (
@@ -185,7 +278,7 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
             onKeyDown={handleKeyDown}
             disabled={isLoading}
             className={cn(
-              "resize-none min-h-[40px] max-h-48 md:max-h-72 text-sm border-transparent focus:border-transparent focus:ring-0 bg-transparent transition-all pr-12 w-full",
+              "resize-none min-h-[40px] max-h-48 md:max-h-72 text-sm border-transparent focus:border-transparent focus:ring-0 bg-transparent transition-all w-full",
               hasCompleteCodeBlocks(message) ? "font-mono" : ""
             )}
             rows={1}
@@ -195,50 +288,69 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
                 : "'Inter', system-ui, -apple-system, sans-serif"
             }}
           />
-          
-          <Button
-            onClick={handleSubmit}
-            disabled={(!message.trim() && !uploadedImage && !uploadedFile) || isLoading}
-            size="sm"
-            className={cn(
-              "absolute right-1 bottom-1 h-8 w-8 p-0 transition-all",
-              (!message.trim() && !uploadedImage && !uploadedFile) || isLoading 
-                ? "opacity-50" 
-                : "opacity-100 hover:scale-105"
-            )}
-          >
-            <PaperPlaneTilt className="w-4 h-4" />
-          </Button>
         </div>
         
-        {/* Upload buttons below input */}
-        <div className="flex items-center gap-2 md:gap-3 justify-start">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => imageInputRef.current?.click()}
-            disabled={isLoading}
-            className="flex-shrink-0 h-8 w-8 p-0"
-            title="Upload Image"
-          >
-            <ImageIcon className="w-4 h-4" />
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isLoading}
-            className="flex-shrink-0 h-8 w-8 p-0"
-            title="Upload File"
-          >
-            <FileIcon className="w-4 h-4" />
-          </Button>
+        {/* Upload buttons and controls in same row */}
+        <div className="flex items-center gap-2 md:gap-3 justify-between">
+          <div className="flex items-center gap-2 md:gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => imageInputRef.current?.click()}
+              disabled={isLoading}
+              className="flex-shrink-0 h-8 w-8 p-0"
+              title="Upload Image"
+            >
+              <ImageIcon className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading}
+              className="flex-shrink-0 h-8 w-8 p-0"
+              title="Upload File"
+            >
+              <FileIcon className="w-4 h-4" />
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleVoiceRecognition}
+              disabled={isLoading}
+              className={cn(
+                "flex-shrink-0 h-8 w-8 p-0 transition-all",
+                isListening && "bg-red-500 text-white hover:bg-red-600"
+              )}
+              title={isListening ? "Stop Voice Recognition" : "Start Voice Recognition"}
+            >
+              {isListening ? (
+                <MicrophoneSlash className="w-4 h-4" />
+              ) : (
+                <Microphone className="w-4 h-4" />
+              )}
+            </Button>
+
+            <Button
+              onClick={handleSubmit}
+              disabled={(!message.trim() && !uploadedImage && !uploadedFile) || isLoading}
+              size="sm"
+              className={cn(
+                "h-8 w-8 p-0 transition-all",
+                (!message.trim() && !uploadedImage && !uploadedFile) || isLoading 
+                  ? "opacity-50" 
+                  : "opacity-100 hover:scale-105"
+              )}
+            >
+              <PaperPlaneTilt className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}      </div>
     </div>
   );
 }
