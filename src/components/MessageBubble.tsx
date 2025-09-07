@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useState } from 'react';
-import { useTheme } from '@/components/ThemeProvider';
+import { useThemeContext } from '@/components/ThemeProvider';
 
 interface MessageBubbleProps {
   message: Message;
@@ -14,7 +14,7 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
-  const { theme } = useTheme();
+  const { theme } = useThemeContext();
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
   const [copiedMessage, setCopiedMessage] = useState(false);
   
