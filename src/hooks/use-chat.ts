@@ -11,7 +11,7 @@ export function useChat() {
     isLoading: false
   });
 
-  const { authState } = useAuth();
+  const { authState, availableModels } = useAuth();
   const currentChat = chats.find(chat => chat.id === chatState.currentChatId);
 
   const createNewChat = useCallback(() => {
@@ -260,14 +260,26 @@ export function useChat() {
   const sendMessage = useCallback(async (content: string, imageUrl?: string, fileData?: { name: string; url: string; type: string }) => {
     if (!content.trim() && !imageUrl && !fileData) return;
     
-    // Check if user is authenticated for advanced models
-    if (!authState.isAuthenticated && !['gpt-4o', 'gpt-4o-mini'].includes(chatState.selectedModel)) {
-      console.warn('Advanced models require GitHub authentication');
-      // Fallback to basic model
-      setChatState(prev => ({
-        ...prev,
-        selectedModel: 'gpt-4o'
-      }));
+    // Check if the selected model is available
+    const isModelAvailable = availableModels.some(model => model.id === chatState.selectedModel);
+    let targetModel = chatState.selectedModel;
+    
+    if (!isModelAvailable) {
+      // Fallback to first available model
+      if (availableModels.length > 0) {
+        targetModel = availableModels[0].id as AIModel;
+        setChatState(prev => ({
+          ...prev,
+          selectedModel: targetModel
+        }));
+      } else {
+        // Absolute fallback
+        targetModel = 'gpt-4o';
+        setChatState(prev => ({
+          ...prev,
+          selectedModel: targetModel
+        }));
+      }
     }
     
     // Ensure we have a current chat
@@ -300,7 +312,7 @@ export function useChat() {
         timestamp: Date.now(),
         imageUrl,
         fileData,
-        model: chatState.selectedModel
+        model: targetModel
       };
 
       setChats(currentChats => 
@@ -339,9 +351,22 @@ export function useChat() {
           promptContent += `\n\n[User: ${authState.user.login} on GitHub]`;
         }
         
-        // Get AI response using the selected model
+        // Get AI response using the target model
         const prompt = spark.llmPrompt`${promptContent}`;
-        const response = await spark.llm(prompt, chatState.selectedModel);
+        
+        // Map GitHub model IDs to Spark model names
+        let sparkModelName = targetModel;
+        if (targetModel.startsWith('claude-3-5-sonnet')) {
+          sparkModelName = 'claude-3-5-sonnet';
+        } else if (targetModel.startsWith('claude-3-opus')) {
+          sparkModelName = 'claude-3-opus';
+        } else if (targetModel.startsWith('claude-3-sonnet')) {
+          sparkModelName = 'claude-3-sonnet';
+        } else if (targetModel.startsWith('claude-3-haiku')) {
+          sparkModelName = 'claude-3-haiku';
+        }
+        
+        const response = await spark.llm(prompt, sparkModelName);
         
         // Add AI response
         const aiMessage: Message = {
@@ -349,7 +374,7 @@ export function useChat() {
           content: response,
           role: 'assistant',
           timestamp: Date.now(),
-          model: chatState.selectedModel
+          model: targetModel
         };
 
         setChats(currentChats => 
@@ -374,7 +399,7 @@ export function useChat() {
         content: 'Sorry, I encountered an error processing your request. Please try again.',
         role: 'assistant',
         timestamp: Date.now(),
-        model: chatState.selectedModel
+        model: targetModel
       };
 
       setChats(currentChats => 
@@ -391,7 +416,7 @@ export function useChat() {
     } finally {
       setLoading(false);
     }
-  }, [chatState.currentChatId, chatState.selectedModel, authState.isAuthenticated, authState.user, setChats, setChatState, setLoading]);
+  }, [chatState.currentChatId, chatState.selectedModel, authState.isAuthenticated, authState.user, availableModels, setChats, setChatState, setLoading]);
 
   return {
     chats,

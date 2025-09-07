@@ -4,8 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useAuth } from '@/hooks/use-auth';
-import { Gear, SignIn, SignOut, Robot, GitBranch, User, Star } from '@phosphor-icons/react';
+import { useAuth, AVAILABLE_GITHUB_MODELS } from '@/hooks/use-auth';
+import { Gear, SignIn, SignOut, Robot, GitBranch, User, Star, ArrowClockwise } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 
 interface SettingsDialogProps {
@@ -15,9 +15,10 @@ interface SettingsDialogProps {
 
 export function SettingsDialog({ trigger, className }: SettingsDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { authState, availableModels, signIn, signOut, clearError, getUserRepos } = useAuth();
+  const { authState, availableModels, signIn, signOut, clearError, getUserRepos, fetchAvailableModels } = useAuth();
   const [repos, setRepos] = useState<any[]>([]);
   const [loadingRepos, setLoadingRepos] = useState(false);
+  const [refreshingModels, setRefreshingModels] = useState(false);
 
   const handleSignIn = async () => {
     const success = await signIn();
@@ -35,13 +36,22 @@ export function SettingsDialog({ trigger, className }: SettingsDialogProps) {
     }
   };
 
+  const handleRefreshModels = async () => {
+    setRefreshingModels(true);
+    try {
+      await fetchAvailableModels();
+    } catch (error) {
+      console.error('Error refreshing models:', error);
+    } finally {
+      setRefreshingModels(false);
+    }
+  };
+
   const handleSignOut = () => {
     signOut();
     setRepos([]);
     setIsOpen(false);
   };
-
-  const defaultTrigger = (
     <Button
       variant="ghost"
       size="sm"
@@ -161,20 +171,36 @@ export function SettingsDialog({ trigger, className }: SettingsDialogProps) {
           </Card>
 
           {/* Available Models Section */}
-          {authState.isAuthenticated && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Robot className="w-5 h-5" />
-                  Available AI Models
-                </CardTitle>
-                <CardDescription>
-                  AI models available through your GitHub account
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-3">
-                  {availableModels.map((model) => (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Robot className="w-5 h-5" />
+                    Available AI Models ({availableModels.length}/{AVAILABLE_GITHUB_MODELS.length})
+                  </CardTitle>
+                  <CardDescription>
+                    {authState.isAuthenticated 
+                      ? 'AI models available through your GitHub account'
+                      : 'Sign in to access more AI models'
+                    }
+                  </CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleRefreshModels}
+                  disabled={refreshingModels}
+                  className="flex-shrink-0"
+                >
+                  <ArrowClockwise className={`w-4 h-4 ${refreshingModels ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3">
+                {availableModels.length > 0 ? (
+                  availableModels.map((model) => (
                     <div 
                       key={model.id} 
                       className="flex items-center justify-between p-3 rounded-lg border"
@@ -185,20 +211,42 @@ export function SettingsDialog({ trigger, className }: SettingsDialogProps) {
                           <Badge variant="secondary" className="text-xs">
                             {model.provider}
                           </Badge>
+                          {authState.isAuthenticated && (
+                            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                              ✓ Available
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground">{model.description}</p>
                         <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                           <span>{(model.context_length / 1000).toFixed(0)}k context</span>
-                          {model.supports_vision && <span>Vision</span>}
-                          {model.supports_function_calling && <span>Functions</span>}
+                          {model.supports_vision && <span>• Vision</span>}
+                          {model.supports_function_calling && <span>• Functions</span>}
                         </div>
                       </div>
                     </div>
-                  ))}
+                  ))
+                ) : (
+                  <div className="text-center p-6 text-muted-foreground">
+                    <Robot className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No models available. Please check your GitHub authentication.</p>
+                  </div>
+                )}
+              </div>
+              
+              {!authState.isAuthenticated && availableModels.length < AVAILABLE_GITHUB_MODELS.length && (
+                <div className="mt-4 p-3 rounded-lg bg-blue-50/50 border border-blue-200/50">
+                  <div className="flex items-center gap-2 text-sm text-blue-700">
+                    <Robot className="w-4 h-4" />
+                    <span className="font-medium">Sign in to unlock {AVAILABLE_GITHUB_MODELS.length - availableModels.length} more models</span>
+                  </div>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Access Claude, Llama, Gemini, and other advanced AI models through GitHub.
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              )}
+            </CardContent>
+          </Card>
 
           {/* Repositories Section */}
           {authState.isAuthenticated && repos.length > 0 && (

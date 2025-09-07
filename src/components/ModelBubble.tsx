@@ -2,7 +2,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChevronDown, Cpu, Warning, Lock } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/badge';
 import { AIModel } from '@/lib/types';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth, AVAILABLE_GITHUB_MODELS } from '@/hooks/use-auth';
 import { memo, useCallback, useRef, useEffect } from 'react';
 
 interface ModelBubbleProps {
@@ -16,13 +16,33 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
   const containerRef = useRef<HTMLDivElement>(null);
   const { authState, availableModels } = useAuth();
   
-  const modelDisplayNames: Record<AIModel, string> = {
+  const modelDisplayNames: Record<string, string> = {
+    // OpenAI Models
     'gpt-4o': 'GPT-4o',
     'gpt-4o-mini': 'GPT-4o Mini',
-    'claude-3-5-sonnet': 'Claude 3.5 Sonnet',
-    'claude-3-haiku': 'Claude 3 Haiku',
+    'gpt-4': 'GPT-4',
+    'gpt-3.5-turbo': 'GPT-3.5 Turbo',
+    // Anthropic Models
+    'claude-3-5-sonnet-20241022': 'Claude 3.5 Sonnet',
+    'claude-3-opus-20240229': 'Claude 3 Opus',
+    'claude-3-sonnet-20240229': 'Claude 3 Sonnet',
+    'claude-3-haiku-20240307': 'Claude 3 Haiku',
+    // Meta Models
+    'llama-3.1-405b-instruct': 'Llama 3.1 405B',
+    'llama-3.1-70b-instruct': 'Llama 3.1 70B',
+    'llama-3.1-8b-instruct': 'Llama 3.1 8B',
+    // Google Models
     'gemini-1.5-pro': 'Gemini 1.5 Pro',
-    'gemini-1.5-flash': 'Gemini 1.5 Flash'
+    'gemini-1.5-flash': 'Gemini 1.5 Flash',
+    // Microsoft Models
+    'phi-3-medium-4k-instruct': 'Phi-3 Medium',
+    'phi-3-mini-4k-instruct': 'Phi-3 Mini',
+    // Cohere Models
+    'command-r': 'Command R',
+    'command-r-plus': 'Command R+',
+    // Mistral Models
+    'mistral-large': 'Mistral Large',
+    'mistral-small': 'Mistral Small'
   };
 
   // Debounce resize observer to prevent loops
@@ -72,17 +92,21 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
     onModelChange(value as AIModel);
   }, [onModelChange]);
 
-  // Get available models based on auth state
+  // Get available models based on auth state and properly filter
   const getAvailableModelOptions = () => {
-    if (!authState.isAuthenticated) {
-      // If not authenticated, only show basic models
-      return availableModels.filter(model => ['gpt-4o', 'gpt-4o-mini'].includes(model.id));
+    if (availableModels.length === 0) {
+      // Fallback to basic models if none loaded
+      return [
+        { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', context_length: 128000 },
+        { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openai', context_length: 128000 }
+      ];
     }
     return availableModels;
   };
 
   const availableModelOptions = getAvailableModelOptions();
-  const currentModel = availableModels.find(model => model.id === selectedModel);
+  const currentModel = availableModelOptions.find(model => model.id === selectedModel);
+  const isCurrentModelAvailable = !!currentModel;
 
   return (
     <div 
@@ -125,10 +149,17 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
             </div>
             
             <span className="text-sm font-medium text-foreground/90 whitespace-nowrap flex-1 truncate">
-              {modelDisplayNames[selectedModel]}
+              {modelDisplayNames[selectedModel] || selectedModel}
+              {!isCurrentModelAvailable && (
+                <span className="text-orange-500 ml-1">(Unavailable)</span>
+              )}
             </span>
 
-            {!authState.isAuthenticated && (
+            {!isCurrentModelAvailable && (
+              <Warning className="w-3 h-3 text-orange-500" />
+            )}
+
+            {!authState.isAuthenticated && availableModelOptions.length < 6 && (
               <Lock className="w-3 h-3 text-muted-foreground" />
             )}
             
@@ -166,11 +197,11 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
             </SelectItem>
           ))}
           
-          {!authState.isAuthenticated && (
+          {!authState.isAuthenticated && availableModelOptions.length < 10 && (
             <div className="p-3 border-t border-border/50 mt-1">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Lock className="w-3 h-3" />
-                <span>Sign in to access more models</span>
+                <span>Sign in to access {AVAILABLE_GITHUB_MODELS.length - availableModelOptions.length} more models</span>
               </div>
             </div>
           )}
