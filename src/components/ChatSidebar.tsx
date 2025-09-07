@@ -12,6 +12,7 @@ interface ChatSidebarProps {
   onSelectChat: (chatId: string) => void;
   onDeleteChat: (chatId: string) => void;
   onNewChat: () => void;
+  onSidebarCollapse?: (isCollapsed: boolean) => void;
 }
 
 export function ChatSidebar({ 
@@ -19,10 +20,16 @@ export function ChatSidebar({
   currentChatId, 
   onSelectChat, 
   onDeleteChat, 
-  onNewChat 
+  onNewChat,
+  onSidebarCollapse
 }: ChatSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
+
+  const handleDesktopCollapse = (collapsed: boolean) => {
+    setIsDesktopCollapsed(collapsed);
+    onSidebarCollapse?.(collapsed);
+  };
 
   const sortedChats = [...chats].sort((a, b) => b.lastUpdated - a.lastUpdated);
 
@@ -167,7 +174,7 @@ export function ChatSidebar({
 
       {/* Desktop Sidebar */}
       <div className={cn(
-        "hidden md:flex bg-card/50 backdrop-blur-sm flex-col border-r transition-all duration-300 desktop-sidebar",
+        "hidden md:flex bg-card/50 backdrop-blur-sm flex-col border-r transition-all duration-300 fixed left-0 top-0 h-full z-10",
         isDesktopCollapsed ? "w-12" : "w-72"
       )}>
         {isDesktopCollapsed ? (
@@ -177,7 +184,7 @@ export function ChatSidebar({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsDesktopCollapsed(false)}
+                onClick={() => handleDesktopCollapse(false)}
                 className="w-full h-9 p-0"
                 title="Expand sidebar"
               >
@@ -219,7 +226,7 @@ export function ChatSidebar({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsDesktopCollapsed(true)}
+                onClick={() => handleDesktopCollapse(true)}
                 className="h-7 w-7 p-0"
                 title="Collapse sidebar"
               >

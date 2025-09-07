@@ -285,13 +285,13 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
 
   return (
     <div className={cn(
-      "p-2 md:p-4 min-h-0 w-full desktop-chat-container",
+      "py-3 md:py-4 px-2 md:px-4 min-h-0 w-full desktop-chat-container border-b border-border/10",
       isUser ? "flex justify-end" : ""
     )}>
       {isUser ? (
         // User message with bubble
         <div className={cn(
-          "max-w-[90%] md:max-w-[80%] rounded-lg md:rounded-2xl px-2 md:px-4 py-2 md:py-3 relative group",
+          "max-w-[90%] md:max-w-[75%] lg:max-w-[65%] rounded-lg md:rounded-2xl px-3 md:px-4 py-2 md:py-3 relative group",
           "bg-primary text-primary-foreground desktop-message-content"
         )}>
           {message.imageUrl && (
@@ -386,10 +386,10 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
           </div>
         </div>
       ) : (
-        // AI message without bubble, part of background
-        <div className="w-full relative group min-h-0 desktop-message-content">
+        // AI message without bubble, part of background with better desktop spacing
+        <div className="w-full relative group min-h-0 desktop-message-content max-w-none">
           {message.imageUrl && (
-            <div className="mb-2 md:mb-3">
+            <div className="mb-3 md:mb-4">
               <img 
                 src={message.imageUrl} 
                 alt="Uploaded content"
@@ -398,11 +398,11 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
             </div>
           )}
           
-          <div className="text-xs md:text-sm leading-relaxed text-foreground break-words whitespace-pre-wrap max-w-none w-full desktop-message-content">
+          <div className="text-sm md:text-base leading-relaxed text-foreground max-w-none w-full desktop-message-content">
             {renderContent(message.content)}
           </div>
           
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/30 text-xs opacity-60">
+          <div className="flex items-center justify-between mt-3 md:mt-4 pt-2 border-t border-border/30 text-xs opacity-60">
             <span className="truncate">{formatTimestamp(message.timestamp)}</span>
             {message.model && (
               <span className="font-medium hidden sm:inline text-xs">{message.model}</span>

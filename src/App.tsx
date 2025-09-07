@@ -7,7 +7,8 @@ import { ModelBubble } from '@/components/ModelBubble';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 function App() {
   const {
@@ -21,6 +22,8 @@ function App() {
     editMessage,
     sendMessage
   } = useChat();
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Enhanced ResizeObserver error suppression - comprehensive approach
   useEffect(() => {
@@ -108,6 +111,10 @@ function App() {
     createNewChat();
   };
 
+  const handleSidebarCollapse = (collapsed: boolean) => {
+    setIsSidebarCollapsed(collapsed);
+  };
+
   return (
     <ThemeProvider>
       <ErrorBoundary>
@@ -118,9 +125,15 @@ function App() {
             onSelectChat={selectChat}
             onDeleteChat={deleteChat}
             onNewChat={handleNewChat}
+            onSidebarCollapse={handleSidebarCollapse}
           />
           
-          <div className="flex-1 flex flex-col min-w-0 min-h-0 relative max-h-screen overflow-hidden">
+          {/* Desktop main content with proper spacing */}
+          <div className={cn(
+            "flex-1 flex flex-col min-w-0 min-h-0 relative max-h-screen overflow-hidden transition-all duration-300",
+            "md:ml-72", // Default sidebar width
+            isSidebarCollapsed && "md:ml-12" // Collapsed sidebar width
+          )}>
             <ChatHeader
               onNewChat={handleNewChat}
               isLoading={chatState.isLoading}
