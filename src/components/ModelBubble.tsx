@@ -25,12 +25,13 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
   return (
     <div 
       ref={containerRef}
-      className="absolute top-20 left-1/2 -translate-x-1/2 z-50 w-fit"
+      className="absolute top-20 inset-x-0 flex justify-center z-50"
       style={{ 
         contain: 'layout size',
         willChange: 'auto'
       }}
     >
+      <div className="w-fit">
       <Select 
         value={selectedModel} 
         onValueChange={handleModelChange}
@@ -77,6 +78,7 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
           </SelectItem>
         </SelectContent>
       </Select>
+      </div>
     </div>
   );
 });
