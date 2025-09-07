@@ -11,6 +11,11 @@ export interface Message {
   timestamp: number;
   model?: string;
   imageUrl?: string;
+  fileData?: {
+    name: string;
+    url: string;
+    type: string;
+  };
   isEdited?: boolean;
   editedAt?: number;
   versions?: MessageVersion[];

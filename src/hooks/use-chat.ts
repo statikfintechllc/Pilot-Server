@@ -255,8 +255,8 @@ export function useChat() {
     );
   }, [chatState.currentChatId, setChats]);
 
-  const sendMessage = useCallback(async (content: string, imageUrl?: string) => {
-    if (!content.trim() && !imageUrl) return;
+  const sendMessage = useCallback(async (content: string, imageUrl?: string, fileData?: { name: string; url: string; type: string }) => {
+    if (!content.trim() && !imageUrl && !fileData) return;
     
     // Ensure we have a current chat
     let targetChatId = chatState.currentChatId;
@@ -287,6 +287,7 @@ export function useChat() {
         role: 'user',
         timestamp: Date.now(),
         imageUrl,
+        fileData,
         model: chatState.selectedModel
       };
 
@@ -307,8 +308,18 @@ export function useChat() {
 
       // Check if spark is available
       if (typeof window !== 'undefined' && window.spark) {
+        // Construct prompt with file context if available
+        let promptContent = content;
+        if (fileData) {
+          promptContent += `\n\nFile attached: ${fileData.name} (${fileData.type})`;
+          if (fileData.type.includes('text') || fileData.type.includes('json') || fileData.type.includes('csv')) {
+            // For text-based files, we could include content in the prompt
+            promptContent += '\nPlease analyze this file if needed.';
+          }
+        }
+        
         // Get AI response
-        const prompt = spark.llmPrompt`${content}`;
+        const prompt = spark.llmPrompt`${promptContent}`;
         const response = await spark.llm(prompt, chatState.selectedModel);
         
         // Add AI response

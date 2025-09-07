@@ -2,7 +2,7 @@ import { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Copy, Check, PencilSimple, X, FloppyDisk, CaretLeft, CaretRight } from '@phosphor-icons/react';
+import { Copy, Check, PencilSimple, X, FloppyDisk, CaretLeft, CaretRight, File as FileIcon } from '@phosphor-icons/react';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -371,6 +371,18 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
                 alt="Uploaded content"
                 className="max-w-full h-auto rounded-lg border"
               />
+            </div>
+          )}
+          
+          {message.fileData && (
+            <div className="mb-2 md:mb-3">
+              <div className="flex items-center gap-2 bg-primary-foreground/10 p-2 md:p-3 rounded-lg border border-primary-foreground/20">
+                <FileIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs md:text-sm font-medium truncate">{message.fileData.name}</p>
+                  <p className="text-xs opacity-70">{message.fileData.type}</p>
+                </div>
+              </div>
             </div>
           )}
           

@@ -1,27 +1,30 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { PaperPlaneTilt, Image as ImageIcon, X } from '@phosphor-icons/react';
+import { PaperPlaneTilt, Image as ImageIcon, X, File as FileIcon } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 interface MessageInputProps {
-  onSendMessage: (content: string, imageUrl?: string) => void;
+  onSendMessage: (content: string, imageUrl?: string, fileData?: { name: string; url: string; type: string }) => void;
   isLoading: boolean;
 }
 
 export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
   const [message, setMessage] = useState('');
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; url: string; type: string } | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = () => {
-    if ((!message.trim() && !uploadedImage) || isLoading) return;
+    if ((!message.trim() && !uploadedImage && !uploadedFile) || isLoading) return;
     
-    onSendMessage(message, uploadedImage || undefined);
+    onSendMessage(message, uploadedImage || undefined, uploadedFile || undefined);
     setMessage('');
     setUploadedImage(null);
+    setUploadedFile(null);
     
     // Reset textarea height
     if (textareaRef.current) {
@@ -82,8 +85,35 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
     reader.readAsDataURL(file);
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 25 * 1024 * 1024) {
+      toast.error('File must be less than 25MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setUploadedFile({
+        name: file.name,
+        url: e.target?.result as string,
+        type: file.type
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const removeImage = () => {
     setUploadedImage(null);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
+    }
+  };
+
+  const removeFile = () => {
+    setUploadedFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -91,34 +121,70 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
 
   return (
     <div className="border-t bg-background/95 backdrop-blur-sm input-container">
-      {uploadedImage && (
-        <div className="p-2 md:p-4 border-b">
-          <div className="relative inline-block">
-            <img 
-              src={uploadedImage} 
-              alt="Upload preview" 
-              className="max-w-xs max-h-16 md:max-h-32 rounded-md md:rounded-lg border object-cover"
-            />
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={removeImage}
-              className="absolute -top-1 -right-1 md:-top-2 md:-right-2 h-4 w-4 md:h-6 md:w-6 rounded-full p-0"
-            >
-              <X className="w-2 h-2 md:w-3 md:h-3" />
-            </Button>
-          </div>
+      {(uploadedImage || uploadedFile) && (
+        <div className="p-2 md:p-4 border-b space-y-2">
+          {uploadedImage && (
+            <div className="relative inline-block">
+              <img 
+                src={uploadedImage} 
+                alt="Upload preview" 
+                className="max-w-xs max-h-16 md:max-h-32 rounded-md md:rounded-lg border object-cover"
+              />
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={removeImage}
+                className="absolute -top-1 -right-1 md:-top-2 md:-right-2 h-4 w-4 md:h-6 md:w-6 rounded-full p-0"
+              >
+                <X className="w-2 h-2 md:w-3 md:h-3" />
+              </Button>
+            </div>
+          )}
+          
+          {uploadedFile && (
+            <div className="relative inline-flex items-center gap-2 bg-muted p-2 md:p-3 rounded-md md:rounded-lg border max-w-xs">
+              <FileIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+              <span className="text-xs md:text-sm font-medium truncate">{uploadedFile.name}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={removeFile}
+                className="h-4 w-4 md:h-5 md:w-5 rounded-full p-0 ml-auto flex-shrink-0"
+              >
+                <X className="w-2 h-2 md:w-3 md:h-3" />
+              </Button>
+            </div>
+          )}
         </div>
       )}
       
       <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4">
         <input
-          ref={fileInputRef}
+          ref={imageInputRef}
           type="file"
           accept="image/*"
           onChange={handleImageUpload}
           className="hidden"
         />
+        
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,.doc,.docx,.txt,.csv,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.7z"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => imageInputRef.current?.click()}
+          disabled={isLoading}
+          className="flex-shrink-0 h-10 w-10 p-0 self-end"
+          title="Upload Image"
+        >
+          <ImageIcon className="w-4 h-4" />
+        </Button>
         
         <Button
           variant="outline"
@@ -126,8 +192,9 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
           onClick={() => fileInputRef.current?.click()}
           disabled={isLoading}
           className="flex-shrink-0 h-10 w-10 p-0 self-end"
+          title="Upload File"
         >
-          <ImageIcon className="w-4 h-4" />
+          <FileIcon className="w-4 h-4" />
         </Button>
         
         <div className="flex-1 relative">
@@ -152,11 +219,11 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
           
           <Button
             onClick={handleSubmit}
-            disabled={(!message.trim() && !uploadedImage) || isLoading}
+            disabled={(!message.trim() && !uploadedImage && !uploadedFile) || isLoading}
             size="sm"
             className={cn(
               "absolute right-1 bottom-1 h-8 w-8 p-0 transition-all",
-              (!message.trim() && !uploadedImage) || isLoading 
+              (!message.trim() && !uploadedImage && !uploadedFile) || isLoading 
                 ? "opacity-50" 
                 : "opacity-100 hover:scale-105"
             )}
