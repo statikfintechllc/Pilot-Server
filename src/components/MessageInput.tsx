@@ -26,7 +26,7 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
     // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = '44px'; // Reset to min height
+      textareaRef.current.style.height = '40px'; // Reset to min height
     }
   };
 
@@ -111,7 +111,7 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
         </div>
       )}
       
-      <div className="flex items-end gap-2 md:gap-3 p-3 md:p-4">
+      <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4">
         <input
           ref={fileInputRef}
           type="file"
@@ -125,39 +125,37 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
           size="sm"
           onClick={() => fileInputRef.current?.click()}
           disabled={isLoading}
-          className="flex-shrink-0 h-9 md:h-10 w-9 md:w-10 p-0"
+          className="flex-shrink-0 h-10 w-10 p-0 self-end"
         >
-          <ImageIcon className="w-4 h-4 md:w-4 md:h-4" />
+          <ImageIcon className="w-4 h-4" />
         </Button>
         
-        <div className="flex-1 relative flex items-end gap-2">
-          <div className="flex-1 relative">
-            <Textarea
-              ref={textareaRef}
-              placeholder="Type your message... (Use ``` for code blocks)"
-              value={message}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              disabled={isLoading}
-              className={cn(
-                "resize-none min-h-[44px] max-h-48 md:max-h-72 text-sm border-border/50 focus:border-ring/50 transition-all",
-                hasCompleteCodeBlocks(message) ? "font-mono" : ""
-              )}
-              rows={1}
-              style={{
-                fontFamily: hasCompleteCodeBlocks(message) 
-                  ? "'JetBrains Mono', 'Courier New', monospace" 
-                  : "'Inter', system-ui, -apple-system, sans-serif"
-              }}
-            />
-          </div>
+        <div className="flex-1 relative">
+          <Textarea
+            ref={textareaRef}
+            placeholder="Type your message... (Use ``` for code blocks)"
+            value={message}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            disabled={isLoading}
+            className={cn(
+              "resize-none min-h-[40px] max-h-48 md:max-h-72 text-sm border-border/50 focus:border-ring/50 transition-all pr-12",
+              hasCompleteCodeBlocks(message) ? "font-mono" : ""
+            )}
+            rows={1}
+            style={{
+              fontFamily: hasCompleteCodeBlocks(message) 
+                ? "'JetBrains Mono', 'Courier New', monospace" 
+                : "'Inter', system-ui, -apple-system, sans-serif"
+            }}
+          />
           
           <Button
             onClick={handleSubmit}
             disabled={(!message.trim() && !uploadedImage) || isLoading}
             size="sm"
             className={cn(
-              "flex-shrink-0 h-9 w-9 md:h-10 md:w-10 p-0 transition-all",
+              "absolute right-1 bottom-1 h-8 w-8 p-0 transition-all",
               (!message.trim() && !uploadedImage) || isLoading 
                 ? "opacity-50" 
                 : "opacity-100 hover:scale-105"
