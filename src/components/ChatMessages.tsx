@@ -72,9 +72,9 @@ export function ChatMessages({ messages, isLoading, onEditMessage, onSwitchVersi
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 max-h-full overflow-hidden">
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
       <ScrollArea className="flex-1 h-full scroll-container" ref={scrollAreaRef}>
-        <div className="space-y-0 p-2 md:p-4 pt-16 md:pt-20 pb-4 min-h-0 max-w-full desktop-chat-container">
+        <div className="space-y-0 p-2 md:p-4 pt-16 md:pt-20 pb-4 w-full">
           {messages.map((message) => (
             <MessageBubble 
               key={message.id} 
@@ -86,7 +86,7 @@ export function ChatMessages({ messages, isLoading, onEditMessage, onSwitchVersi
           
           {isLoading && (
             <div className="p-2 md:p-6">
-              <div className="w-full relative max-w-full">
+              <div className="w-full relative">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Loader2 className="w-3 h-3 md:w-4 md:h-4 text-primary animate-spin" />
                   <span className="text-sm md:text-base">Thinking...</span>

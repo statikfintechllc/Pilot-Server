@@ -166,8 +166,9 @@
     word-wrap: break-word;
     overflow-wrap: anywhere;
     hyphens: auto;
-    max-width: 100%;
+    width: 100%;
     overflow: visible;
+    height: auto;
   }
   
   .formatted-content h1,
@@ -309,10 +310,11 @@
     .formatted-content {
       font-size: 15px;
       line-height: 1.6;
-      max-width: 100%;
+      width: 100%;
       overflow: visible;
       word-wrap: break-word;
       overflow-wrap: anywhere;
+      height: auto;
     }
     
     .formatted-content h1,
@@ -332,7 +334,7 @@
     .formatted-content p {
       margin-bottom: 1rem;
       line-height: 1.6;
-      max-width: 100%;
+      width: 100%;
       word-wrap: break-word;
       overflow-wrap: anywhere;
     }
@@ -358,30 +360,21 @@
     .formatted-content pre {
       padding: 1rem;
       margin: 1rem 0;
-      max-width: 100%;
+      width: 100%;
       overflow: auto;
     }
     
     .formatted-content pre code {
       font-size: 13px;
       white-space: pre-wrap;
-      max-width: 100%;
+      width: 100%;
       word-break: break-all;
     }
     
-    /* Desktop chat message constraints - remove overlapping */
+    /* Desktop chat container - ensure no constraints */
     .desktop-chat-container {
-      max-width: 100%;
-      overflow: hidden;
-      contain: layout;
-    }
-    
-    .desktop-message-content {
-      max-width: 100%;
-      overflow-wrap: anywhere;
-      word-break: break-word;
-      hyphens: auto;
-      contain: layout;
+      width: 100%;
+      overflow: visible;
     }
   }
 }

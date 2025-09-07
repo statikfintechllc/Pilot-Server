@@ -334,14 +334,14 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
 
   return (
     <div className={cn(
-      "py-3 md:py-4 px-2 md:px-4 min-h-0 w-full desktop-chat-container border-b border-border/10",
+      "py-3 md:py-4 px-2 md:px-4 min-h-0 w-full border-b border-border/10",
       isUser ? "flex justify-end" : ""
     )}>
       {isUser ? (
         // User message with bubble
         <div className={cn(
           "max-w-[90%] md:max-w-[75%] lg:max-w-[65%] rounded-lg md:rounded-2xl px-3 md:px-4 py-2 md:py-3 relative group",
-          "bg-primary text-primary-foreground desktop-message-content"
+          "bg-primary text-primary-foreground"
         )}>
           {message.imageUrl && (
             <div className="mb-2 md:mb-3">
@@ -399,7 +399,7 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
               </div>
             </div>
           ) : (
-            <div className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap max-w-none w-full desktop-message-content">
+            <div className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap">
               {renderContent(message.content)}
             </div>
           )}
@@ -438,8 +438,8 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
           </div>
         </div>
       ) : (
-        // AI message without bubble, part of background with better desktop spacing
-        <div className="w-full relative group min-h-0 desktop-message-content max-w-none">
+        // AI message without bubble, part of background - remove all size constraints 
+        <div className="w-full relative group">
           {message.imageUrl && (
             <div className="mb-3 md:mb-4">
               <img 
@@ -450,7 +450,8 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
             </div>
           )}
           
-          <div className="text-sm md:text-base leading-relaxed text-foreground max-w-none w-full desktop-message-content">
+          {/* Completely unconstrained AI message content */}
+          <div className="text-sm md:text-base leading-relaxed text-foreground break-anywhere preserve-whitespace">
             {renderContent(message.content)}
           </div>
           
