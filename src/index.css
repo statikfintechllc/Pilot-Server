@@ -55,6 +55,17 @@
     .mobile-safe-header {
       padding-top: env(safe-area-inset-top);
     }
+    
+    /* Fix mobile sidebar scrolling */
+    [data-radix-scroll-area-viewport] {
+      overscroll-behavior: contain;
+    }
+    
+    /* Prevent sidebar content from bleeding */
+    [role="dialog"] [data-radix-scroll-area-root] {
+      height: 100%;
+      max-height: 100%;
+    }
   }
 
   /* Performance optimizations for resize issues */

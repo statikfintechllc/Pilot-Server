@@ -49,10 +49,57 @@ export function ChatSidebar({
     setIsOpen(false);
   };
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full">
+  const ChatList = () => (
+    <>
+      {sortedChats.length === 0 ? (
+        <div className="text-center py-12 px-4 text-muted-foreground">
+          <ChatText className="w-12 h-12 mx-auto mb-4 opacity-40" />
+          <p className="text-sm font-medium mb-1">No conversations yet</p>
+          <p className="text-xs opacity-70">Start a new chat to begin</p>
+        </div>
+      ) : (
+        sortedChats.map((chat) => (
+          <div key={chat.id} className="group relative mb-2">
+            <Button
+              variant={currentChatId === chat.id ? "secondary" : "ghost"}
+              onClick={() => handleSelectChat(chat.id)}
+              className={cn(
+                "w-full justify-start text-left h-auto p-3 group-hover:pr-10 transition-all min-h-[56px]",
+                currentChatId === chat.id && "bg-secondary/80 border border-secondary"
+              )}
+            >
+              <div className="flex-1 min-w-0 space-y-1">
+                <div className="font-medium text-sm leading-tight truncate pr-2">
+                  {chat.title}
+                </div>
+                <div className="text-xs text-muted-foreground leading-tight">
+                  {formatDate(chat.lastUpdated)} • {chat.messages.length} message{chat.messages.length !== 1 ? 's' : ''}
+                </div>
+              </div>
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteChat(chat.id);
+              }}
+              className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:bg-destructive hover:text-destructive-foreground"
+              title="Delete chat"
+            >
+              <Trash className="w-4 h-4" />
+            </Button>
+          </div>
+        ))
+      )}
+    </>
+  );
+
+  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+    <div className={cn("flex flex-col", isMobile ? "h-full max-h-[100dvh]" : "h-full")}>
       {/* New Chat Button */}
-      <div className="p-4 border-b bg-background/95">
+      <div className="flex-shrink-0 p-4 border-b bg-background/95">
         <Button 
           onClick={() => {
             onNewChat();
@@ -66,54 +113,19 @@ export function ChatSidebar({
       </div>
       
       {/* Chat List */}
-      <ScrollArea className="flex-1">
-        <div className="p-3">
-          {sortedChats.length === 0 ? (
-            <div className="text-center py-12 px-4 text-muted-foreground">
-              <ChatText className="w-12 h-12 mx-auto mb-4 opacity-40" />
-              <p className="text-sm font-medium mb-1">No conversations yet</p>
-              <p className="text-xs opacity-70">Start a new chat to begin</p>
+      <div className="flex-1 min-h-0 overflow-hidden">
+        {isMobile ? (
+          <div className="h-full overflow-auto p-3">
+            <ChatList />
+          </div>
+        ) : (
+          <ScrollArea className="h-full">
+            <div className="p-3">
+              <ChatList />
             </div>
-          ) : (
-            <div className="space-y-2">
-              {sortedChats.map((chat) => (
-                <div key={chat.id} className="group relative">
-                  <Button
-                    variant={currentChatId === chat.id ? "secondary" : "ghost"}
-                    onClick={() => handleSelectChat(chat.id)}
-                    className={cn(
-                      "w-full justify-start text-left h-auto p-4 group-hover:pr-12 transition-all min-h-[60px]",
-                      currentChatId === chat.id && "bg-secondary/80 border border-secondary"
-                    )}
-                  >
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <div className="font-medium text-sm leading-tight truncate pr-2">
-                        {chat.title}
-                      </div>
-                      <div className="text-xs text-muted-foreground leading-tight">
-                        {formatDate(chat.lastUpdated)} • {chat.messages.length} message{chat.messages.length !== 1 ? 's' : ''}
-                      </div>
-                    </div>
-                  </Button>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteChat(chat.id);
-                    }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                    title="Delete chat"
-                  >
-                    <Trash className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </ScrollArea>
+          </ScrollArea>
+        )}
+      </div>
     </div>
   );
 
@@ -134,19 +146,21 @@ export function ChatSidebar({
           </SheetTrigger>
           <SheetContent 
             side="left" 
-            className="w-[85vw] max-w-[350px] p-0 border-r-2 border-border/20"
+            className="w-[85vw] max-w-[350px] p-0 border-r-2 border-border/20 flex flex-col h-full overflow-hidden"
           >
-            <SheetHeader className="p-4 pb-3 border-b bg-background/95 backdrop-blur-sm">
+            <SheetHeader className="flex-shrink-0 p-4 pb-3 border-b bg-background/95 backdrop-blur-sm">
               <SheetTitle className="text-lg font-semibold text-left">Chat History</SheetTitle>
             </SheetHeader>
-            <SidebarContent />
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <SidebarContent isMobile={true} />
+            </div>
           </SheetContent>
         </Sheet>
       </div>
 
       {/* Desktop */}
       <div className="hidden md:flex w-80 border-r bg-card/50 backdrop-blur-sm">
-        <SidebarContent />
+        <SidebarContent isMobile={false} />
       </div>
     </>
   );
