@@ -20,12 +20,12 @@ export function ChatHeader({ selectedModel, onModelChange, onNewChat, isLoading 
       
       <div className="flex items-center gap-1 md:gap-3 flex-shrink-0">
         <Select value={selectedModel} onValueChange={onModelChange}>
-          <SelectTrigger className="w-20 md:w-40 text-[10px] md:text-sm h-6 md:h-10 px-1 md:px-3">
+          <SelectTrigger className="w-28 md:w-40 text-xs md:text-sm h-8 md:h-10 px-2 md:px-3">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="gpt-4o" className="text-[10px] md:text-sm">GPT-4o</SelectItem>
-            <SelectItem value="gpt-4o-mini" className="text-[10px] md:text-sm">GPT-4o Mini</SelectItem>
+            <SelectItem value="gpt-4o" className="text-xs md:text-sm">GPT-4o</SelectItem>
+            <SelectItem value="gpt-4o-mini" className="text-xs md:text-sm">GPT-4o Mini</SelectItem>
           </SelectContent>
         </Select>
         
@@ -33,9 +33,9 @@ export function ChatHeader({ selectedModel, onModelChange, onNewChat, isLoading 
           onClick={onNewChat} 
           size="sm"
           disabled={isLoading}
-          className="px-1 md:px-3 h-6 md:h-10 text-xs md:text-sm w-6 md:w-auto"
+          className="px-1.5 md:px-3 h-8 md:h-10 text-xs md:text-sm w-8 md:w-auto"
         >
-          <Plus className="w-3 h-3 md:w-4 md:h-4" />
+          <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
           <span className="hidden md:inline ml-1">New Chat</span>
         </Button>
       </div>
