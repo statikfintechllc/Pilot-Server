@@ -16,6 +16,10 @@
 - Real-time message streaming and conversation history
 - Mobile-optimized chat interface with proper touch targets
 - Persistent chat sessions using KV storage
+- **Message Editing**: Users can edit their sent messages with inline editing controls ✨ NEW
+- **Professional Code Formatting**: Full syntax highlighting with copy functionality ✨ NEW
+- **Smart Code Input**: Monospace font when typing complete code blocks ✨ NEW
+- **No Message Length Limits**: Support for long-form conversations ✨ NEW
 
 ### Theme System ✨ NEW
 - **Light Mode**: Clean, bright interface optimized for daytime use

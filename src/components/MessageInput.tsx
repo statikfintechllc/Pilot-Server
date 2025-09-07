@@ -38,6 +38,19 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
     }
   };
 
+  // Check if the message contains complete code blocks
+  const hasCompleteCodeBlocks = (text: string) => {
+    const codeBlockMatches = text.match(/```/g);
+    return codeBlockMatches && codeBlockMatches.length >= 2 && codeBlockMatches.length % 2 === 0;
+  };
+
+  // Check if we're currently inside a code block
+  const isInCodeBlock = (text: string, cursorPosition: number) => {
+    const beforeCursor = text.substring(0, cursorPosition);
+    const codeBlockMatches = beforeCursor.match(/```/g);
+    return codeBlockMatches && codeBlockMatches.length % 2 === 1;
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -124,9 +137,14 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
             disabled={isLoading}
             className={cn(
               "resize-none min-h-[32px] md:min-h-[44px] max-h-48 md:max-h-96 pr-8 md:pr-12 text-xs md:text-sm",
-              message.includes('```') ? "font-mono" : ""
+              hasCompleteCodeBlocks(message) ? "font-mono" : ""
             )}
             rows={1}
+            style={{
+              fontFamily: hasCompleteCodeBlocks(message) 
+                ? "'JetBrains Mono', 'Courier New', monospace" 
+                : "'Inter', system-ui, -apple-system, sans-serif"
+            }}
           />
           
           <Button

@@ -1,22 +1,50 @@
 import { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Copy, Check } from '@phosphor-icons/react';
+import { Textarea } from '@/components/ui/textarea';
+import { Copy, Check, PencilSimple, X, FloppyDisk } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useThemeContext } from '@/components/ThemeProvider';
 
 interface MessageBubbleProps {
   message: Message;
+  onEdit?: (messageId: string, newContent: string) => void;
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const { theme } = useThemeContext();
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
   const [copiedMessage, setCopiedMessage] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(message.content);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [isEditing]);
+
+  const handleEdit = () => {
+    if (!onEdit) return;
+    
+    if (editContent.trim() && editContent !== message.content) {
+      onEdit(message.id, editContent.trim());
+      toast.success('Message updated');
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditContent(message.content);
+    setIsEditing(false);
+  };
   
   const copyToClipboard = async (text: string, codeId?: string) => {
     try {
@@ -40,6 +68,15 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       minute: '2-digit',
       hour12: true
     });
+  };
+
+  const formatEditTimestamp = (timestamp: number, editedAt?: number) => {
+    const time = formatTimestamp(timestamp);
+    if (editedAt) {
+      const editTime = formatTimestamp(editedAt);
+      return `${time} (edited ${editTime})`;
+    }
+    return time;
   };
 
   const renderContent = (content: string) => {
@@ -248,12 +285,75 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             </div>
           )}
           
-          <div className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap overflow-wrap-anywhere break-anywhere preserve-whitespace">
-            {renderContent(message.content)}
-          </div>
+          {isEditing ? (
+            <div className="space-y-2">
+              <Textarea
+                ref={textareaRef}
+                value={editContent}
+                onChange={(e) => {
+                  setEditContent(e.target.value);
+                  if (textareaRef.current) {
+                    textareaRef.current.style.height = 'auto';
+                    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+                  }
+                }}
+                className="min-h-[60px] bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60 resize-none text-xs md:text-sm"
+                placeholder="Edit your message..."
+              />
+              <div className="flex justify-end gap-1">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleCancelEdit}
+                  className="h-6 px-2 text-xs"
+                >
+                  <X className="w-3 h-3 mr-1" />
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleEdit}
+                  className="h-6 px-2 text-xs bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                >
+                  <FloppyDisk className="w-3 h-3 mr-1" />
+                  Save
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap overflow-wrap-anywhere break-anywhere preserve-whitespace">
+              {renderContent(message.content)}
+            </div>
+          )}
           
-          <div className="flex items-center justify-end mt-2 pt-2 border-t border-primary-foreground/20 text-xs opacity-60">
-            <span className="truncate">{formatTimestamp(message.timestamp)}</span>
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-primary-foreground/20 text-xs opacity-60">
+            <span className="truncate">
+              {formatEditTimestamp(message.timestamp, message.editedAt)}
+            </span>
+            {!isEditing && onEdit && (
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyToClipboard(message.content)}
+                  className="h-4 w-4 p-0 text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                >
+                  {copiedMessage ? (
+                    <Check className="w-2.5 h-2.5 text-green-400" />
+                  ) : (
+                    <Copy className="w-2.5 h-2.5" />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                  className="h-4 w-4 p-0 text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                >
+                  <PencilSimple className="w-2.5 h-2.5" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       ) : (

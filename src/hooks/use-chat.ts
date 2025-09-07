@@ -88,41 +88,136 @@ export function useChat() {
     }
   }, [setChats, setChatState, chatState.currentChatId]);
 
+  const editMessage = useCallback((messageId: string, newContent: string) => {
+    if (!chatState.currentChatId) return;
+
+    setChats(currentChats => 
+      currentChats.map(chat => 
+        chat.id === chatState.currentChatId
+          ? {
+              ...chat,
+              messages: chat.messages.map(msg => 
+                msg.id === messageId
+                  ? {
+                      ...msg,
+                      content: newContent,
+                      isEdited: true,
+                      editedAt: Date.now()
+                    }
+                  : msg
+              ),
+              lastUpdated: Date.now()
+            }
+          : chat
+      )
+    );
+  }, [chatState.currentChatId, setChats]);
+
   const sendMessage = useCallback(async (content: string, imageUrl?: string) => {
     if (!content.trim() && !imageUrl) return;
-    if (!chatState.currentChatId) {
-      createNewChat();
+    
+    // Ensure we have a current chat
+    let targetChatId = chatState.currentChatId;
+    if (!targetChatId) {
+      const newChat: Chat = {
+        id: `chat-${Date.now()}`,
+        title: 'New Chat',
+        messages: [],
+        createdAt: Date.now(),
+        lastUpdated: Date.now()
+      };
+
+      setChats(currentChats => [...currentChats, newChat]);
+      setChatState(prev => ({
+        ...prev,
+        currentChatId: newChat.id
+      }));
+      targetChatId = newChat.id;
     }
 
     setLoading(true);
 
-    const userMessageId = addMessage({
-      content,
-      role: 'user',
-      imageUrl,
-      model: chatState.selectedModel
-    });
-
     try {
-      const prompt = spark.llmPrompt`${content}`;
-      const response = await spark.llm(prompt, chatState.selectedModel);
-      
-      addMessage({
-        content: response,
-        role: 'assistant',
+      // Add user message
+      const userMessage: Message = {
+        id: `msg-${Date.now()}`,
+        content,
+        role: 'user',
+        timestamp: Date.now(),
+        imageUrl,
         model: chatState.selectedModel
-      });
+      };
+
+      setChats(currentChats => 
+        currentChats.map(chat => 
+          chat.id === targetChatId
+            ? {
+                ...chat,
+                messages: [...chat.messages, userMessage],
+                lastUpdated: Date.now(),
+                title: chat.title === 'New Chat' && chat.messages.length === 0 
+                  ? content.slice(0, 50) + (content.length > 50 ? '...' : '')
+                  : chat.title
+              }
+            : chat
+        )
+      );
+
+      // Check if spark is available
+      if (typeof window !== 'undefined' && window.spark) {
+        // Get AI response
+        const prompt = spark.llmPrompt`${content}`;
+        const response = await spark.llm(prompt, chatState.selectedModel);
+        
+        // Add AI response
+        const aiMessage: Message = {
+          id: `msg-${Date.now()}-ai`,
+          content: response,
+          role: 'assistant',
+          timestamp: Date.now(),
+          model: chatState.selectedModel
+        };
+
+        setChats(currentChats => 
+          currentChats.map(chat => 
+            chat.id === targetChatId
+              ? {
+                  ...chat,
+                  messages: [...chat.messages, aiMessage],
+                  lastUpdated: Date.now()
+                }
+              : chat
+          )
+        );
+      } else {
+        throw new Error('Spark runtime not available');
+      }
     } catch (error) {
-      addMessage({
+      console.error('Error in sendMessage:', error);
+      // Add error message
+      const errorMessage: Message = {
+        id: `msg-${Date.now()}-error`,
         content: 'Sorry, I encountered an error processing your request. Please try again.',
         role: 'assistant',
+        timestamp: Date.now(),
         model: chatState.selectedModel
-      });
-      console.error('Error sending message:', error);
+      };
+
+      setChats(currentChats => 
+        currentChats.map(chat => 
+          chat.id === targetChatId
+            ? {
+                ...chat,
+                messages: [...chat.messages, errorMessage],
+                lastUpdated: Date.now()
+              }
+            : chat
+        )
+      );
     } finally {
       setLoading(false);
     }
-  }, [chatState.currentChatId, chatState.selectedModel, createNewChat, addMessage, setLoading]);
+  }, [chatState.currentChatId, chatState.selectedModel, setChats, setChatState, setLoading]);
 
   return {
     chats,
@@ -132,6 +227,7 @@ export function useChat() {
     selectChat,
     setModel,
     addMessage,
+    editMessage,
     deleteChat,
     sendMessage
   };

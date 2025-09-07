@@ -18,6 +18,7 @@ function App() {
     selectChat,
     setModel,
     deleteChat,
+    editMessage,
     sendMessage
   } = useChat();
 
@@ -121,6 +122,7 @@ function App() {
             <ChatMessages
               messages={currentChat?.messages || []}
               isLoading={chatState.isLoading}
+              onEditMessage={editMessage}
             />
             
             <MessageInput

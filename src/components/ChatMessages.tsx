@@ -7,9 +7,10 @@ import { Loader2 } from 'lucide-react';
 interface ChatMessagesProps {
   messages: Message[];
   isLoading: boolean;
+  onEditMessage?: (messageId: string, newContent: string) => void;
 }
 
-export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
+export function ChatMessages({ messages, isLoading, onEditMessage }: ChatMessagesProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -74,7 +75,11 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
       <ScrollArea className="flex-1 h-full scroll-container" ref={scrollAreaRef}>
         <div className="space-y-2 md:space-y-4 p-2 md:p-4 pt-16 md:pt-20 pb-4">
           {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
+            <MessageBubble 
+              key={message.id} 
+              message={message} 
+              onEdit={message.role === 'user' ? onEditMessage : undefined}
+            />
           ))}
           
           {isLoading && (

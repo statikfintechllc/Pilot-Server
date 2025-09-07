@@ -5,6 +5,8 @@ export interface Message {
   timestamp: number;
   model?: string;
   imageUrl?: string;
+  isEdited?: boolean;
+  editedAt?: number;
 }
 
 export interface Chat {
