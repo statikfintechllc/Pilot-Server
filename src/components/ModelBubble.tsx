@@ -18,12 +18,12 @@ export function ModelBubble({ selectedModel, onModelChange, isLoading }: ModelBu
   };
 
   return (
-    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
+    <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-50">
       <div 
         className={`
           bg-card/95 backdrop-blur-xl border border-border/30 rounded-full
           shadow-lg hover:shadow-xl transition-all duration-300 ease-out
-          ${isExpanded ? 'px-4 py-2.5 min-w-[140px]' : 'px-4 py-2'}
+          ${isExpanded ? 'px-4 py-1.5 min-w-[140px]' : 'px-4 py-1'}
           ${isLoading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}
           hover:bg-card active:scale-95 group
         `}
