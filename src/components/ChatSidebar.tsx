@@ -111,7 +111,7 @@ export function ChatSidebar({
       <div className="md:hidden">
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="fixed top-3 left-3 z-50 shadow-md h-8 w-8 p-0">
+            <Button variant="outline" size="sm" className="fixed top-3 left-2 z-50 shadow-md h-8 w-8 p-0">
               <List className="w-4 h-4" />
             </Button>
           </SheetTrigger>
