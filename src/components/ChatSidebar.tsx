@@ -253,7 +253,7 @@ export function ChatSidebar({
           </div>
         ) : (
           // Expanded Desktop Sidebar
-          <div className="desktop-sidebar-content">
+          <div className="desktop-sidebar-content h-full flex flex-col">
             <div className="flex-shrink-0 p-3 border-b bg-background/95 flex items-center justify-between">
               <span className="text-sm font-semibold">Conversations</span>
               <Button
@@ -266,44 +266,41 @@ export function ChatSidebar({
                 <CaretLeft className="w-4 h-4" />
               </Button>
             </div>
+            
+            {/* New Chat Button */}
+            <div className="flex-shrink-0 border-b bg-background/95 p-3">
+              <Button 
+                onClick={() => {
+                  onNewChat();
+                  setIsOpen(false);
+                }} 
+                className="w-full justify-start gap-2.5 text-sm font-medium h-9"
+              >
+                <ChatText className="w-4 h-4" />
+                New Chat
+              </Button>
+            </div>
+            
+            {/* Chat List */}
             <div className="flex-1 min-h-0 overflow-hidden">
-              <div className="h-full flex flex-col">
-                {/* New Chat Button */}
-                <div className="flex-shrink-0 border-b bg-background/95 p-3">
+              <div className="h-full overflow-auto p-2.5 desktop-sidebar-scroll">
+                <ChatList />
+              </div>
+            </div>
+            
+            {/* Settings button at bottom left */}
+            <div className="flex-shrink-0 border-t bg-background/95 p-3">
+              <SettingsDialog 
+                trigger={
                   <Button 
-                    onClick={() => {
-                      onNewChat();
-                      setIsOpen(false);
-                    }} 
+                    variant="ghost" 
                     className="w-full justify-start gap-2.5 text-sm font-medium h-9"
                   >
-                    <ChatText className="w-4 h-4" />
-                    New Chat
+                    <Gear className="w-4 h-4" />
+                    Settings
                   </Button>
-                </div>
-                
-                {/* Chat List */}
-                <div className="flex-1 min-h-0 overflow-hidden">
-                  <div className="h-full overflow-auto p-2.5 desktop-sidebar-scroll">
-                    <ChatList />
-                  </div>
-                </div>
-                
-                {/* Settings button at bottom left */}
-                <div className="flex-shrink-0 border-t bg-background/95 p-3">
-                  <SettingsDialog 
-                    trigger={
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start gap-2.5 text-sm font-medium h-9"
-                      >
-                        <Gear className="w-4 h-4" />
-                        Settings
-                      </Button>
-                    }
-                  />
-                </div>
-              </div>
+                }
+              />
             </div>
           </div>
         )}
