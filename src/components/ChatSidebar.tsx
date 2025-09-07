@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Chat } from '@/lib/types';
@@ -103,7 +102,7 @@ export function ChatSidebar({
   );
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
-    <div className={cn("flex flex-col h-full", isMobile ? "max-h-[100dvh]" : "max-h-screen")}>
+    <div className={cn("flex flex-col h-full", isMobile ? "max-h-[100dvh]" : "max-h-full")}>
       {/* New Chat Button */}
       <div className={cn("flex-shrink-0 border-b bg-background/95", isMobile ? "p-4" : "p-3")}>
         <Button 
@@ -125,11 +124,9 @@ export function ChatSidebar({
             <ChatList />
           </div>
         ) : (
-          <ScrollArea className="h-full">
-            <div className="p-2.5">
-              <ChatList />
-            </div>
-          </ScrollArea>
+          <div className="h-full overflow-auto p-2.5">
+            <ChatList />
+          </div>
         )}
       </div>
     </div>
@@ -170,7 +167,7 @@ export function ChatSidebar({
 
       {/* Desktop Sidebar */}
       <div className={cn(
-        "hidden md:flex bg-card/50 backdrop-blur-sm flex-col border-r transition-all duration-300 h-screen max-h-screen overflow-hidden",
+        "hidden md:flex bg-card/50 backdrop-blur-sm flex-col border-r transition-all duration-300 desktop-sidebar",
         isDesktopCollapsed ? "w-12" : "w-72"
       )}>
         {isDesktopCollapsed ? (
@@ -216,7 +213,7 @@ export function ChatSidebar({
           </div>
         ) : (
           // Expanded Desktop Sidebar
-          <div className="flex flex-col h-full max-h-screen overflow-hidden">
+          <div className="desktop-sidebar-content">
             <div className="flex-shrink-0 p-3 border-b bg-background/95 flex items-center justify-between">
               <span className="text-sm font-semibold">Conversations</span>
               <Button
@@ -230,7 +227,28 @@ export function ChatSidebar({
               </Button>
             </div>
             <div className="flex-1 min-h-0 overflow-hidden">
-              <SidebarContent isMobile={false} />
+              <div className="h-full flex flex-col">
+                {/* New Chat Button */}
+                <div className="flex-shrink-0 border-b bg-background/95 p-3">
+                  <Button 
+                    onClick={() => {
+                      onNewChat();
+                      setIsOpen(false);
+                    }} 
+                    className="w-full justify-start gap-2.5 text-sm font-medium h-9"
+                  >
+                    <ChatText className="w-4 h-4" />
+                    New Chat
+                  </Button>
+                </div>
+                
+                {/* Chat List */}
+                <div className="flex-1 min-h-0 overflow-hidden">
+                  <div className="h-full overflow-auto p-2.5 desktop-sidebar-scroll">
+                    <ChatList />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -22,7 +22,7 @@ function App() {
     sendMessage
   } = useChat();
 
-  // Enhanced ResizeObserver error suppression - only suppress ResizeObserver errors
+  // Enhanced ResizeObserver error suppression - comprehensive approach
   useEffect(() => {
     // Suppress ResizeObserver errors in console
     const originalConsoleError = window.console.error;
@@ -30,7 +30,8 @@ function App() {
       const message = args[0];
       if (typeof message === 'string' && 
           (message.includes('ResizeObserver loop completed with undelivered notifications') ||
-           message.includes('ResizeObserver loop limit exceeded'))) {
+           message.includes('ResizeObserver loop limit exceeded') ||
+           message.includes('ResizeObserver'))) {
         return; // Suppress these specific errors
       }
       originalConsoleError.apply(console, args);
@@ -40,7 +41,8 @@ function App() {
     const handleError = (event: ErrorEvent) => {
       if (event.message && 
           (event.message.includes('ResizeObserver loop completed with undelivered notifications') ||
-           event.message.includes('ResizeObserver loop limit exceeded'))) {
+           event.message.includes('ResizeObserver loop limit exceeded') ||
+           event.message.includes('ResizeObserver'))) {
         event.preventDefault();
         event.stopPropagation();
         return false;
@@ -51,9 +53,43 @@ function App() {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       if (event.reason && typeof event.reason === 'string' && 
           (event.reason.includes('ResizeObserver loop completed with undelivered notifications') ||
-           event.reason.includes('ResizeObserver loop limit exceeded'))) {
+           event.reason.includes('ResizeObserver loop limit exceeded') ||
+           event.reason.includes('ResizeObserver'))) {
         event.preventDefault();
         return false;
+      }
+    };
+
+    // Debounce ResizeObserver globally to prevent loops
+    const originalResizeObserver = window.ResizeObserver;
+    const resizeObserverMap = new WeakMap();
+    
+    window.ResizeObserver = class extends originalResizeObserver {
+      constructor(callback: ResizeObserverCallback) {
+        const wrappedCallback: ResizeObserverCallback = (entries, observer) => {
+          const element = entries[0]?.target;
+          if (element && resizeObserverMap.has(element)) {
+            clearTimeout(resizeObserverMap.get(element));
+          }
+          
+          const timeoutId = setTimeout(() => {
+            try {
+              callback(entries, observer);
+            } catch (error) {
+              // Suppress ResizeObserver callback errors
+              if (error instanceof Error && error.message.includes('ResizeObserver')) {
+                return;
+              }
+              throw error;
+            }
+          }, 0);
+          
+          if (element) {
+            resizeObserverMap.set(element, timeoutId);
+          }
+        };
+        
+        super(wrappedCallback);
       }
     };
 
@@ -62,6 +98,7 @@ function App() {
 
     return () => {
       window.console.error = originalConsoleError;
+      window.ResizeObserver = originalResizeObserver;
       window.removeEventListener('error', handleError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };

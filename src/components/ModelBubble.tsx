@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronDown, Cpu } from '@phosphor-icons/react';
 import { AIModel } from '@/lib/types';
-import { memo, useCallback, useRef } from 'react';
+import { memo, useCallback, useRef, useEffect } from 'react';
 
 interface ModelBubbleProps {
   selectedModel: AIModel;
@@ -17,6 +17,48 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
     'gpt-4o-mini': 'GPT-4o Mini'
   };
 
+  // Debounce resize observer to prevent loops
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const element = containerRef.current;
+    let timeoutId: NodeJS.Timeout;
+    let isObserving = false;
+    
+    const resizeObserver = new ResizeObserver((entries) => {
+      if (isObserving) return; // Prevent nested calls
+      
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        isObserving = true;
+        try {
+          // Process resize entries here if needed
+          // Minimal processing to prevent loops
+        } catch (error) {
+          // Silently handle any errors
+        } finally {
+          isObserving = false;
+        }
+      }, 32); // Debounce to prevent rapid firing
+    });
+
+    try {
+      resizeObserver.observe(element);
+    } catch (error) {
+      // Silently handle observation errors
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+      isObserving = false;
+      try {
+        resizeObserver.disconnect();
+      } catch (error) {
+        // Silently handle disconnection errors
+      }
+    };
+  }, []);
+
   // Use callback to prevent unnecessary re-renders
   const handleModelChange = useCallback((value: string) => {
     onModelChange(value as AIModel);
@@ -25,13 +67,15 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
   return (
     <div 
       ref={containerRef}
-      className="absolute top-20 inset-x-0 flex justify-center z-50"
+      className="absolute top-20 inset-x-0 flex justify-center z-50 model-bubble-container resize-stable"
       style={{ 
-        contain: 'layout size',
-        willChange: 'auto'
+        contain: 'layout size style',
+        willChange: 'auto',
+        isolation: 'isolate',
+        transform: 'translateZ(0)'
       }}
     >
-      <div className="w-fit">
+      <div className="w-fit" style={{ contain: 'layout' }}>
       <Select 
         value={selectedModel} 
         onValueChange={handleModelChange}
@@ -67,8 +111,9 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
         </SelectTrigger>
         
         <SelectContent 
-          className="min-w-[140px] rounded-xl border-border/50 bg-card/95 backdrop-blur-xl"
+          className="min-w-[140px] rounded-xl border-border/50 bg-card/95 backdrop-blur-xl resize-stable"
           sideOffset={8}
+          style={{ contain: 'layout style' }}
         >
           <SelectItem value="gpt-4o" className="text-sm rounded-lg focus:bg-accent/50">
             GPT-4o

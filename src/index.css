@@ -122,7 +122,22 @@
   
   /* Stable positioning for floating elements */
   .model-bubble-container {
+    contain: layout size style;
+    isolation: isolate;
+    transform: translateZ(0); /* Force hardware acceleration */
+  }
+  
+  /* Prevent ResizeObserver loops */
+  .resize-stable {
     contain: layout size;
+    overflow: anchor;
+  }
+  
+  /* Force containment for problematic elements */
+  [data-radix-select-content],
+  [data-radix-dropdown-menu-content],
+  [data-radix-popover-content] {
+    contain: layout style;
     isolation: isolate;
   }
   
@@ -367,6 +382,36 @@
     
     .desktop-main-content.sidebar-collapsed {
       max-width: calc(100vw - 48px); /* Account for collapsed sidebar */
+    }
+    
+    /* Improved desktop sidebar scrolling */
+    .desktop-sidebar {
+      height: 100vh;
+      max-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      contain: layout size;
+    }
+    
+    .desktop-sidebar-content {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .desktop-sidebar-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+    }
+    
+    .desktop-sidebar-scroll::-webkit-scrollbar {
+      display: none;
     }
   }
 }
