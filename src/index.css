@@ -127,6 +127,15 @@
     transform: translateZ(0); /* Force hardware acceleration */
   }
   
+  /* Input container auto-sizing */
+  .input-container {
+    transition: all 0.2s ease-out;
+  }
+  
+  .input-container textarea {
+    field-sizing: content;
+  }
+  
   /* Prevent ResizeObserver loops */
   .resize-stable {
     contain: layout size;

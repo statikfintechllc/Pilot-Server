@@ -2,7 +2,7 @@ import { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Copy, Check, PencilSimple, X, FloppyDisk } from '@phosphor-icons/react';
+import { Copy, Check, PencilSimple, X, FloppyDisk, CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -13,9 +13,10 @@ import { useThemeContext } from '@/components/ThemeProvider';
 interface MessageBubbleProps {
   message: Message;
   onEdit?: (messageId: string, newContent: string) => Promise<void> | void;
+  onSwitchVersion?: (messageId: string, versionIndex: number) => void;
 }
 
-export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
+export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const { theme } = useThemeContext();
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
@@ -90,6 +91,54 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
       return `${time} (edited ${editTime})`;
     }
     return time;
+  };
+
+  const handleVersionSwitch = (direction: 'prev' | 'next') => {
+    if (!onSwitchVersion || !message.versions) return;
+    
+    const currentIndex = message.currentVersionIndex ?? 0;
+    const maxIndex = message.versions.length - 1;
+    
+    if (direction === 'prev' && currentIndex > 0) {
+      onSwitchVersion(message.id, currentIndex - 1);
+    } else if (direction === 'next' && currentIndex < maxIndex) {
+      onSwitchVersion(message.id, currentIndex + 1);
+    }
+  };
+
+  const renderVersionSelector = () => {
+    if (!message.versions || message.versions.length <= 1) return null;
+    
+    const currentIndex = message.currentVersionIndex ?? 0;
+    const totalVersions = message.versions.length;
+    
+    return (
+      <div className="flex items-center gap-1 text-xs opacity-70">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => handleVersionSwitch('prev')}
+          disabled={currentIndex === 0}
+          className="h-4 w-4 p-0 text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 disabled:opacity-30"
+          title="Previous version"
+        >
+          <CaretLeft className="w-2.5 h-2.5" />
+        </Button>
+        <span className="text-xs font-medium min-w-[24px] text-center">
+          {currentIndex + 1}/{totalVersions}
+        </span>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => handleVersionSwitch('next')}
+          disabled={currentIndex === totalVersions - 1}
+          className="h-4 w-4 p-0 text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 disabled:opacity-30"
+          title="Next version"
+        >
+          <CaretRight className="w-2.5 h-2.5" />
+        </Button>
+      </div>
+    );
   };
 
   const renderContent = (content: string) => {
@@ -359,30 +408,33 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
             <span className="truncate">
               {formatEditTimestamp(message.timestamp, message.editedAt)}
             </span>
-            {!isEditing && onEdit && (
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copyToClipboard(message.content)}
-                  className="h-4 w-4 p-0 text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10"
-                >
-                  {copiedMessage ? (
-                    <Check className="w-2.5 h-2.5 text-green-400" />
-                  ) : (
-                    <Copy className="w-2.5 h-2.5" />
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsEditing(true)}
-                  className="h-4 w-4 p-0 text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10"
-                >
-                  <PencilSimple className="w-2.5 h-2.5" />
-                </Button>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              {renderVersionSelector()}
+              {!isEditing && onEdit && (
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyToClipboard(message.content)}
+                    className="h-4 w-4 p-0 text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                  >
+                    {copiedMessage ? (
+                      <Check className="w-2.5 h-2.5 text-green-400" />
+                    ) : (
+                      <Copy className="w-2.5 h-2.5" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditing(true)}
+                    className="h-4 w-4 p-0 text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                  >
+                    <PencilSimple className="w-2.5 h-2.5" />
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       ) : (

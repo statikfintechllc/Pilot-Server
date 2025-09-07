@@ -8,9 +8,10 @@ interface ChatMessagesProps {
   messages: Message[];
   isLoading: boolean;
   onEditMessage?: (messageId: string, newContent: string) => Promise<void> | void;
+  onSwitchVersion?: (messageId: string, versionIndex: number) => void;
 }
 
-export function ChatMessages({ messages, isLoading, onEditMessage }: ChatMessagesProps) {
+export function ChatMessages({ messages, isLoading, onEditMessage, onSwitchVersion }: ChatMessagesProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -79,6 +80,7 @@ export function ChatMessages({ messages, isLoading, onEditMessage }: ChatMessage
               key={message.id} 
               message={message} 
               onEdit={message.role === 'user' ? onEditMessage : undefined}
+              onSwitchVersion={onSwitchVersion}
             />
           ))}
           

@@ -1,3 +1,9 @@
+export interface MessageVersion {
+  content: string;
+  timestamp: number;
+  model?: string;
+}
+
 export interface Message {
   id: string;
   content: string;
@@ -7,6 +13,8 @@ export interface Message {
   imageUrl?: string;
   isEdited?: boolean;
   editedAt?: number;
+  versions?: MessageVersion[];
+  currentVersionIndex?: number;
 }
 
 export interface Chat {

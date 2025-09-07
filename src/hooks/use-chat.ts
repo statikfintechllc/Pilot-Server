@@ -105,13 +105,24 @@ export function useChat() {
       setLoading(true);
       
       try {
+        // Create version history for the message
+        const versions = messageToEdit.versions || [
+          { content: messageToEdit.content, timestamp: messageToEdit.timestamp, model: messageToEdit.model }
+        ];
+        
+        // Add new version
+        const newVersion = { content: newContent, timestamp: Date.now(), model: messageToEdit.model };
+        const updatedVersions = [...versions, newVersion];
+        
         // Update the user message and remove all subsequent messages
         const truncatedMessages = currentChatData.messages.slice(0, messageIndex);
         const updatedUserMessage = {
           ...messageToEdit,
           content: newContent,
           isEdited: true,
-          editedAt: Date.now()
+          editedAt: Date.now(),
+          versions: updatedVersions,
+          currentVersionIndex: updatedVersions.length - 1
         };
 
         // Update chat with edited message and truncated conversation
@@ -184,6 +195,14 @@ export function useChat() {
       }
     } else {
       // For AI messages, just update the content without regenerating
+      const versions = messageToEdit.versions || [
+        { content: messageToEdit.content, timestamp: messageToEdit.timestamp, model: messageToEdit.model }
+      ];
+      
+      // Add new version
+      const newVersion = { content: newContent, timestamp: Date.now(), model: messageToEdit.model };
+      const updatedVersions = [...versions, newVersion];
+      
       setChats(currentChats => 
         currentChats.map(chat => 
           chat.id === chatState.currentChatId
@@ -195,7 +214,9 @@ export function useChat() {
                         ...msg,
                         content: newContent,
                         isEdited: true,
-                        editedAt: Date.now()
+                        editedAt: Date.now(),
+                        versions: updatedVersions,
+                        currentVersionIndex: updatedVersions.length - 1
                       }
                     : msg
                 ),
@@ -206,6 +227,33 @@ export function useChat() {
       );
     }
   }, [chatState.currentChatId, chatState.selectedModel, chats, setChats, setLoading]);
+
+  const switchMessageVersion = useCallback((messageId: string, versionIndex: number) => {
+    if (!chatState.currentChatId) return;
+
+    setChats(currentChats => 
+      currentChats.map(chat => 
+        chat.id === chatState.currentChatId
+          ? {
+              ...chat,
+              messages: chat.messages.map(msg => {
+                if (msg.id === messageId && msg.versions && msg.versions[versionIndex]) {
+                  const version = msg.versions[versionIndex];
+                  return {
+                    ...msg,
+                    content: version.content,
+                    currentVersionIndex: versionIndex,
+                    model: version.model
+                  };
+                }
+                return msg;
+              }),
+              lastUpdated: Date.now()
+            }
+          : chat
+      )
+    );
+  }, [chatState.currentChatId, setChats]);
 
   const sendMessage = useCallback(async (content: string, imageUrl?: string) => {
     if (!content.trim() && !imageUrl) return;
@@ -322,6 +370,7 @@ export function useChat() {
     setModel,
     addMessage,
     editMessage,
+    switchMessageVersion,
     deleteChat,
     sendMessage
   };

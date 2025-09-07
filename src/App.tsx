@@ -20,6 +20,7 @@ function App() {
     setModel,
     deleteChat,
     editMessage,
+    switchMessageVersion,
     sendMessage
   } = useChat();
 
@@ -151,6 +152,7 @@ function App() {
                 messages={currentChat?.messages || []}
                 isLoading={chatState.isLoading}
                 onEditMessage={editMessage}
+                onSwitchVersion={switchMessageVersion}
               />
               
               <MessageInput
