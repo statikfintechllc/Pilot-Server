@@ -12,7 +12,8 @@ class SimpleErrorValidator {
   constructor() {
     this.patterns = [
       {
-        pattern: /try\s*{[^}]*}\s*catch\s*\([^)]*\)\s*{\s*}/g,
+        // Matches catch blocks whose contents are only whitespace and/or comments
+        pattern: /catch\s*\([^)]*\)\s*{\s*(?:\/\/[^\n]*|\/\*[\s\S]*?\*\/|\s*)*}/g,
         name: 'Empty catch block',
         severity: 'error',
         suggestion: 'Add proper error handling in catch block'
