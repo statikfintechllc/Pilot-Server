@@ -71,9 +71,7 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
       className={`
         absolute top-20 z-50 model-bubble-container resize-stable
         inset-x-0 flex justify-center
-        md:inset-x-0 md:flex md:justify-center
-        ${isSidebarCollapsed ? 'md:left-12' : 'md:left-72'}
-        md:right-0
+        md:left-1/2 md:transform md:-translate-x-1/2 md:right-auto md:inset-x-auto
       `}
       style={{ 
         contain: 'layout size style',
