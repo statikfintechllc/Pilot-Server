@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Plus, Robot } from '@phosphor-icons/react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface ChatHeaderProps {
   onNewChat: () => void;
@@ -19,8 +20,9 @@ export function ChatHeader({ onNewChat, isLoading }: ChatHeaderProps) {
           <h1 className="text-base md:text-lg font-semibold text-center">Pilot Server</h1>
         </div>
         
-        {/* New Chat button positioned on the right */}
-        <div className="w-12 flex justify-end flex-shrink-0">
+        {/* Action buttons positioned on the right */}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <ThemeToggle />
           <Button 
             onClick={onNewChat} 
             size="sm"

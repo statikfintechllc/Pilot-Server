@@ -5,6 +5,7 @@ import { MessageInput } from '@/components/MessageInput';
 import { ChatSidebar } from '@/components/ChatSidebar';
 import { ModelBubble } from '@/components/ModelBubble';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from '@/components/ui/sonner';
 import { useEffect } from 'react';
 
@@ -93,43 +94,45 @@ function App() {
   };
 
   return (
-    <ErrorBoundary>
-      <div className="h-screen flex bg-background overflow-hidden">
-        <ChatSidebar
-          chats={chats}
-          currentChatId={chatState.currentChatId}
-          onSelectChat={selectChat}
-          onDeleteChat={deleteChat}
-          onNewChat={handleNewChat}
-        />
-        
-        <div className="flex-1 flex flex-col min-w-0 relative">
-          <ChatHeader
+    <ThemeProvider>
+      <ErrorBoundary>
+        <div className="h-screen flex bg-background overflow-hidden">
+          <ChatSidebar
+            chats={chats}
+            currentChatId={chatState.currentChatId}
+            onSelectChat={selectChat}
+            onDeleteChat={deleteChat}
             onNewChat={handleNewChat}
-            isLoading={chatState.isLoading}
           />
           
-          {/* Floating Model Selector Bubble */}
-          <ModelBubble
-            selectedModel={chatState.selectedModel}
-            onModelChange={setModel}
-            isLoading={chatState.isLoading}
-          />
+          <div className="flex-1 flex flex-col min-w-0 relative">
+            <ChatHeader
+              onNewChat={handleNewChat}
+              isLoading={chatState.isLoading}
+            />
+            
+            {/* Floating Model Selector Bubble */}
+            <ModelBubble
+              selectedModel={chatState.selectedModel}
+              onModelChange={setModel}
+              isLoading={chatState.isLoading}
+            />
+            
+            <ChatMessages
+              messages={currentChat?.messages || []}
+              isLoading={chatState.isLoading}
+            />
+            
+            <MessageInput
+              onSendMessage={sendMessage}
+              isLoading={chatState.isLoading}
+            />
+          </div>
           
-          <ChatMessages
-            messages={currentChat?.messages || []}
-            isLoading={chatState.isLoading}
-          />
-          
-          <MessageInput
-            onSendMessage={sendMessage}
-            isLoading={chatState.isLoading}
-          />
+          <Toaster position="top-right" />
         </div>
-        
-        <Toaster position="top-right" />
-      </div>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }
 

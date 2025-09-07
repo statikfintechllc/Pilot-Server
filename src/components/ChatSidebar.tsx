@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Chat } from '@/lib/types';
 import { ChatText, Trash, List } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
@@ -149,7 +150,10 @@ export function ChatSidebar({
             className="w-[85vw] max-w-[350px] p-0 border-r-2 border-border/20 flex flex-col h-full overflow-hidden"
           >
             <SheetHeader className="flex-shrink-0 p-4 pb-3 border-b bg-background/95 backdrop-blur-sm">
-              <SheetTitle className="text-lg font-semibold text-left">Chat History</SheetTitle>
+              <div className="flex items-center justify-between">
+                <SheetTitle className="text-lg font-semibold text-left">Chat History</SheetTitle>
+                <ThemeToggle />
+              </div>
             </SheetHeader>
             <div className="flex-1 min-h-0 overflow-hidden">
               <SidebarContent isMobile={true} />
