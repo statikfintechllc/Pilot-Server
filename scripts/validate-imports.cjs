@@ -83,8 +83,8 @@ class SimpleImportValidator {
       errors: []
     };
 
-    // Simple regex to find import statements
-    const importRegex = /^import\s+(?:(?:\{[^}]*\}|\*\s+as\s+\w+|\w+)(?:\s*,\s*(?:\{[^}]*\}|\*\s+as\s+\w+|\w+))*\s+from\s+)?['"]([^'"]+)['"];?\s*$/gm;
+    // Improved regex to find all import statements, including type-only and side-effect imports
+    const importRegex = /^import(?:\s+type)?(?:[\s\S]*?from)?\s*['"]([^'"]+)['"];?/gm;
     
     let match;
     while ((match = importRegex.exec(content)) !== null) {
