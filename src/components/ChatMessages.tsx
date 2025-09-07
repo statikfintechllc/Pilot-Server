@@ -19,7 +19,7 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
 
   if (messages.length === 0 && !isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-4 pt-16">
         <div className="text-center space-y-3 max-w-md">
           <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
             <span className="text-xl md:text-2xl">🚀</span>
@@ -42,7 +42,7 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
 
   return (
     <ScrollArea className="flex-1" ref={scrollAreaRef}>
-      <div className="space-y-1 p-2 md:p-4">
+      <div className="space-y-1 p-2 md:p-4 pt-14">
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
         ))}

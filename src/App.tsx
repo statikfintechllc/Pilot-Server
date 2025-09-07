@@ -3,6 +3,7 @@ import { ChatHeader } from '@/components/ChatHeader';
 import { ChatMessages } from '@/components/ChatMessages';
 import { MessageInput } from '@/components/MessageInput';
 import { ChatSidebar } from '@/components/ChatSidebar';
+import { ModelBubble } from '@/components/ModelBubble';
 import { Toaster } from '@/components/ui/sonner';
 
 function App() {
@@ -31,11 +32,16 @@ function App() {
         onNewChat={handleNewChat}
       />
       
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 relative">
         <ChatHeader
+          onNewChat={handleNewChat}
+          isLoading={chatState.isLoading}
+        />
+        
+        {/* Floating Model Selector Bubble */}
+        <ModelBubble
           selectedModel={chatState.selectedModel}
           onModelChange={setModel}
-          onNewChat={handleNewChat}
           isLoading={chatState.isLoading}
         />
         
