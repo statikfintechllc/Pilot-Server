@@ -25,7 +25,7 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
   return (
     <div 
       ref={containerRef}
-      className="absolute top-20 left-1/2 transform -translate-x-1/2 z-50"
+      className="absolute top-20 left-1/2 -translate-x-1/2 z-50 w-fit"
       style={{ 
         contain: 'layout size',
         willChange: 'auto'
