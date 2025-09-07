@@ -151,8 +151,8 @@ export function ChatSidebar({
           >
             <SheetHeader className="flex-shrink-0 p-4 pb-3 border-b bg-background/95 backdrop-blur-sm">
               <div className="flex items-center justify-between">
-                <SheetTitle className="text-lg font-semibold text-left">Chat History</SheetTitle>
                 <ThemeToggle />
+                <SheetTitle className="text-lg font-semibold text-right">Chat History</SheetTitle>
               </div>
             </SheetHeader>
             <div className="flex-1 min-h-0 overflow-hidden">
