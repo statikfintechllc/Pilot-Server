@@ -7,7 +7,7 @@ const PORT = 3001;
 
 // Enable CORS for your frontend
 app.use(cors({
-  origin: ['http://localhost:4174', 'http://127.0.0.1:4174']
+  origin: ['http://localhost:5174', 'http://127.0.0.1:5174', 'http://localhost:4174', 'http://127.0.0.1:4174']
 }));
 
 app.use(express.json());
@@ -60,11 +60,11 @@ app.get('/auth/callback', (req, res) => {
   
   if (!code) {
     console.error('No authorization code received');
-    return res.redirect('http://localhost:4174?error=no_code');
+    return res.redirect('http://localhost:5174?error=no_code');
   }
   
   // Redirect back to the main app with the code
-  const redirectUrl = new URL('http://localhost:4174');
+  const redirectUrl = new URL('http://localhost:5174');
   redirectUrl.searchParams.set('code', code);
   if (state) redirectUrl.searchParams.set('state', state);
   
