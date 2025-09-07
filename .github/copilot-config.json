@@ -4,10 +4,10 @@
       "command": "npx",
       "args": [
         "@modelcontextprotocol/server-filesystem",
-        "/home/runner/work/Pilot-Server/Pilot-Server/src"
+        "./src"
       ],
       "env": {
-        "MCP_ROOT_PATH": "/home/runner/work/Pilot-Server/Pilot-Server"
+        "MCP_ROOT_PATH": "."
       }
     },
     "git": {
@@ -15,7 +15,7 @@
       "args": [
         "@modelcontextprotocol/server-git",
         "--repository",
-        "/home/runner/work/Pilot-Server/Pilot-Server"
+        "."
       ]
     },
     "npm": {
@@ -23,7 +23,7 @@
       "args": [
         "@modelcontextprotocol/server-npm",
         "--package-file",
-        "/home/runner/work/Pilot-Server/Pilot-Server/package.json"
+        "./package.json"
       ]
     },
     "web-search": {
