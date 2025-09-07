@@ -272,14 +272,14 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
 
   return (
     <div className={cn(
-      "p-2 md:p-4 min-h-0 w-full",
+      "p-2 md:p-4 min-h-0 w-full desktop-chat-container",
       isUser ? "flex justify-end" : ""
     )}>
       {isUser ? (
         // User message with bubble
         <div className={cn(
           "max-w-[90%] md:max-w-[80%] rounded-lg md:rounded-2xl px-2 md:px-4 py-2 md:py-3 relative group",
-          "bg-primary text-primary-foreground"
+          "bg-primary text-primary-foreground desktop-message-content"
         )}>
           {message.imageUrl && (
             <div className="mb-2 md:mb-3">
@@ -327,7 +327,7 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
               </div>
             </div>
           ) : (
-            <div className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap max-w-none w-full">
+            <div className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap max-w-none w-full desktop-message-content">
               {renderContent(message.content)}
             </div>
           )}
@@ -364,7 +364,7 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
         </div>
       ) : (
         // AI message without bubble, part of background
-        <div className="w-full relative group min-h-0">
+        <div className="w-full relative group min-h-0 desktop-message-content">
           {message.imageUrl && (
             <div className="mb-2 md:mb-3">
               <img 
@@ -375,7 +375,7 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
             </div>
           )}
           
-          <div className="text-xs md:text-sm leading-relaxed text-foreground break-words whitespace-pre-wrap max-w-none w-full">
+          <div className="text-xs md:text-sm leading-relaxed text-foreground break-words whitespace-pre-wrap max-w-none w-full desktop-message-content">
             {renderContent(message.content)}
           </div>
           
