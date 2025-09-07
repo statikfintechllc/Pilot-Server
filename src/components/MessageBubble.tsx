@@ -100,23 +100,23 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
   return (
     <div className={cn(
-      "flex gap-3 p-4",
+      "flex gap-2 md:gap-3 p-2 md:p-4",
       isUser ? "justify-end" : "justify-start"
     )}>
       {!isUser && (
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-          <Robot className="w-4 h-4 text-primary" />
+        <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-primary/10 flex items-center justify-center">
+          <Robot className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
         </div>
       )}
       
       <div className={cn(
-        "max-w-[80%] rounded-2xl px-4 py-3 relative group",
+        "max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2.5 md:py-3 relative group",
         isUser 
-          ? "bg-primary text-primary-foreground ml-12" 
+          ? "bg-primary text-primary-foreground ml-8 md:ml-12" 
           : "bg-card border shadow-sm"
       )}>
         {message.imageUrl && (
-          <div className="mb-3">
+          <div className="mb-2 md:mb-3">
             <img 
               src={message.imageUrl} 
               alt="Uploaded content"
@@ -130,12 +130,12 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         </div>
         
         <div className={cn(
-          "flex items-center justify-between mt-2 pt-2 border-t text-xs opacity-60",
+          "flex items-center justify-between mt-2 pt-1.5 md:pt-2 border-t text-xs opacity-60",
           isUser ? "border-primary-foreground/20" : "border-border"
         )}>
           <span>{formatTimestamp(message.timestamp)}</span>
           {message.model && !isUser && (
-            <span className="font-medium">{message.model}</span>
+            <span className="font-medium hidden sm:inline">{message.model}</span>
           )}
         </div>
         
@@ -144,7 +144,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             variant="ghost"
             size="sm"
             onClick={() => copyToClipboard(message.content)}
-            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+            className="absolute top-1.5 md:top-2 right-1.5 md:right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
           >
             <Copy className="w-3 h-3" />
           </Button>
@@ -152,8 +152,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       </div>
       
       {isUser && (
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-          <User className="w-4 h-4 text-accent" />
+        <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-accent/10 flex items-center justify-center">
+          <User className="w-3.5 h-3.5 md:w-4 md:h-4 text-accent" />
         </div>
       )}
     </div>
