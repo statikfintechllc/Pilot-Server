@@ -40,6 +40,21 @@
       border-radius: 2px;
     }
   }
+
+  /* ResizeObserver optimization */
+  .scroll-container {
+    contain: layout style;
+  }
+  
+  .floating-element {
+    contain: layout style;
+    will-change: transform;
+  }
+  
+  /* Ensure proper stacking context for floating elements */
+  .floating-element {
+    isolation: isolate;
+  }
 }
 
 :root {

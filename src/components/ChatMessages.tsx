@@ -20,17 +20,21 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
     }
     
     scrollTimeoutRef.current = setTimeout(() => {
-      try {
-        messagesEndRef.current?.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'end',
-          inline: 'nearest'
-        });
-      } catch (error) {
-        // Silently handle ResizeObserver errors
-        console.debug('Scroll error (non-critical):', error);
-      }
-    }, 100);
+      requestAnimationFrame(() => {
+        try {
+          messagesEndRef.current?.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'end',
+            inline: 'nearest'
+          });
+        } catch (error) {
+          // Silently handle scroll errors including ResizeObserver
+          if (!(error instanceof Error && error.message.includes('ResizeObserver'))) {
+            console.debug('Scroll error (non-critical):', error);
+          }
+        }
+      });
+    }, 50);
   }, []);
 
   useEffect(() => {
@@ -66,7 +70,7 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
   }
 
   return (
-    <ScrollArea className="flex-1" ref={scrollAreaRef}>
+    <ScrollArea className="flex-1 scroll-container" ref={scrollAreaRef}>
       <div className="space-y-1 p-2 md:p-4 pt-14">
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
