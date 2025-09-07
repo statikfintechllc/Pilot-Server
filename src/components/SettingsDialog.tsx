@@ -52,6 +52,8 @@ export function SettingsDialog({ trigger, className }: SettingsDialogProps) {
     setRepos([]);
     setIsOpen(false);
   };
+
+  const defaultTrigger = (
     <Button
       variant="ghost"
       size="sm"
