@@ -142,6 +142,7 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
   };
 
   const renderContent = (content: string) => {
+    // NEVER truncate content - render everything regardless of length
     const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
     
     let processedContent = content;
@@ -151,7 +152,7 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
     while ((match = codeBlockRegex.exec(content)) !== null) {
       const id = `code-${Date.now()}-${Math.random()}`;
       const language = match[1] || 'text';
-      const code = match[2].trim();
+      const code = match[2]; // Don't trim - preserve all whitespace
       codeBlocks.push({ match: match[0], language, code, id });
     }
     
@@ -161,10 +162,15 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
     
     for (let i = 0; i < parts.length; i += 3) {
       if (parts[i]) {
-        const textPart = parts[i].trim();
+        const textPart = parts[i];
         if (textPart) {
           result.push(
-            <div key={`text-${i}`} className="formatted-content">
+            <div key={`text-${i}`} className="formatted-content w-full overflow-visible" style={{
+              maxWidth: 'none',
+              maxHeight: 'none',
+              width: '100%',
+              overflow: 'visible'
+            }}>
               {formatTextContent(textPart)}
             </div>
           );
@@ -178,7 +184,10 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
         const syntaxTheme = theme === 'dark' ? oneDark : oneLight;
         
         result.push(
-          <div key={`code-${i}`} className="my-2 md:my-4 rounded-md md:rounded-lg border bg-muted/30 overflow-hidden w-full max-w-full">
+          <div key={`code-${i}`} className="my-2 md:my-4 rounded-md md:rounded-lg border bg-muted/30 w-full" style={{
+            maxWidth: 'none',
+            overflow: 'visible'
+          }}>
             <div className="flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 bg-muted/50 border-b">
               <span className="text-xs font-medium text-muted-foreground uppercase">
                 {language}
@@ -196,7 +205,7 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
                 )}
               </Button>
             </div>
-            <div className="overflow-auto max-w-full w-full">
+            <div className="w-full" style={{ maxWidth: 'none', overflow: 'visible' }}>
               <SyntaxHighlighter
                 language={language.toLowerCase()}
                 style={syntaxTheme}
@@ -206,16 +215,18 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
                   background: 'transparent',
                   fontSize: '11px',
                   lineHeight: '1.3',
-                  maxWidth: '100%',
+                  maxWidth: 'none',
                   width: '100%',
-                  overflowX: 'auto'
+                  overflow: 'visible',
+                  maxHeight: 'none'
                 }}
                 codeTagProps={{
                   style: {
                     fontFamily: "'JetBrains Mono', 'Courier New', monospace",
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
-                    maxWidth: '100%'
+                    maxWidth: 'none',
+                    width: '100%'
                   }
                 }}
                 showLineNumbers={false}
@@ -230,11 +241,16 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
       }
     }
     
-    return result.length > 0 ? result : <div className="formatted-content">{formatTextContent(content)}</div>;
+    return result.length > 0 ? result : <div className="formatted-content w-full overflow-visible" style={{
+      maxWidth: 'none',
+      maxHeight: 'none',
+      width: '100%',
+      overflow: 'visible'
+    }}>{formatTextContent(content)}</div>;
   };
 
   const formatTextContent = (text: string) => {
-    // Split by double newlines to create paragraphs
+    // Split by double newlines to create paragraphs - no content limits
     const paragraphs = text.split(/\n\s*\n/);
     
     return paragraphs.map((paragraph, pIndex) => {
@@ -250,11 +266,11 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
           const HeaderTag = `h${Math.min(level + 1, 6)}` as keyof JSX.IntrinsicElements;
           return (
             <HeaderTag key={pIndex} className={cn(
-              "font-semibold mt-4 mb-2 first:mt-0",
+              "font-semibold mt-4 mb-2 first:mt-0 w-full",
               level === 1 && "text-lg md:text-xl",
               level === 2 && "text-base md:text-lg",
               level >= 3 && "text-sm md:text-base"
-            )}>
+            )} style={{ maxWidth: 'none', overflow: 'visible' }}>
               {formatInlineText(headerText)}
             </HeaderTag>
           );
@@ -271,14 +287,14 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
           .map((line, index) => {
             const content = line.replace(/^[-*]\s+/, '').trim();
             return (
-              <li key={index} className="mb-1 leading-relaxed">
+              <li key={index} className="mb-1 leading-relaxed w-full" style={{ maxWidth: 'none', overflow: 'visible' }}>
                 {formatInlineText(content)}
               </li>
             );
           });
         
         return (
-          <ul key={pIndex} className="list-disc list-inside space-y-1 my-2 pl-2">
+          <ul key={pIndex} className="list-disc list-inside space-y-1 my-2 pl-2 w-full" style={{ maxWidth: 'none', overflow: 'visible' }}>
             {listItems}
           </ul>
         );
@@ -293,22 +309,22 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
           .map((line, index) => {
             const content = line.replace(/^\d+\.\s+/, '').trim();
             return (
-              <li key={index} className="mb-1 leading-relaxed">
+              <li key={index} className="mb-1 leading-relaxed w-full" style={{ maxWidth: 'none', overflow: 'visible' }}>
                 {formatInlineText(content)}
               </li>
             );
           });
         
         return (
-          <ol key={pIndex} className="list-decimal list-inside space-y-1 my-2 pl-2">
+          <ol key={pIndex} className="list-decimal list-inside space-y-1 my-2 pl-2 w-full" style={{ maxWidth: 'none', overflow: 'visible' }}>
             {listItems}
           </ol>
         );
       }
 
-      // Regular paragraph
+      // Regular paragraph - no length constraints
       return (
-        <p key={pIndex} className="mb-3 leading-relaxed last:mb-0">
+        <p key={pIndex} className="mb-3 leading-relaxed last:mb-0 w-full" style={{ maxWidth: 'none', overflow: 'visible' }}>
           {formatInlineText(trimmedParagraph)}
         </p>
       );
@@ -336,7 +352,12 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
     <div className={cn(
       "py-3 md:py-4 px-2 md:px-4 min-h-0 w-full border-b border-border/10",
       isUser ? "flex justify-end" : ""
-    )}>
+    )} style={!isUser ? {
+      maxWidth: 'none',
+      maxHeight: 'none',
+      overflow: 'visible',
+      width: '100%'
+    } : undefined}>
       {isUser ? (
         // User message with bubble
         <div className={cn(
@@ -399,7 +420,13 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
               </div>
             </div>
           ) : (
-            <div className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap">
+            <div className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap w-full" style={{
+              maxWidth: 'none',
+              maxHeight: 'none',
+              overflow: 'visible',
+              wordWrap: 'break-word',
+              overflowWrap: 'anywhere'
+            }}>
               {renderContent(message.content)}
             </div>
           )}
@@ -438,8 +465,8 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
           </div>
         </div>
       ) : (
-        // AI message without bubble, part of background - remove all size constraints 
-        <div className="w-full relative group">
+        // AI message without bubble, part of background - completely unconstrained
+        <div className="w-full relative group desktop-chat-container">
           {message.imageUrl && (
             <div className="mb-3 md:mb-4">
               <img 
@@ -450,8 +477,17 @@ export function MessageBubble({ message, onEdit, onSwitchVersion }: MessageBubbl
             </div>
           )}
           
-          {/* Completely unconstrained AI message content */}
-          <div className="text-sm md:text-base leading-relaxed text-foreground break-anywhere preserve-whitespace">
+          {/* Completely unconstrained AI message content with no limits */}
+          <div className="text-sm md:text-base leading-relaxed text-foreground w-full overflow-visible" style={{
+            maxWidth: 'none',
+            maxHeight: 'none',
+            height: 'auto',
+            width: '100%',
+            wordWrap: 'break-word',
+            overflowWrap: 'anywhere',
+            whiteSpace: 'pre-wrap',
+            overflow: 'visible'
+          }}>
             {renderContent(message.content)}
           </div>
           

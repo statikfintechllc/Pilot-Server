@@ -68,7 +68,7 @@ export function useChat() {
               messages: [...chat.messages, newMessage],
               lastUpdated: Date.now(),
               title: chat.title === 'New Chat' && chat.messages.length === 0 
-                ? message.content.slice(0, 50) + (message.content.length > 50 ? '...' : '')
+                ? message.content.slice(0, 100) + (message.content.length > 100 ? '...' : '')
                 : chat.title
             }
           : chat
@@ -298,7 +298,7 @@ export function useChat() {
                 messages: [...chat.messages, userMessage],
                 lastUpdated: Date.now(),
                 title: chat.title === 'New Chat' && chat.messages.length === 0 
-                  ? content.slice(0, 50) + (content.length > 50 ? '...' : '')
+                  ? content.slice(0, 100) + (content.length > 100 ? '...' : '')
                   : chat.title
               }
             : chat

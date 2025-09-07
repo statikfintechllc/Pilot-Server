@@ -74,7 +74,11 @@ export function ChatMessages({ messages, isLoading, onEditMessage, onSwitchVersi
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
       <ScrollArea className="flex-1 h-full scroll-container" ref={scrollAreaRef}>
-        <div className="space-y-0 p-2 md:p-4 pt-16 md:pt-20 pb-4 w-full">
+        <div className="space-y-0 p-2 md:p-4 pt-16 md:pt-20 pb-4 w-full" style={{
+          maxWidth: 'none',
+          maxHeight: 'none',
+          overflow: 'visible'
+        }}>
           {messages.map((message) => (
             <MessageBubble 
               key={message.id} 
