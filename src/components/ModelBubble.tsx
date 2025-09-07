@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronDown, Cpu, Warning, Lock } from '@phosphor-icons/react';
+import { CaretDown, Cpu, Warning, Lock } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/badge';
 import { AIModel } from '@/lib/types';
 import { useAuth, AVAILABLE_GITHUB_MODELS } from '@/hooks/use-auth';
@@ -95,11 +95,8 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
   // Get available models based on auth state and properly filter
   const getAvailableModelOptions = () => {
     if (availableModels.length === 0) {
-      // Fallback to basic models if none loaded
-      return [
-        { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', context_length: 128000 },
-        { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openai', context_length: 128000 }
-      ];
+      // Use GitHub Models from the auth hook as fallback
+      return AVAILABLE_GITHUB_MODELS;
     }
     return availableModels;
   };
@@ -163,7 +160,7 @@ export const ModelBubble = memo(function ModelBubble({ selectedModel, onModelCha
               <Lock className="w-3 h-3 text-muted-foreground" />
             )}
             
-            <ChevronDown 
+            <CaretDown 
               className="w-3.5 h-3.5 text-muted-foreground transition-all duration-200 group-hover:text-foreground/70 group-data-[state=open]:rotate-180 flex-shrink-0" 
             />
           </div>

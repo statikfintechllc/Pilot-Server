@@ -1,18 +1,48 @@
-import { useKV } from '@github/spark/hooks';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Chat, Message, AIModel, ChatState } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 
 export function useChat() {
-  const [chats, setChats] = useKV<Chat[]>('pilot-chats', []);
-  const [chatState, setChatState] = useKV<ChatState>('pilot-chat-state', {
-    currentChatId: null,
-    selectedModel: 'gpt-4o',
-    isLoading: false
+  const [chats, setChats] = useState<Chat[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pilot-chats');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+  
+  const [chatState, setChatState] = useState<ChatState>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pilot-chat-state');
+      return saved ? JSON.parse(saved) : {
+        currentChatId: null,
+        selectedModel: 'GPT 4o', // Default to a Daily-Dose model
+        isLoading: false
+      };
+    }
+    return {
+      currentChatId: null,
+      selectedModel: 'GPT 4o', // Default to a Daily-Dose model
+      isLoading: false
+    };
   });
 
   const { authState, availableModels } = useAuth();
-  const currentChat = chats.find(chat => chat.id === chatState.currentChatId);
+  
+  // Save to localStorage when state changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pilot-chats', JSON.stringify(chats));
+    }
+  }, [chats]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pilot-chat-state', JSON.stringify(chatState));
+    }
+  }, [chatState]);
+
+  const currentChat = chats?.find(chat => chat.id === chatState?.currentChatId);
 
   const createNewChat = useCallback(() => {
     const newChat: Chat = {
@@ -140,15 +170,35 @@ export function useChat() {
           )
         );
 
-        // Generate new AI response
-        if (typeof window !== 'undefined' && window.spark) {
-          const prompt = spark.llmPrompt`${newContent}`;
-          const response = await spark.llm(prompt, chatState.selectedModel);
-          
+        // Generate new AI response using GitHub Models API
+        try {
+          const response = await fetch('https://models.github.ai/inference/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authState?.accessToken}`,
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28'
+            },
+            body: JSON.stringify({
+              model: chatState.selectedModel,
+              messages: [{ role: 'user', content: newContent }],
+              temperature: 0.7,
+              max_tokens: 2048
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`GitHub Models API error: ${response.status}`);
+          }
+
+          const result = await response.json();
+          const aiContent = result.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.';
+
           // Add new AI response
           const aiMessage: Message = {
             id: `msg-${Date.now()}-ai`,
-            content: response,
+            content: aiContent,
             role: 'assistant',
             timestamp: Date.now(),
             model: chatState.selectedModel
@@ -165,10 +215,30 @@ export function useChat() {
                 : chat
             )
           );
-        } else {
-          throw new Error('Spark runtime not available');
+        } catch (error) {
+          console.error('Error calling GitHub Models API:', error);
+          
+          // Add error message
+          const errorMessage: Message = {
+            id: `msg-${Date.now()}-error`,
+            content: 'Sorry, I encountered an error processing your request. Please try again.',
+            role: 'assistant',
+            timestamp: Date.now(),
+            model: chatState.selectedModel
+          };
+
+          setChats(currentChats => 
+            currentChats.map(chat => 
+              chat.id === chatState.currentChatId
+                ? {
+                    ...chat,
+                    messages: [...truncatedMessages, updatedUserMessage, errorMessage],
+                    lastUpdated: Date.now()
+                  }
+                : chat
+            )
+          );
         }
-      } catch (error) {
         console.error('Error regenerating AI response:', error);
         // Add error message
         const errorMessage: Message = {
@@ -330,8 +400,8 @@ export function useChat() {
         )
       );
 
-      // Check if spark is available
-      if (typeof window !== 'undefined' && window.spark) {
+      // Generate AI response using GitHub Models API
+      try {
         // Construct prompt with file context if available
         let promptContent = content;
         
@@ -347,31 +417,61 @@ export function useChat() {
         }
 
         // Add GitHub context if authenticated
-        if (authState.isAuthenticated && authState.user) {
+        if (authState?.isAuthenticated && authState.user) {
           promptContent += `\n\n[User: ${authState.user.login} on GitHub]`;
         }
         
-        // Get AI response using the target model
-        const prompt = spark.llmPrompt`${promptContent}`;
+        // Get current chat for conversation history
+        const currentChatData = chats.find(chat => chat.id === targetChatId);
+        const conversationMessages = currentChatData?.messages || [];
         
-        // Map GitHub model IDs to Spark model names
-        let sparkModelName = targetModel;
-        if (targetModel.startsWith('claude-3-5-sonnet')) {
-          sparkModelName = 'claude-3-5-sonnet';
-        } else if (targetModel.startsWith('claude-3-opus')) {
-          sparkModelName = 'claude-3-opus';
-        } else if (targetModel.startsWith('claude-3-sonnet')) {
-          sparkModelName = 'claude-3-sonnet';
-        } else if (targetModel.startsWith('claude-3-haiku')) {
-          sparkModelName = 'claude-3-haiku';
+        // Build conversation history for API - include last 10 messages to maintain context
+        const apiMessages = conversationMessages
+          .slice(-10) // Keep last 10 messages for context
+          .map(msg => ({
+            role: msg.role,
+            content: msg.content
+          }))
+          .concat([{ role: 'user', content: promptContent }]); // Add current message
+          
+        console.log('🔍 Sending messages to API:', apiMessages.length, 'messages'); // Debug log
+        
+        // Call GitHub Models API with proper token limits and conversation history
+        const response = await fetch('https://models.github.ai/inference/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authState?.accessToken}`,
+            'Accept': 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+          },
+          body: JSON.stringify({
+            model: targetModel,
+            messages: apiMessages,
+            temperature: 0.7,
+            max_tokens: 32000, // Increased to allow for full 33k token responses
+            stream: false
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('GitHub Models API error:', response.status, errorText);
+          throw new Error(`GitHub Models API error: ${response.status} - ${errorText}`);
         }
+
+        const result = await response.json();
+        console.log('🔍 Full API Response:', result); // Debug log
+        console.log('🔍 Response choices:', result.choices); // Debug log
         
-        const response = await spark.llm(prompt, sparkModelName);
+        const aiContent = result.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.';
+        console.log('🔍 AI Content length:', aiContent.length); // Debug log
+        console.log('🔍 AI Content preview:', aiContent.substring(0, 200) + '...'); // Debug log
         
         // Add AI response
         const aiMessage: Message = {
           id: `msg-${Date.now()}-ai`,
-          content: response,
+          content: aiContent,
           role: 'assistant',
           timestamp: Date.now(),
           model: targetModel
@@ -388,8 +488,29 @@ export function useChat() {
               : chat
           )
         );
-      } else {
-        throw new Error('Spark runtime not available');
+      } catch (modelError) {
+        console.error('Error calling GitHub Models API:', modelError);
+        
+        // Add error message
+        const errorMessage: Message = {
+          id: `msg-${Date.now()}-error`,
+          content: 'Sorry, I encountered an error processing your request. Please try again.',
+          role: 'assistant',
+          timestamp: Date.now(),
+          model: targetModel
+        };
+
+        setChats(currentChats => 
+          currentChats.map(chat => 
+            chat.id === targetChatId
+              ? {
+                  ...chat,
+                  messages: [...chat.messages, errorMessage],
+                  lastUpdated: Date.now()
+                }
+              : chat
+          )
+        );
       }
     } catch (error) {
       console.error('Error in sendMessage:', error);
@@ -416,7 +537,7 @@ export function useChat() {
     } finally {
       setLoading(false);
     }
-  }, [chatState.currentChatId, chatState.selectedModel, authState.isAuthenticated, authState.user, availableModels, setChats, setChatState, setLoading]);
+  }, [chatState.currentChatId, chatState.selectedModel, authState.isAuthenticated, authState.user, availableModels, chats, setChats, setChatState, setLoading]);
 
   return {
     chats,

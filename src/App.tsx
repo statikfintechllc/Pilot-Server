@@ -16,6 +16,21 @@ import { cn } from '@/lib/utils';
 
 function ChatApp() {
   const { authState, signIn } = useAuth();
+  
+  // Check for OAuth callback parameters on page load and redirect to callback route
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    
+    if (code) {
+      console.log('OAuth callback detected on root route, redirecting to /auth/callback...');
+      // Redirect to the proper callback route with parameters
+      window.location.href = `/auth/callback${window.location.search}`;
+      return;
+    }
+  }, []);
+
   const {
     chats,
     currentChat,

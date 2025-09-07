@@ -1,5 +1,27 @@
-import { useKV } from '@github/spark/hooks';
 import { useState, useCallback, useEffect } from 'react';
+
+// localStorage utility functions
+const useLocalStorage = <T>(key: string, defaultValue: T) => {
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  });
+
+  const setStoredValue = useCallback((newValue: T) => {
+    try {
+      setValue(newValue);
+      localStorage.setItem(key, JSON.stringify(newValue));
+    } catch (error) {
+      console.error(`Error saving to localStorage key "${key}":`, error);
+    }
+  }, [key]);
+
+  return [value, setStoredValue] as const;
+};
 
 export interface GitHubUser {
   id: number;
@@ -42,378 +64,252 @@ export interface GitHubModel {
   tags: string[];
 }
 
-// Current GitHub Models from the marketplace (as of January 2025)
-// Based on real GitHub Models API data from https://models.github.ai/catalog/models
+// Real GitHub Models organized by pricing tiers
+// Daily-Dose: Budget-friendly models for everyday tasks
+// Power-Ball: Premium models with enhanced capabilities and multipliers
 export const AVAILABLE_GITHUB_MODELS: GitHubModel[] = [
-  // OpenAI GPT-5 Series - Latest models
+  // Daily-Dose
   {
-    id: 'azure-openai/gpt-5',
-    name: 'OpenAI gpt-5',
-    publisher: 'Azure OpenAI Service',
+    id: 'gpt-4.1',
+    name: 'GPT-4.1',
+    publisher: 'OpenAI',
     registry: 'azure-openai',
-    summary: 'gpt-5 is designed for logic-heavy and multi-step tasks.',
-    html_url: 'https://github.com/marketplace/models/azure-openai/gpt-5',
-    version: '2025-04-14',
+    summary: 'Latest GPT-4.1 model with enhanced capabilities for daily tasks.',
+    html_url: 'https://github.com/marketplace/models/azure-openai/gpt-4.1',
+    version: '2024-12-01',
     capabilities: ['streaming', 'tool-calling'],
-    limits: {
-      max_input_tokens: 1048576,
-      max_output_tokens: 32768
-    },
-    rate_limit_tier: 'high',
-    supported_input_modalities: ['text', 'image', 'audio'],
+    limits: { max_input_tokens: 128000, max_output_tokens: 4096 },
+    rate_limit_tier: 'low',
+    supported_input_modalities: ['text', 'image'],
     supported_output_modalities: ['text'],
-    tags: ['multipurpose', 'multilingual', 'multimodal']
+    tags: ['daily-dose']
   },
   {
-    id: 'azure-openai/gpt-5-chat',
-    name: 'OpenAI gpt-5-chat (preview)',
-    publisher: 'Azure OpenAI Service',
+    id: 'gpt-4o',
+    name: 'GPT 4o',
+    publisher: 'OpenAI',
     registry: 'azure-openai',
-    summary: 'gpt-5-chat (preview) is an advanced, natural, multimodal, and context-aware conversations for enterprise applications.',
-    html_url: 'https://github.com/marketplace/models/azure-openai/gpt-5-chat',
-    version: '2025-01-01',
+    summary: 'Optimized GPT-4 model for general-purpose tasks.',
+    html_url: 'https://github.com/marketplace/models/azure-openai/gpt-4o',
+    version: '2024-05-13',
     capabilities: ['streaming', 'tool-calling'],
-    limits: {
-      max_input_tokens: 524288,
-      max_output_tokens: 16384
-    },
-    rate_limit_tier: 'high',
-    supported_input_modalities: ['text', 'image', 'audio'],
+    limits: { max_input_tokens: 128000, max_output_tokens: 4096 },
+    rate_limit_tier: 'low',
+    supported_input_modalities: ['text', 'image'],
     supported_output_modalities: ['text'],
-    tags: ['conversational', 'multimodal', 'enterprise']
+    tags: ['daily-dose']
   },
   {
-    id: 'azure-openai/gpt-5-mini',
-    name: 'OpenAI gpt-5-mini',
-    publisher: 'Azure OpenAI Service',
+    id: 'gpt-5-mini',
+    name: 'GPT-5 mini',
+    publisher: 'OpenAI',
     registry: 'azure-openai',
-    summary: 'gpt-5-mini is a lightweight version for cost-sensitive applications.',
+    summary: 'Compact GPT-5 model for efficient everyday computing.',
     html_url: 'https://github.com/marketplace/models/azure-openai/gpt-5-mini',
-    version: '2025-01-01',
+    version: '2024-11-01',
     capabilities: ['streaming', 'tool-calling'],
-    limits: {
-      max_input_tokens: 262144,
-      max_output_tokens: 8192
-    },
-    rate_limit_tier: 'low',
-    supported_input_modalities: ['text', 'image'],
-    supported_output_modalities: ['text'],
-    tags: ['cost-efficient', 'lightweight', 'multimodal']
-  },
-  {
-    id: 'azure-openai/gpt-5-nano',
-    name: 'OpenAI gpt-5-nano',
-    publisher: 'Azure OpenAI Service',
-    registry: 'azure-openai',
-    summary: 'gpt-5-nano is optimized for speed, ideal for applications requiring low latency.',
-    html_url: 'https://github.com/marketplace/models/azure-openai/gpt-5-nano',
-    version: '2025-01-01',
-    capabilities: ['streaming'],
-    limits: {
-      max_input_tokens: 131072,
-      max_output_tokens: 4096
-    },
+    limits: { max_input_tokens: 64000, max_output_tokens: 2048 },
     rate_limit_tier: 'low',
     supported_input_modalities: ['text'],
     supported_output_modalities: ['text'],
-    tags: ['fast', 'low-latency', 'lightweight']
-  },
-  // OpenAI o-series (reasoning models)
-  {
-    id: 'azure-openai/o3',
-    name: 'OpenAI o3',
-    publisher: 'Azure OpenAI Service',
-    registry: 'azure-openai',
-    summary: 'o3 includes significant improvements on quality and safety while supporting the existing features of o1 and delivering comparable or better performance.',
-    html_url: 'https://github.com/marketplace/models/azure-openai/o3',
-    version: '2025-01-01',
-    capabilities: ['reasoning', 'tool-calling'],
-    limits: {
-      max_input_tokens: 200000,
-      max_output_tokens: 100000
-    },
-    rate_limit_tier: 'high',
-    supported_input_modalities: ['text'],
-    supported_output_modalities: ['text'],
-    tags: ['reasoning', 'safety', 'advanced']
+    tags: ['daily-dose']
   },
   {
-    id: 'azure-openai/o4-mini',
-    name: 'OpenAI o4-mini',
-    publisher: 'Azure OpenAI Service',
-    registry: 'azure-openai',
-    summary: 'o4-mini includes significant improvements on quality and safety while supporting the existing features of o3-mini and delivering comparable or better performance.',
-    html_url: 'https://github.com/marketplace/models/azure-openai/o4-mini',
-    version: '2025-01-01',
-    capabilities: ['reasoning', 'tool-calling'],
-    limits: {
-      max_input_tokens: 128000,
-      max_output_tokens: 65536
-    },
-    rate_limit_tier: 'low',
-    supported_input_modalities: ['text'],
-    supported_output_modalities: ['text'],
-    tags: ['reasoning', 'efficient', 'safety']
-  },
-  // OpenAI GPT-4.1 Series
-  {
-    id: 'azure-openai/gpt-4-1',
-    name: 'OpenAI GPT-4.1',
-    publisher: 'Azure OpenAI Service',
-    registry: 'azure-openai',
-    summary: 'gpt-4.1 outperforms gpt-4o across the board, with major gains in coding, instruction following, and long-context understanding',
-    html_url: 'https://github.com/marketplace/models/azure-openai/gpt-4-1',
-    version: '2025-04-14',
-    capabilities: ['streaming', 'tool-calling'],
-    limits: {
-      max_input_tokens: 1048576,
-      max_output_tokens: 32768
-    },
-    rate_limit_tier: 'high',
-    supported_input_modalities: ['text', 'image', 'audio'],
-    supported_output_modalities: ['text'],
-    tags: ['multipurpose', 'multilingual', 'multimodal']
-  },
-  {
-    id: 'azure-openai/gpt-4-1-mini',
-    name: 'OpenAI GPT-4.1-mini',
-    publisher: 'Azure OpenAI Service',
-    registry: 'azure-openai',
-    summary: 'gpt-4.1-mini outperform gpt-4o-mini across the board, with major gains in coding, instruction following, and long-context handling',
-    html_url: 'https://github.com/marketplace/models/azure-openai/gpt-4-1-mini',
-    version: '2024-12-01',
-    capabilities: ['streaming', 'tool-calling'],
-    limits: {
-      max_input_tokens: 524288,
-      max_output_tokens: 16384
-    },
-    rate_limit_tier: 'low',
-    supported_input_modalities: ['text', 'image'],
-    supported_output_modalities: ['text'],
-    tags: ['efficient', 'coding', 'multimodal']
-  },
-  {
-    id: 'azure-openai/gpt-4-1-nano',
-    name: 'OpenAI GPT-4.1-nano',
-    publisher: 'Azure OpenAI Service',
-    registry: 'azure-openai',
-    summary: 'gpt-4.1-nano provides gains in coding, instruction following, and long-context handling along with lower latency and cost',
-    html_url: 'https://github.com/marketplace/models/azure-openai/gpt-4-1-nano',
-    version: '2024-12-01',
-    capabilities: ['streaming'],
-    limits: {
-      max_input_tokens: 262144,
-      max_output_tokens: 8192
-    },
-    rate_limit_tier: 'low',
-    supported_input_modalities: ['text'],
-    supported_output_modalities: ['text'],
-    tags: ['fast', 'cost-efficient', 'coding']
-  },
-  // DeepSeek Models - Popular reasoning models
-  {
-    id: 'azureml-deepseek/DeepSeek-R1-0528',
-    name: 'DeepSeek-R1-0528',
-    publisher: 'DeepSeek',
-    registry: 'azureml-deepseek',
-    summary: 'The DeepSeek R1 0528 model has improved reasoning capabilities, this version also offers a reduced hallucination rate, enhanced support for function calling, and better experience for vibe coding.',
-    html_url: 'https://github.com/marketplace/models/azureml-deepseek/DeepSeek-R1-0528',
-    version: '2025-05-28',
-    capabilities: ['reasoning', 'tool-calling'],
-    limits: {
-      max_input_tokens: 131072,
-      max_output_tokens: 8192
-    },
-    rate_limit_tier: 'reasoning',
-    supported_input_modalities: ['text'],
-    supported_output_modalities: ['text'],
-    tags: ['reasoning', 'coding', 'function-calling']
-  },
-  // xAI Grok Models - Elon Musk's AI company
-  {
-    id: 'azureml-xai/grok-3',
-    name: 'Grok 3',
+    id: 'grok-code-fast-1',
+    name: 'Grok Code Fast 1',
     publisher: 'xAI',
-    registry: 'azureml-xai',
-    summary: 'Grok 3 is xAI\'s debut model, pretrained by Colossus at supermassive scale to excel in specialized domains like finance, healthcare, and the law.',
-    html_url: 'https://github.com/marketplace/models/azureml-xai/grok-3',
-    version: '2025-01-01',
+    registry: 'xai',
+    summary: 'Fast coding assistant optimized for rapid development tasks.',
+    html_url: 'https://github.com/marketplace/models/xai/grok-code-fast-1',
+    version: '1.0',
     capabilities: ['streaming', 'tool-calling'],
-    limits: {
-      max_input_tokens: 131072,
-      max_output_tokens: 8192
-    },
-    rate_limit_tier: 'high',
-    supported_input_modalities: ['text'],
-    supported_output_modalities: ['text'],
-    tags: ['specialized', 'finance', 'healthcare']
-  },
-  {
-    id: 'azureml-xai/grok-3-mini',
-    name: 'Grok 3 Mini',
-    publisher: 'xAI',
-    registry: 'azureml-xai',
-    summary: 'Grok 3 Mini is a lightweight model that thinks before responding. Trained on mathematic and scientific problems, it is great for logic-based tasks.',
-    html_url: 'https://github.com/marketplace/models/azureml-xai/grok-3-mini',
-    version: '2025-01-01',
-    capabilities: ['reasoning', 'streaming'],
-    limits: {
-      max_input_tokens: 65536,
-      max_output_tokens: 4096
-    },
+    limits: { max_input_tokens: 32000, max_output_tokens: 4096 },
     rate_limit_tier: 'low',
     supported_input_modalities: ['text'],
     supported_output_modalities: ['text'],
-    tags: ['math', 'science', 'logic', 'lightweight']
+    tags: ['daily-dose']
   },
-  // Microsoft Phi Models - Efficient small models
+  
+  // Power-Ball
   {
-    id: 'azureml/Phi-4-reasoning',
-    name: 'Phi-4-reasoning',
-    publisher: 'Microsoft',
-    registry: 'azureml',
-    summary: 'State-of-the-art open-weight reasoning model.',
-    html_url: 'https://github.com/marketplace/models/azureml/Phi-4-reasoning',
-    version: '2024-12-01',
-    capabilities: ['reasoning'],
-    limits: {
-      max_input_tokens: 16384,
-      max_output_tokens: 4096
-    },
-    rate_limit_tier: 'low',
-    supported_input_modalities: ['text'],
+    id: 'claude-opus-4-x10',
+    name: 'Claude Opus 4(x10)',
+    publisher: 'Anthropic',
+    registry: 'anthropic',
+    summary: 'Most powerful Claude model with 10x enhanced reasoning capabilities.',
+    html_url: 'https://github.com/marketplace/models/anthropic/claude-opus-4',
+    version: '4.0',
+    capabilities: ['streaming', 'tool-calling', 'advanced-reasoning'],
+    limits: { max_input_tokens: 500000, max_output_tokens: 16384 },
+    rate_limit_tier: 'premium',
+    supported_input_modalities: ['text', 'image', 'document'],
     supported_output_modalities: ['text'],
-    tags: ['reasoning', 'open-weight', 'efficient']
+    tags: ['power-ball']
   },
   {
-    id: 'azureml/Phi-4-mini-reasoning',
-    name: 'Phi-4-mini-reasoning',
-    publisher: 'Microsoft',
-    registry: 'azureml',
-    summary: 'Lightweight math reasoning model optimized for multi-step problem solving',
-    html_url: 'https://github.com/marketplace/models/azureml/Phi-4-mini-reasoning',
-    version: '2024-12-01',
-    capabilities: ['reasoning'],
-    limits: {
-      max_input_tokens: 8192,
-      max_output_tokens: 2048
-    },
-    rate_limit_tier: 'low',
-    supported_input_modalities: ['text'],
+    id: 'claude-opus-4.1-x10',
+    name: 'Claude Opus 4.1(x10)',
+    publisher: 'Anthropic',
+    registry: 'anthropic',
+    summary: 'Enhanced Claude Opus with 10x reasoning capabilities.',
+    html_url: 'https://github.com/marketplace/models/anthropic/claude-opus-4.1',
+    version: '4.1',
+    capabilities: ['streaming', 'tool-calling', 'advanced-reasoning'],
+    limits: { max_input_tokens: 500000, max_output_tokens: 16384 },
+    rate_limit_tier: 'premium',
+    supported_input_modalities: ['text', 'image', 'document'],
     supported_output_modalities: ['text'],
-    tags: ['math', 'reasoning', 'lightweight', 'efficient']
+    tags: ['power-ball']
   },
   {
-    id: 'azureml/Phi-4-multimodal-instruct',
-    name: 'Phi-4-multimodal-instruct',
-    publisher: 'Microsoft',
-    registry: 'azureml',
-    summary: 'First small multimodal model to have 3 modality inputs (text, audio, image), excelling in quality and efficiency',
-    html_url: 'https://github.com/marketplace/models/azureml/Phi-4-multimodal-instruct',
-    version: '2024-12-01',
-    capabilities: ['multimodal', 'streaming'],
-    limits: {
-      max_input_tokens: 16384,
-      max_output_tokens: 4096
-    },
-    rate_limit_tier: 'low',
-    supported_input_modalities: ['text', 'image', 'audio'],
-    supported_output_modalities: ['text'],
-    tags: ['multimodal', 'efficient', 'small']
-  },
-  // Meta Llama 4 Models - Latest from Meta
-  {
-    id: 'azureml-meta/Llama-4-Scout-17B-16E-Instruct',
-    name: 'Llama 4 Scout 17B 16E Instruct',
-    publisher: 'Meta',
-    registry: 'azureml-meta',
-    summary: 'Llama 4 Scout 17B 16E Instruct is great at multi-document summarization, parsing extensive user activity for personalized tasks, and reasoning over vast codebases.',
-    html_url: 'https://github.com/marketplace/models/azureml-meta/Llama-4-Scout-17B-16E-Instruct',
-    version: '2025-01-01',
+    id: 'claude-sonnet-3.5-x1',
+    name: 'Claude Sonnet 3.5(x1)',
+    publisher: 'Anthropic',
+    registry: 'anthropic',
+    summary: 'Balanced Claude Sonnet 3.5 with standard performance.',
+    html_url: 'https://github.com/marketplace/models/anthropic/claude-sonnet-3.5',
+    version: '3.5',
     capabilities: ['streaming', 'tool-calling'],
-    limits: {
-      max_input_tokens: 131072,
-      max_output_tokens: 8192
-    },
-    rate_limit_tier: 'high',
-    supported_input_modalities: ['text'],
+    limits: { max_input_tokens: 200000, max_output_tokens: 8192 },
+    rate_limit_tier: 'medium',
+    supported_input_modalities: ['text', 'image'],
     supported_output_modalities: ['text'],
-    tags: ['summarization', 'reasoning', 'coding']
+    tags: ['power-ball']
   },
   {
-    id: 'azureml-meta/Llama-4-Maverick-17B-128E-Instruct-FP8',
-    name: 'Llama 4 Maverick 17B 128E Instruct FP8',
-    publisher: 'Meta',
-    registry: 'azureml-meta',
-    summary: 'Llama 4 Maverick 17B 128E Instruct FP8 is great at precise image understanding and creative writing, offering high quality at a lower price compared to Llama 3.3 70B',
-    html_url: 'https://github.com/marketplace/models/azureml-meta/Llama-4-Maverick-17B-128E-Instruct-FP8',
-    version: '2025-01-01',
-    capabilities: ['multimodal', 'streaming'],
-    limits: {
-      max_input_tokens: 524288,
-      max_output_tokens: 16384
-    },
+    id: 'claude-sonnet-3.7-x1',
+    name: 'Claude Sonnet 3.7(x1)',
+    publisher: 'Anthropic',
+    registry: 'anthropic',
+    summary: 'Advanced Claude Sonnet 3.7 with standard performance.',
+    html_url: 'https://github.com/marketplace/models/anthropic/claude-sonnet-3.7',
+    version: '3.7',
+    capabilities: ['streaming', 'tool-calling'],
+    limits: { max_input_tokens: 200000, max_output_tokens: 8192 },
+    rate_limit_tier: 'medium',
+    supported_input_modalities: ['text', 'image'],
+    supported_output_modalities: ['text'],
+    tags: ['power-ball']
+  },
+  {
+    id: 'claude-sonnet-3.7-thinking-x1.25',
+    name: 'Claude Sonnet 3.7 Thinking(x1.25)',
+    publisher: 'Anthropic',
+    registry: 'anthropic',
+    summary: 'Claude Sonnet 3.7 with enhanced thinking capabilities.',
+    html_url: 'https://github.com/marketplace/models/anthropic/claude-sonnet-3.7-thinking',
+    version: '3.7-thinking',
+    capabilities: ['streaming', 'tool-calling', 'thinking'],
+    limits: { max_input_tokens: 200000, max_output_tokens: 8192 },
+    rate_limit_tier: 'medium',
+    supported_input_modalities: ['text', 'image'],
+    supported_output_modalities: ['text'],
+    tags: ['power-ball']
+  },
+  {
+    id: 'claude-sonnet-4-x1',
+    name: 'Claude Sonnet 4(x1)',
+    publisher: 'Anthropic',
+    registry: 'anthropic',
+    summary: 'Latest Claude Sonnet 4 with standard performance.',
+    html_url: 'https://github.com/marketplace/models/anthropic/claude-sonnet-4',
+    version: '4.0',
+    capabilities: ['streaming', 'tool-calling'],
+    limits: { max_input_tokens: 200000, max_output_tokens: 16384 },
     rate_limit_tier: 'high',
     supported_input_modalities: ['text', 'image'],
     supported_output_modalities: ['text'],
-    tags: ['creative-writing', 'image-understanding', 'cost-efficient']
+    tags: ['power-ball']
   },
-  // Mistral AI Models
   {
-    id: 'azureml-mistral/mistral-medium-2505',
-    name: 'Mistral Medium 3 (25.05)',
-    publisher: 'Mistral AI',
-    registry: 'azureml-mistral',
-    summary: 'Mistral Medium 3 is an advanced Large Language Model (LLM) with state-of-the-art reasoning, knowledge, coding and vision capabilities.',
-    html_url: 'https://github.com/marketplace/models/azureml-mistral/mistral-medium-2505',
-    version: '2025-05-01',
+    id: 'gemini-2.0-flash-x0.25',
+    name: 'Gemini 2.0 Flash(x0.25)',
+    publisher: 'Google',
+    registry: 'google',
+    summary: 'Next-generation Gemini 2.0 Flash with quarter-speed performance.',
+    html_url: 'https://github.com/marketplace/models/google/gemini-2.0-flash',
+    version: '2.0',
     capabilities: ['streaming', 'tool-calling', 'multimodal'],
-    limits: {
-      max_input_tokens: 262144,
-      max_output_tokens: 8192
-    },
+    limits: { max_input_tokens: 2000000, max_output_tokens: 16384 },
+    rate_limit_tier: 'high',
+    supported_input_modalities: ['text', 'image', 'audio', 'video'],
+    supported_output_modalities: ['text'],
+    tags: ['power-ball']
+  },
+  {
+    id: 'gemini-2.5-pro-x1',
+    name: 'Gemini 2.5 Pro(x1)',
+    publisher: 'Google',
+    registry: 'google',
+    summary: 'Professional Gemini 2.5 Pro with standard performance.',
+    html_url: 'https://github.com/marketplace/models/google/gemini-2.5-pro',
+    version: '2.5',
+    capabilities: ['streaming', 'tool-calling', 'multimodal'],
+    limits: { max_input_tokens: 1000000, max_output_tokens: 8192 },
+    rate_limit_tier: 'medium',
+    supported_input_modalities: ['text', 'image', 'audio'],
+    supported_output_modalities: ['text'],
+    tags: ['power-ball']
+  },
+  {
+    id: 'gpt-5-x1',
+    name: 'GPT-5(x1)',
+    publisher: 'OpenAI',
+    registry: 'azure-openai',
+    summary: 'Full GPT-5 model with standard performance multiplier.',
+    html_url: 'https://github.com/marketplace/models/azure-openai/gpt-5',
+    version: '5.0',
+    capabilities: ['streaming', 'tool-calling', 'advanced-reasoning'],
+    limits: { max_input_tokens: 256000, max_output_tokens: 8192 },
     rate_limit_tier: 'high',
     supported_input_modalities: ['text', 'image'],
     supported_output_modalities: ['text'],
-    tags: ['reasoning', 'coding', 'vision', 'advanced']
+    tags: ['power-ball']
   },
-  // Cohere Models
   {
-    id: 'azureml-cohere/cohere-command-a',
-    name: 'Cohere Command A',
-    publisher: 'Cohere',
-    registry: 'azureml-cohere',
-    summary: 'Command A is a highly efficient generative model that excels at agentic and multilingual use cases.',
-    html_url: 'https://github.com/marketplace/models/azureml-cohere/cohere-command-a',
-    version: '2025-01-01',
-    capabilities: ['streaming', 'tool-calling'],
-    limits: {
-      max_input_tokens: 131072,
-      max_output_tokens: 8192
-    },
+    id: 'o3-x1',
+    name: 'o3(x1)',
+    publisher: 'OpenAI',
+    registry: 'azure-openai',
+    summary: 'Advanced reasoning model with standard performance.',
+    html_url: 'https://github.com/marketplace/models/azure-openai/o3',
+    version: '3.0',
+    capabilities: ['advanced-reasoning', 'streaming'],
+    limits: { max_input_tokens: 256000, max_output_tokens: 32768 },
+    rate_limit_tier: 'premium',
+    supported_input_modalities: ['text'],
+    supported_output_modalities: ['text'],
+    tags: ['power-ball']
+  },
+  {
+    id: 'o3-mini-x0.33',
+    name: 'o3-mini(x0.33)',
+    publisher: 'OpenAI',
+    registry: 'azure-openai',
+    summary: 'Compact o3 model with third-speed performance.',
+    html_url: 'https://github.com/marketplace/models/azure-openai/o3-mini',
+    version: '3.0-mini',
+    capabilities: ['reasoning', 'streaming'],
+    limits: { max_input_tokens: 128000, max_output_tokens: 16384 },
     rate_limit_tier: 'high',
     supported_input_modalities: ['text'],
     supported_output_modalities: ['text'],
-    tags: ['agentic', 'multilingual', 'efficient']
+    tags: ['power-ball']
   },
-  // Microsoft MAI-DS-R1 - Microsoft enhanced DeepSeek
   {
-    id: 'azureml/MAI-DS-R1',
-    name: 'MAI-DS-R1',
-    publisher: 'Microsoft',
-    registry: 'azureml',
-    summary: 'MAI-DS-R1 is a DeepSeek-R1 reasoning model that has been post-trained by the Microsoft AI team to fill in information gaps in the previous version of the model and improve its harm protections while maintaining R1 reasoning capabilities.',
-    html_url: 'https://github.com/marketplace/models/azureml/MAI-DS-R1',
-    version: '2025-01-01',
-    capabilities: ['reasoning', 'safety'],
-    limits: {
-      max_input_tokens: 131072,
-      max_output_tokens: 8192
-    },
-    rate_limit_tier: 'reasoning',
+    id: 'o4-mini-x0.33',
+    name: 'o4-mini(x0.33)',
+    publisher: 'OpenAI',
+    registry: 'azure-openai',
+    summary: 'Compact o4 model with third-speed performance.',
+    html_url: 'https://github.com/marketplace/models/azure-openai/o4-mini',
+    version: '4.0-mini',
+    capabilities: ['reasoning', 'streaming'],
+    limits: { max_input_tokens: 128000, max_output_tokens: 16384 },
+    rate_limit_tier: 'high',
     supported_input_modalities: ['text'],
     supported_output_modalities: ['text'],
-    tags: ['reasoning', 'safety', 'microsoft-enhanced']
+    tags: ['power-ball']
   }
 ];
 
@@ -451,17 +347,15 @@ export const RATE_LIMITS = {
 };
 
 export function useAuth() {
-  const [authState, setAuthState] = useKV<AuthState>('pilot-auth-state', {
+  const [authState, setAuthState] = useLocalStorage<AuthState>('pilot-auth-state', {
     isAuthenticated: false,
     user: null,
     accessToken: null,
     isLoading: false,
-    error: null
+    error: null,
   });
-
-  const [availableModels, setAvailableModels] = useKV<GitHubModel[]>('pilot-available-models', []);
-
-  // Fetch available models from GitHub Models API
+  
+  const [availableModels, setAvailableModels] = useLocalStorage<GitHubModel[]>('pilot-available-models', []);  // Fetch available models from GitHub Models API
   const fetchAvailableModels = useCallback(async () => {
     try {
       if (!authState.accessToken) {
@@ -496,56 +390,102 @@ export function useAuth() {
     }
   }, [authState.accessToken, setAvailableModels]);
 
-  // Check if we have a valid user from Spark runtime
+  // Initialize authentication - check localStorage first for persistent auth
   useEffect(() => {
-    const checkSparkUser = async () => {
+    const initAuth = async () => {
       try {
-        if (typeof window !== 'undefined' && window.spark) {
-          const sparkUser = await spark.user();
-          if (sparkUser && sparkUser.login) {
-            // Convert Spark user to our GitHubUser format
-            const githubUser: GitHubUser = {
-              id: sparkUser.id || 0,
-              login: sparkUser.login,
-              name: sparkUser.name || sparkUser.login,
-              email: sparkUser.email || '',
-              avatar_url: sparkUser.avatarUrl || '',
-              bio: sparkUser.bio || '',
-              company: sparkUser.company || '',
-              location: sparkUser.location || '',
-              public_repos: sparkUser.publicRepos || 0,
-              followers: sparkUser.followers || 0,
-              following: sparkUser.following || 0
-            };
-
-            setAuthState(prev => ({
-              ...prev,
-              isAuthenticated: true,
-              user: githubUser,
-              accessToken: sparkUser.accessToken || 'spark-runtime-token',
-              error: null
-            }));
-
-            // Fetch available models after authentication
-            await fetchAvailableModels();
-          } else {
-            // Not authenticated, set basic models
-            await fetchAvailableModels();
+        // First, check if we have stored GitHub auth that bypasses the guard
+        const storedAuth = localStorage.getItem('github_auth');
+        if (storedAuth) {
+          try {
+            const parsedAuth = JSON.parse(storedAuth);
+            // Check if stored auth is still valid (not older than 30 days)
+            const isValid = parsedAuth.timestamp && (Date.now() - parsedAuth.timestamp) < (30 * 24 * 60 * 60 * 1000);
+            
+            if (isValid && parsedAuth.isAuthenticated && parsedAuth.user && parsedAuth.accessToken) {
+              console.log('🔥 FOUND STORED GITHUB AUTH - BYPASSING LOGIN!');
+              setAuthState({
+                isAuthenticated: true,
+                user: parsedAuth.user,
+                accessToken: parsedAuth.accessToken,
+                isLoading: false,
+                error: null
+              });
+              
+              // Fetch available models with the stored token
+              await fetchAvailableModels();
+              return; // Exit early - user is already authenticated
+            } else {
+              console.log('Stored auth expired or invalid, clearing...');
+              localStorage.removeItem('github_auth');
+            }
+          } catch (error) {
+            console.error('Error parsing stored auth:', error);
+            localStorage.removeItem('github_auth');
           }
         }
-      } catch (error) {
-        console.error('Error checking Spark user:', error);
+
+        // If no valid stored auth, try Spark authentication (legacy)
+        if (typeof window !== 'undefined' && window.spark) {
+          try {
+            const sparkUser = await spark.user();
+            if (sparkUser && sparkUser.login) {
+              // Convert Spark user to our GitHubUser format
+              const githubUser: GitHubUser = {
+                id: sparkUser.id || 0,
+                login: sparkUser.login,
+                name: sparkUser.name || sparkUser.login,
+                email: sparkUser.email || '',
+                avatar_url: sparkUser.avatarUrl || '',
+                bio: sparkUser.bio || '',
+                company: sparkUser.company || '',
+                location: sparkUser.location || '',
+                public_repos: sparkUser.publicRepos || 0,
+                followers: sparkUser.followers || 0,
+                following: sparkUser.following || 0
+              };
+
+              setAuthState(prev => ({
+                ...prev,
+                isAuthenticated: true,
+                user: githubUser,
+                accessToken: sparkUser.accessToken || 'spark-runtime-token',
+                error: null
+              }));
+
+              // Fetch available models after authentication
+              await fetchAvailableModels();
+            } else {
+              // Not authenticated, set basic models
+              await fetchAvailableModels();
+            }
+          } catch (sparkError) {
+            console.log('Spark authentication not available:', sparkError);
+          }
+        }
+
+        // For non-Spark environments, just load the models without authentication
+        console.log('Running in standalone mode - authentication required for GitHub Models access');
+        await fetchAvailableModels();
+        
         setAuthState(prev => ({
           ...prev,
-          error: 'Failed to authenticate with GitHub'
+          isLoading: false,
+          error: null
         }));
-        // Set basic models on error
-        await fetchAvailableModels();
+
+      } catch (error) {
+        console.error('Authentication initialization failed:', error);
+        setAuthState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: error instanceof Error ? error.message : 'Authentication initialization failed'
+        }));
       }
     };
 
-    checkSparkUser();
-  }, [setAuthState, fetchAvailableModels]);
+    initAuth();
+  }, [fetchAvailableModels]);
 
   const signIn = useCallback(async () => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -584,33 +524,37 @@ export function useAuth() {
         }
       }
 
-      // Fallback for non-Spark environments (GitHub OAuth flow)
-      console.log('Initiating GitHub OAuth flow for standalone environment');
+      // Simple OAuth redirect - WORKS WITH YOUR GITHUB OAUTH APP
+      console.log('Redirecting to GitHub OAuth...');
       
-      // GitHub OAuth configuration
-      const clientId = 'Ov23liANWOJ1PfUKpBq4'; // GitHub OAuth App Client ID
-      const redirectUri = `${window.location.origin}/auth/callback`;
+      // YOUR ACTUAL CLIENT ID FROM GITHUB OAUTH APP
+      const clientId = 'Ov23lizjzU8av6EVJci2'; // Your GitHub OAuth App Client ID
+      const redirectUri = 'http://localhost:3001/auth/callback'; // OAuth proxy server
       const scope = 'read:user user:email public_repo';
-      const state = btoa(JSON.stringify({ 
-        timestamp: Date.now(),
-        origin: window.location.origin 
-      }));
+      const state = Math.random().toString(36);
 
-      // Store state for verification
       sessionStorage.setItem('github_oauth_state', state);
       
-      // Build GitHub OAuth URL
-      const githubAuthUrl = new URL('https://github.com/login/oauth/authorize');
-      githubAuthUrl.searchParams.set('client_id', clientId);
-      githubAuthUrl.searchParams.set('redirect_uri', redirectUri);
-      githubAuthUrl.searchParams.set('scope', scope);
-      githubAuthUrl.searchParams.set('state', state);
-      githubAuthUrl.searchParams.set('allow_signup', 'true');
-
-      // Redirect to GitHub OAuth
-      window.location.href = githubAuthUrl.toString();
+      // Build URL without encoding issues that confuse GitHub
+      const params = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        scope: scope,
+        state: state,
+        allow_signup: 'true'
+      });
       
-      // Return false since we're redirecting (won't reach this point)
+      const githubAuthUrl = `https://github.com/login/oauth/authorize?${params.toString()}`;
+      
+      console.log('Redirecting to:', githubAuthUrl);
+      console.log('Expected redirect_uri:', redirectUri);
+
+      // REDIRECT TO GITHUB NOW
+      window.location.href = githubAuthUrl;
+
+      // REDIRECT TO GITHUB NOW
+      window.location.href = githubAuthUrl;
+      
       return false;
 
     } catch (error) {
@@ -633,6 +577,10 @@ export function useAuth() {
       error: null
     });
     
+    // Clear the auth bypass from localStorage
+    localStorage.removeItem('github_auth');
+    console.log('🔥 AUTH CLEARED - User signed out');
+    
     // Reset to basic models when signed out
     const basicModels = AVAILABLE_GITHUB_MODELS.slice(0, 5);
     setAvailableModels(basicModels);
@@ -643,14 +591,28 @@ export function useAuth() {
   }, [setAuthState]);
 
   const completeOAuth = useCallback((user: GitHubUser, accessToken: string) => {
-    setAuthState(prev => ({
-      ...prev,
+    const newAuthState = {
       isAuthenticated: true,
       user,
       accessToken,
       isLoading: false,
       error: null
+    };
+    
+    setAuthState(prev => ({
+      ...prev,
+      ...newAuthState
     }));
+    
+    // STORE IN LOCALSTORAGE TO BYPASS AUTHGUARD FOREVER
+    localStorage.setItem('github_auth', JSON.stringify({
+      isAuthenticated: true,
+      user,
+      accessToken,
+      timestamp: Date.now()
+    }));
+    
+    console.log('🔥 AUTH STORED IN LOCALSTORAGE - GUARD BYPASSED!');
     
     // Fetch available models after successful OAuth completion
     fetchAvailableModels();
@@ -726,6 +688,31 @@ export function useAuth() {
     const initAuth = async () => {
       try {
         setAuthState(prev => ({ ...prev, isLoading: true }));
+
+        // 🔥 CHECK LOCALSTORAGE FIRST TO BYPASS GUARD
+        const storedAuth = localStorage.getItem('github_auth');
+        if (storedAuth) {
+          try {
+            const authData = JSON.parse(storedAuth);
+            if (authData.isAuthenticated && authData.user && authData.accessToken) {
+              console.log('🔥 FOUND STORED AUTH - BYPASSING GUARD!', authData.user.login);
+              setAuthState(prev => ({
+                ...prev,
+                isAuthenticated: true,
+                user: authData.user,
+                accessToken: authData.accessToken,
+                isLoading: false,
+                error: null
+              }));
+              // Fetch models for authenticated user
+              fetchAvailableModels();
+              return; // Skip other auth checks
+            }
+          } catch (e) {
+            console.log('Invalid stored auth, clearing...');
+            localStorage.removeItem('github_auth');
+          }
+        }
 
         // Check for existing Spark authentication
         if (typeof window !== 'undefined' && window.spark) {

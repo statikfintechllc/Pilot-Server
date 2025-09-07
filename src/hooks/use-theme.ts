@@ -1,11 +1,33 @@
-import { useKV } from '@github/spark/hooks';
 import { useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 type ResolvedTheme = 'light' | 'dark';
 
+// localStorage utility for theme
+const useLocalStorage = <T>(key: string, defaultValue: T) => {
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  });
+
+  const setStoredValue = (newValue: T) => {
+    try {
+      setValue(newValue);
+      localStorage.setItem(key, JSON.stringify(newValue));
+    } catch (error) {
+      console.error(`Error saving to localStorage key "${key}":`, error);
+    }
+  };
+
+  return [value, setStoredValue] as const;
+};
+
 export function useTheme() {
-  const [theme, setTheme] = useKV<Theme>('theme', 'system');
+  const [theme, setTheme] = useLocalStorage<Theme>('theme', 'system');
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>('light');
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light');
 

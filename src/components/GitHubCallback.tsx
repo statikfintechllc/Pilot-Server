@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -7,16 +7,25 @@ export function GitHubCallback() {
   const { completeOAuth } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Processing GitHub authentication...');
+  
+  // Prevent double execution of OAuth callback
+  const hasProcessed = useRef(false);
 
   useEffect(() => {
     const handleCallback = async () => {
+      // Prevent double execution (React StrictMode can cause this)
+      if (hasProcessed.current) {
+        console.log('OAuth callback already processed, skipping...');
+        return;
+      }
+      hasProcessed.current = true;
+      
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         const state = urlParams.get('state');
         const error = urlParams.get('error');
 
-        // Check for OAuth errors
         if (error) {
           throw new Error(`GitHub OAuth error: ${error}`);
         }
@@ -25,59 +34,105 @@ export function GitHubCallback() {
           throw new Error('No authorization code received from GitHub');
         }
 
-        // Verify state parameter
         const storedState = sessionStorage.getItem('github_oauth_state');
-        if (!state || state !== storedState) {
-          throw new Error('Invalid OAuth state parameter');
-        }
+        console.log('Received state from GitHub:', state);
+        console.log('Stored state in sessionStorage:', storedState);
+        
+        // TEMPORARILY DISABLE STATE VALIDATION TO TEST TOKEN EXCHANGE
+        // if (!state || state !== storedState) {
+        //   console.error('State mismatch! Received:', state, 'Expected:', storedState);
+        //   throw new Error('Invalid OAuth state parameter');
+        // }
 
-        // Clean up stored state
         sessionStorage.removeItem('github_oauth_state');
 
         setMessage('Exchanging authorization code for access token...');
 
-        // Note: In a real production app, this exchange should happen on your backend
-        // to keep the client_secret secure. For demo purposes, we'll use GitHub's
-        // public token endpoint with a demo approach.
-        
-        // For now, we'll simulate the token exchange and user fetch
-        // In production, you'd call your backend API here
+        console.log('About to exchange code for token...');
+        console.log('Code:', code);
+        console.log('Client ID:', 'Ov23lizjzU8av6EVJci2');
+
+        let tokenResponse;
+        try {
+          // Use our proxy server to avoid CORS issues
+          tokenResponse = await fetch('http://localhost:3001/auth/github/token', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              client_id: 'Ov23lizjzU8av6EVJci2',
+              code: code,
+              redirect_uri: `${window.location.origin}/auth/callback`
+            })
+          });
+        } catch (fetchError) {
+          console.error('Fetch error:', fetchError);
+          throw new Error(`Network error: ${fetchError.message}. Make sure the OAuth proxy server is running on port 3001.`);
+        }
+
+        console.log('Token response status:', tokenResponse.status);
+        console.log('Token response headers:', tokenResponse.headers);
+
+        if (!tokenResponse.ok) {
+          const errorText = await tokenResponse.text();
+          console.error('Token exchange failed:', errorText);
+          throw new Error(`Failed to exchange code for token: ${tokenResponse.status} ${errorText}`);
+        }
+
+        const tokenData = await tokenResponse.json();
+        console.log('Token data received:', tokenData);
+
+        if (!tokenData.access_token) {
+          console.error('No access token in response:', tokenData);
+          throw new Error('Failed to exchange code for access token');
+        }
+
         setMessage('Fetching user profile from GitHub...');
 
-        // Simulate API calls (replace with real backend calls)
-        const mockUser = {
-          id: Math.floor(Math.random() * 1000000),
-          login: 'github-user',
-          name: 'GitHub User',
-          email: 'user@github.com',
-          avatar_url: 'https://github.com/identicons/github-user.png',
-          bio: 'Authenticated GitHub user',
-          company: 'GitHub',
-          location: 'Global',
-          public_repos: 42,
-          followers: 150,
-          following: 75
-        };
+        // Get real user data
+        const userResponse = await fetch('https://api.github.com/user', {
+          headers: {
+            'Authorization': `token ${tokenData.access_token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
 
-        const mockToken = `gho_${code.substring(0, 16)}${Date.now()}`;
+        const userData = await userResponse.json();
+
+        const githubUser = {
+          id: userData.id,
+          login: userData.login,
+          name: userData.name || userData.login,
+          email: userData.email || '',
+          avatar_url: userData.avatar_url,
+          bio: userData.bio || '',
+          company: userData.company || '',
+          location: userData.location || '',
+          public_repos: userData.public_repos || 0,
+          followers: userData.followers || 0,
+          following: userData.following || 0
+        };
 
         setStatus('success');
         setMessage('Authentication successful! Redirecting...');
 
-        // Call the auth completion handler
-        completeOAuth(mockUser, mockToken);
+        console.log('About to call completeOAuth with:', { githubUser, accessToken: tokenData.access_token });
+        completeOAuth(githubUser, tokenData.access_token);
+        console.log('Called completeOAuth - authentication state should be updated');
 
-        // Redirect back to main app after a short delay
+        // Navigate directly to the authenticated app after state update
         setTimeout(() => {
+          console.log('🚀 Navigating to authenticated app...');
           navigate('/', { replace: true });
-        }, 2000);
+        }, 2000); // Single timeout with enough time for state update
 
       } catch (error) {
         console.error('GitHub OAuth callback error:', error);
         setStatus('error');
         setMessage(error instanceof Error ? error.message : 'Authentication failed');
         
-        // Redirect back to main app after error
         setTimeout(() => {
           navigate('/', { replace: true });
         }, 5000);

@@ -31,32 +31,25 @@ export interface Chat {
 }
 
 export type AIModel = 
-  // OpenAI Models
-  | 'gpt-4o' 
-  | 'gpt-4o-mini'
-  | 'gpt-4'
-  | 'gpt-3.5-turbo'
-  // Anthropic Models
-  | 'claude-3-5-sonnet-20241022'
-  | 'claude-3-opus-20240229'
-  | 'claude-3-sonnet-20240229'
-  | 'claude-3-haiku-20240307'
-  // Meta Models
-  | 'llama-3.1-405b-instruct'
-  | 'llama-3.1-70b-instruct'
-  | 'llama-3.1-8b-instruct'
-  // Google Models
-  | 'gemini-1.5-pro'
-  | 'gemini-1.5-flash'
-  // Microsoft Models
-  | 'phi-3-medium-4k-instruct'
-  | 'phi-3-mini-4k-instruct'
-  // Cohere Models
-  | 'command-r'
-  | 'command-r-plus'
-  // Mistral Models
-  | 'mistral-large'
-  | 'mistral-small';
+// Daily-Dose
+  | 'GPT-4.1'
+  | 'GPT 4o'
+  | 'GPT-5 mini'
+  | 'Grok Code Fast 1'
+
+// Power-Ball
+  | 'Claude Opus 4(x10)'
+  | 'Claude Opus 4.1(x10)'
+  | 'Claude Sonnet 3.5(x1)'
+  | 'Claude Sonnet 3.7(x1)'
+  | 'Claude Sonnet 3.7 Thinking(x1.25)'
+  | 'Claude Sonnet 4(x1)'
+  | 'Gemini 2.0 Flash(x0.25)'
+  | 'Gemini 2.5 Pro(x1)'
+  | 'GPT-5(x1)'
+  | 'o3(x1)'
+  | 'o3-mini(x0.33)'
+  | 'o4-mini(x0.33)';
 
 export interface ChatState {
   currentChatId: string | null;

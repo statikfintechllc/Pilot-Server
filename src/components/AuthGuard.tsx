@@ -1,15 +1,20 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
-import { GitBranch, Robot, Zap, Shield, SignIn, Sparkle } from '@phosphor-icons/react';
+import { GitBranch, Robot, Lightning, Shield, SignIn, Star } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { authState, signIn } = useAuth();
 
+  console.log('AuthGuard - Current auth state:', authState);
+
   if (authState.isAuthenticated) {
+    console.log('AuthGuard - User is authenticated, showing app');
     return <>{children}</>;
   }
+
+  console.log('AuthGuard - User not authenticated, showing login screen');
 
   const handleSignIn = async () => {
     await signIn();
@@ -49,7 +54,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="p-4 rounded-lg bg-muted/30 border">
                 <div className="flex items-center gap-3 mb-2">
-                  <Sparkle className="w-5 h-5 text-accent" />
+                  <Star className="w-5 h-5 text-accent" />
                   <span className="font-medium">Multi-Model AI</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -59,7 +64,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
               
               <div className="p-4 rounded-lg bg-muted/30 border">
                 <div className="flex items-center gap-3 mb-2">
-                  <Zap className="w-5 h-5 text-accent" />
+                  <Lightning className="w-5 h-5 text-accent" />
                   <span className="font-medium">Advanced Features</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
