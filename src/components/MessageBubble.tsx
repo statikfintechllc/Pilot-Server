@@ -116,7 +116,7 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
         const syntaxTheme = theme === 'dark' ? oneDark : oneLight;
         
         result.push(
-          <div key={`code-${i}`} className="my-2 md:my-4 rounded-md md:rounded-lg border bg-muted/30 overflow-hidden">
+          <div key={`code-${i}`} className="my-2 md:my-4 rounded-md md:rounded-lg border bg-muted/30 overflow-hidden w-full max-w-full">
             <div className="flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 bg-muted/50 border-b">
               <span className="text-xs font-medium text-muted-foreground uppercase">
                 {language}
@@ -134,7 +134,7 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
                 )}
               </Button>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-auto max-w-full w-full">
               <SyntaxHighlighter
                 language={language.toLowerCase()}
                 style={syntaxTheme}
@@ -143,11 +143,17 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
                   padding: '8px 12px',
                   background: 'transparent',
                   fontSize: '11px',
-                  lineHeight: '1.3'
+                  lineHeight: '1.3',
+                  maxWidth: '100%',
+                  width: '100%',
+                  overflowX: 'auto'
                 }}
                 codeTagProps={{
                   style: {
-                    fontFamily: "'JetBrains Mono', 'Courier New', monospace"
+                    fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    maxWidth: '100%'
                   }
                 }}
                 showLineNumbers={false}
@@ -266,7 +272,7 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
 
   return (
     <div className={cn(
-      "p-2 md:p-4",
+      "p-2 md:p-4 min-h-0 w-full",
       isUser ? "flex justify-end" : ""
     )}>
       {isUser ? (
@@ -321,7 +327,7 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
               </div>
             </div>
           ) : (
-            <div className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap overflow-wrap-anywhere break-anywhere preserve-whitespace">
+            <div className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap max-w-none w-full">
               {renderContent(message.content)}
             </div>
           )}
@@ -358,7 +364,7 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
         </div>
       ) : (
         // AI message without bubble, part of background
-        <div className="w-full relative group">
+        <div className="w-full relative group min-h-0">
           {message.imageUrl && (
             <div className="mb-2 md:mb-3">
               <img 
@@ -369,7 +375,7 @@ export function MessageBubble({ message, onEdit }: MessageBubbleProps) {
             </div>
           )}
           
-          <div className="text-xs md:text-sm leading-relaxed text-foreground break-words whitespace-pre-wrap overflow-wrap-anywhere overflow-hidden break-anywhere preserve-whitespace">
+          <div className="text-xs md:text-sm leading-relaxed text-foreground break-words whitespace-pre-wrap max-w-none w-full">
             {renderContent(message.content)}
           </div>
           

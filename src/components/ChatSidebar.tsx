@@ -60,12 +60,13 @@ export function ChatSidebar({
         </div>
       ) : (
         sortedChats.map((chat) => (
-          <div key={chat.id} className="group relative mb-2">
+          <div key={chat.id} className="group relative mb-1.5">
             <Button
               variant={currentChatId === chat.id ? "secondary" : "ghost"}
               onClick={() => handleSelectChat(chat.id)}
               className={cn(
-                "w-full justify-start text-left h-auto p-3 group-hover:pr-10 transition-all min-h-[56px]",
+                "w-full justify-start text-left h-auto p-3 group-hover:pr-10 transition-all",
+                "min-h-[52px]",
                 currentChatId === chat.id && "bg-secondary/80 border border-secondary"
               )}
             >
@@ -100,13 +101,13 @@ export function ChatSidebar({
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className={cn("flex flex-col", isMobile ? "h-full max-h-[100dvh]" : "h-full")}>
       {/* New Chat Button */}
-      <div className="flex-shrink-0 p-4 border-b bg-background/95">
+      <div className={cn("flex-shrink-0 border-b bg-background/95", isMobile ? "p-4" : "p-3")}>
         <Button 
           onClick={() => {
             onNewChat();
             setIsOpen(false);
           }} 
-          className="w-full justify-start gap-3 h-11 text-sm font-medium"
+          className={cn("w-full justify-start gap-3 text-sm font-medium", isMobile ? "h-11" : "h-10")}
         >
           <ChatText className="w-5 h-5" />
           New Chat
@@ -121,7 +122,7 @@ export function ChatSidebar({
           </div>
         ) : (
           <ScrollArea className="h-full">
-            <div className="p-3">
+            <div className="p-2">
               <ChatList />
             </div>
           </ScrollArea>
@@ -164,7 +165,7 @@ export function ChatSidebar({
       </div>
 
       {/* Desktop */}
-      <div className="hidden md:flex w-80 border-r bg-card/50 backdrop-blur-sm">
+      <div className="hidden md:flex w-80 border-r bg-card/50 backdrop-blur-sm flex-col">
         <SidebarContent isMobile={false} />
       </div>
     </>

@@ -22,7 +22,7 @@ function App() {
     sendMessage
   } = useChat();
 
-  // Enhanced ResizeObserver error suppression
+  // Enhanced ResizeObserver error suppression - only suppress ResizeObserver errors
   useEffect(() => {
     // Suppress ResizeObserver errors in console
     const originalConsoleError = window.console.error;
@@ -36,7 +36,7 @@ function App() {
       originalConsoleError.apply(console, args);
     };
 
-    // Handle error events
+    // Handle error events - only suppress ResizeObserver errors
     const handleError = (event: ErrorEvent) => {
       if (event.message && 
           (event.message.includes('ResizeObserver loop completed with undelivered notifications') ||
@@ -47,7 +47,7 @@ function App() {
       }
     };
 
-    // Handle unhandled promise rejections
+    // Handle unhandled promise rejections - only suppress ResizeObserver errors
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       if (event.reason && typeof event.reason === 'string' && 
           (event.reason.includes('ResizeObserver loop completed with undelivered notifications') ||
@@ -56,29 +56,6 @@ function App() {
         return false;
       }
     };
-
-    // Add global ResizeObserver polyfill that's more stable
-    if (window.ResizeObserver && !window.ResizeObserver.toString().includes('polyfill')) {
-      const OriginalResizeObserver = window.ResizeObserver;
-      window.ResizeObserver = class extends OriginalResizeObserver {
-        constructor(callback: ResizeObserverCallback) {
-          super((entries, observer) => {
-            try {
-              // Use requestAnimationFrame to prevent loop issues
-              requestAnimationFrame(() => {
-                callback(entries, observer);
-              });
-            } catch (error) {
-              // Silently handle ResizeObserver errors
-              if (!(error instanceof Error) || 
-                  !error.message.includes('ResizeObserver loop')) {
-                throw error;
-              }
-            }
-          });
-        }
-      };
-    }
 
     window.addEventListener('error', handleError);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
@@ -106,7 +83,7 @@ function App() {
             onNewChat={handleNewChat}
           />
           
-          <div className="flex-1 flex flex-col min-w-0 min-h-0 relative">
+          <div className="flex-1 flex flex-col min-w-0 min-h-0 relative max-h-screen">
             <ChatHeader
               onNewChat={handleNewChat}
               isLoading={chatState.isLoading}

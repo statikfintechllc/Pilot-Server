@@ -71,9 +71,9 @@ export function ChatMessages({ messages, isLoading, onEditMessage }: ChatMessage
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
+    <div className="flex-1 flex flex-col min-h-0 max-h-full">
       <ScrollArea className="flex-1 h-full scroll-container" ref={scrollAreaRef}>
-        <div className="space-y-2 md:space-y-4 p-2 md:p-4 pt-16 md:pt-20 pb-4">
+        <div className="space-y-2 md:space-y-4 p-2 md:p-4 pt-16 md:pt-20 pb-4 min-h-0">
           {messages.map((message) => (
             <MessageBubble 
               key={message.id} 
