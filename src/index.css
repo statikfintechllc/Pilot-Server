@@ -77,6 +77,17 @@
     }
   }
 
+  /* Global text wrapping utilities */
+  .break-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  
+  .preserve-whitespace {
+    white-space: pre-wrap;
+  }
+
   /* Global scrollbar hiding for clean UI */
   * {
     scrollbar-width: none;
@@ -124,6 +135,9 @@
   /* Professional message formatting */
   .formatted-content {
     line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    hyphens: auto;
   }
   
   .formatted-content h1,
@@ -136,6 +150,7 @@
     color: currentColor;
     margin-top: 1.25rem;
     margin-bottom: 0.5rem;
+    word-wrap: break-word;
   }
   
   .formatted-content h1:first-child,
@@ -150,6 +165,8 @@
   .formatted-content p {
     margin-bottom: 0.75rem;
     line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
   }
   
   .formatted-content p:last-child {
@@ -165,6 +182,7 @@
   .formatted-content li {
     margin-bottom: 0.375rem;
     line-height: 1.4;
+    word-wrap: break-word;
   }
   
   .formatted-content li:last-child {
@@ -177,6 +195,7 @@
     border-radius: 0.25rem;
     font-size: 0.85em;
     font-family: 'JetBrains Mono', 'Courier New', monospace;
+    word-break: break-all;
   }
   
   .formatted-content pre {
@@ -193,6 +212,8 @@
     padding: 0;
     border-radius: 0;
     font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-break: break-all;
   }
   
   /* Mobile specific improvements */
@@ -200,6 +221,8 @@
     .formatted-content {
       font-size: 13px;
       line-height: 1.4;
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
     }
     
     .formatted-content h1,
@@ -211,10 +234,13 @@
       margin-top: 0.75rem;
       margin-bottom: 0.375rem;
       font-size: 14px;
+      word-wrap: break-word;
     }
     
     .formatted-content p {
       margin-bottom: 0.5rem;
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
     }
     
     .formatted-content ul,
@@ -226,20 +252,25 @@
     .formatted-content li {
       margin-bottom: 0.25rem;
       font-size: 13px;
+      word-wrap: break-word;
     }
     
     .formatted-content code {
       font-size: 11px;
       padding: 0.125rem 0.25rem;
+      word-break: break-all;
     }
     
     .formatted-content pre {
       padding: 0.5rem;
       margin: 0.5rem 0;
+      overflow-x: auto;
     }
     
     .formatted-content pre code {
       font-size: 11px;
+      white-space: pre-wrap;
+      word-break: break-all;
     }
   }
 }

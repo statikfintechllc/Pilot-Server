@@ -78,12 +78,10 @@ export function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
           ))}
           
           {isLoading && (
-            <div className="flex gap-2 md:gap-3 p-2 md:p-4">
-              <div className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Loader2 className="w-3 h-3 md:w-4 md:h-4 text-primary animate-spin" />
-              </div>
-              <div className="bg-card border shadow-sm rounded-lg md:rounded-2xl px-3 md:px-4 py-2 md:py-3">
-                <div className="flex items-center gap-1 md:gap-2 text-muted-foreground">
+            <div className="p-2 md:p-4">
+              <div className="w-full relative">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-3 h-3 md:w-4 md:h-4 text-primary animate-spin" />
                   <span className="text-sm md:text-base">Thinking...</span>
                 </div>
               </div>

@@ -1,7 +1,7 @@
 import { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Copy, User, Robot, Check } from '@phosphor-icons/react';
+import { Copy, Check } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -229,46 +229,57 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
   return (
     <div className={cn(
-      "flex gap-2 md:gap-3 p-2 md:p-4",
-      isUser ? "justify-end" : "justify-start"
+      "p-2 md:p-4",
+      isUser ? "flex justify-end" : ""
     )}>
-      {!isUser && (
-        <div className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary/10 flex items-center justify-center">
-          <Robot className="w-3 h-3 md:w-4 md:h-4 text-primary" />
-        </div>
-      )}
-      
-      <div className={cn(
-        "max-w-[90%] md:max-w-[80%] rounded-lg md:rounded-2xl px-2 md:px-4 py-2 md:py-3 relative group",
-        isUser 
-          ? "bg-primary text-primary-foreground ml-6 md:ml-12" 
-          : "bg-card border shadow-sm"
-      )}>
-        {message.imageUrl && (
-          <div className="mb-2 md:mb-3">
-            <img 
-              src={message.imageUrl} 
-              alt="Uploaded content"
-              className="max-w-full h-auto rounded-lg border"
-            />
-          </div>
-        )}
-        
-        <div className="text-xs md:text-sm leading-relaxed">
-          {renderContent(message.content)}
-        </div>
-        
+      {isUser ? (
+        // User message with bubble
         <div className={cn(
-          "flex items-center justify-between mt-2 pt-2 border-t text-xs opacity-60",
-          isUser ? "border-primary-foreground/20" : "border-border"
+          "max-w-[90%] md:max-w-[80%] rounded-lg md:rounded-2xl px-2 md:px-4 py-2 md:py-3 relative group",
+          "bg-primary text-primary-foreground"
         )}>
-          <span className="truncate">{formatTimestamp(message.timestamp)}</span>
-          {message.model && !isUser && (
-            <span className="font-medium hidden sm:inline text-xs">{message.model}</span>
+          {message.imageUrl && (
+            <div className="mb-2 md:mb-3">
+              <img 
+                src={message.imageUrl} 
+                alt="Uploaded content"
+                className="max-w-full h-auto rounded-lg border"
+              />
+            </div>
           )}
+          
+          <div className="text-xs md:text-sm leading-relaxed break-words whitespace-pre-wrap overflow-wrap-anywhere break-anywhere preserve-whitespace">
+            {renderContent(message.content)}
+          </div>
+          
+          <div className="flex items-center justify-end mt-2 pt-2 border-t border-primary-foreground/20 text-xs opacity-60">
+            <span className="truncate">{formatTimestamp(message.timestamp)}</span>
+          </div>
         </div>
-        
-        {!isUser && (
+      ) : (
+        // AI message without bubble, part of background
+        <div className="w-full relative group">
+          {message.imageUrl && (
+            <div className="mb-2 md:mb-3">
+              <img 
+                src={message.imageUrl} 
+                alt="Uploaded content"
+                className="max-w-full h-auto rounded-lg border"
+              />
+            </div>
+          )}
+          
+          <div className="text-xs md:text-sm leading-relaxed text-foreground break-words whitespace-pre-wrap overflow-wrap-anywhere overflow-hidden break-anywhere preserve-whitespace">
+            {renderContent(message.content)}
+          </div>
+          
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/30 text-xs opacity-60">
+            <span className="truncate">{formatTimestamp(message.timestamp)}</span>
+            {message.model && (
+              <span className="font-medium hidden sm:inline text-xs">{message.model}</span>
+            )}
+          </div>
+          
           <Button
             variant="ghost"
             size="sm"
@@ -281,12 +292,6 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               <Copy className="w-3 h-3" />
             )}
           </Button>
-        )}
-      </div>
-      
-      {isUser && (
-        <div className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-full bg-accent/10 flex items-center justify-center">
-          <User className="w-3 h-3 md:w-4 md:h-4 text-accent" />
         </div>
       )}
     </div>

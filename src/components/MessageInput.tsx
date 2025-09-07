@@ -28,6 +28,16 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value);
+    
+    // Auto-resize textarea
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, window.innerWidth < 768 ? 384 : 256)}px`;
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -109,11 +119,11 @@ export function MessageInput({ onSendMessage, isLoading }: MessageInputProps) {
             ref={textareaRef}
             placeholder="Type your message... (Use ``` for code blocks)"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             disabled={isLoading}
             className={cn(
-              "resize-none min-h-[32px] md:min-h-[44px] max-h-32 md:max-h-48 pr-8 md:pr-12 text-xs md:text-sm",
+              "resize-none min-h-[32px] md:min-h-[44px] max-h-48 md:max-h-96 pr-8 md:pr-12 text-xs md:text-sm",
               message.includes('```') ? "font-mono" : ""
             )}
             rows={1}
