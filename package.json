@@ -12,7 +12,7 @@
         "preview": "vite preview",
         "validate:imports": "node scripts/validate-imports.cjs",
         "validate:api-usage": "node scripts/validate-api-usage.cjs",
-        "validate:error-handling": "node scripts/validate-error-handling.cjs",
+        "validate:error-handling": "node scripts/validate-error-handling.cjs || exit 1",
         "validate:all": "npm run validate:imports && npm run validate:api-usage && npm run validate:error-handling",
         "test:quality": "npm run lint && npm run validate:all && npm run build"
     },
