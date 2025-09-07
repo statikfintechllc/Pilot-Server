@@ -41,18 +41,14 @@
     }
   }
 
-  /* ResizeObserver optimization */
+  /* Performance optimizations for resize issues */
   .scroll-container {
     contain: layout style;
   }
   
-  .floating-element {
-    contain: layout style;
-    will-change: transform;
-  }
-  
-  /* Ensure proper stacking context for floating elements */
-  .floating-element {
+  /* Stable positioning for floating elements */
+  .model-bubble-container {
+    contain: layout size;
     isolation: isolate;
   }
 }
