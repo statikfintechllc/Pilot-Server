@@ -1,6 +1,26 @@
-# Pilot Server - AI Chat Interface
+<div align="center">
+  <a href="https://statikfintechllc.github.io/Ascend-Institute/">
+    <img src="https://img.shields.io/badge/SFTi's-darkred?style=for-the-badge&logo=dragon&logoColor=gold"/>
+  <a href="https://statikfintechllc.github.io/Ascend-Institute/">
+    <img src="https://img.shields.io/badge/Home%20Page-black?style=for-the-badge&logo=ghost&logoColor=gold"/>
+  </a><br>
+</div> 
+<div align="center">
+  <a href="https://github.com/sponsors/statikfintechllc">
+    <img src="https://skillicons.dev/icons?i=python,bash,linux,anaconda,tailwind,css,react,nodejs,electron,go,typescript,javascript,html,astro,nix&theme=dark" alt="Skill icons">
+  </a><br>
+  <a href="https://github.com/sponsors/statikfintechllc">
+    <img src="https://raw.githubusercontent.com/KDK-Grim/WorkFlowRepo-Mirror/master/docs/ticker-bot/ticker.gif" alt="Repo Ticker Stats" height="36">
+  </a>
 
-A modern, professional AI chat interface built with React and TypeScript that provides seamless multi-model conversations with GitHub OAuth authentication. Designed specifically for developers and technical professionals who need a clean, efficient way to interact with AI models.
+# Pilot Server 
+**A GitHub Powered AI Chat Interface**
+
+</div>
+
+*A modern, professional AI chat interface built with React and TypeScript that provides seamless multi-model conversations with GitHub OAuth authentication.*
+
+*Designed specifically for developers and technical professionals who need a clean, efficient way to interact with AI models.*
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)
@@ -234,3 +254,69 @@ Developed by [Statik Fintech LLC](https://github.com/statikfintechllc) - Creatin
 ---
 
 **Need help?** Open an issue or check our [troubleshooting guide](#-troubleshooting) above.
+
+<div align="center">
+  <a href="https://github.com/sponsors/statikfintechllc">
+    <img src="https://raw.githubusercontent.com/statikfintechllc/statikfintechllc/master/badges/L.W.badge.svg" alt="Like my work?" />
+  </a>
+</div>
+<div align="center">
+<a href="https://github.com/sponsors/statikfintechllc">
+  <img src="https://raw.githubusercontent.com/statikfintechllc/statikfintechllc/master/badges/git.sponsor.svg">
+</a><br>
+<a href="https://ko-fi.com/statikfintech_llc">
+  <img src="https://raw.githubusercontent.com/statikfintechllc/statikfintechllc/master/badges/kofi.sponsor.svg">
+</a><br>
+<a href="https://patreon.com/StatikFinTech_LLC">
+  <img src="https://raw.githubusercontent.com/statikfintechllc/statikfintechllc/master/badges/patreon.sponsor.svg">
+</a><br>
+<a href="https://cash.app/$statikmoney8">
+  <img src="https://raw.githubusercontent.com/statikfintechllc/statikfintechllc/master/badges/cashapp.sponsor.svg">
+</a><br>
+<a href="https://paypal.me/statikmoney8">
+  <img src="https://raw.githubusercontent.com/statikfintechllc/statikfintechllc/master/badges/paypal.sponsor.svg">
+</a><br>
+<a href="https://www.blockchain.com/explorer/addresses/btc/bc1qarsr966ulmcs3mlcvae7p63v4j2y2vqrw74jl8">
+  <img src="https://raw.githubusercontent.com/statikfintechllc/statikfintechllc/master/badges/bitcoin.sponsor.svg">
+</a><br>
+<a href="https://etherscan.io/address/0xC2db50A0fc6c95f36Af7171D8C41F6998184103F">
+  <img src="https://raw.githubusercontent.com/statikfintechllc/statikfintechllc/master/badges/ethereum.sponsor.svg">
+</a><br>
+<a href="https://www.chime.com">
+  <img src="https://raw.githubusercontent.com/statikfintechllc/statikfintechllc/master/badges/chime.sponsor.svg">
+</a>
+</div>
+
+ **Want to See you're own ideas built, or to sponsor hardware directly? Reach Out to:**
+- **Email:** [ascend.gremlin@gmail.com](mailto:ascend.gremlin@gmail.com) | [ascend.help@gmail.com](mailto:ascend.help@gmail.com)
+- **Call Us:** [+1 (620) 266-9837](sms:+16202669837)  
+- **Text Us:** [+1 (785) 443-6288](sms:+17854436288)  
+- **DM:**  
+  - a) [LinkedIn: StatikFinTech, LLC](https://www.linkedin.com/in/statikfintech-llc-780804368/)
+  - b) [X: @GremlinsForge](https://twitter.com/GremlinsForge)  
+
+**See Our [Open Funding Proposal](https://github.com/statikfintechllc/Ascend-Institute/blob/master/About%20Us/OPEN_FUNDING_PROPOSAL.md)**
+
+<div align="center">
+
+  <br/> [© 2025 StatikFinTech, LLC](https://www.github.com/statikfintechllc/GremlinGPT/blob/master/LICENSE.md)
+
+  <a href="https://github.com/statikfintechllc">
+    <img src="https://img.shields.io/badge/-000000?logo=github&logoColor=white&style=flat-square" alt="GitHub">
+  </a>
+  <a href="https://www.linkedin.com/in/daniel-morris-780804368">
+    <img src="https://img.shields.io/badge/In-e11d48?logo=linkedin&logoColor=white&style=flat-square" alt="LinkedIn">
+  </a>
+  <a href="mailto:ascend.gremlin@gmail.com">
+    <img src="https://img.shields.io/badge/-D14836?logo=gmail&logoColor=white&style=flat-square" alt="Email">
+  </a>
+  <a href="https://www.youtube.com/@Gremlins_Forge">
+    <img src="https://img.shields.io/badge/-FF0000?logo=youtube&logoColor=white&style=flat-square" alt="YouTube">
+  </a>
+  <a href="https://x.com/GremlinsForge">
+    <img src="https://img.shields.io/badge/-000000?logo=x&logoColor=white&style=flat-square" alt="X">
+  </a>
+  <a href="https://medium.com/@ascend.gremlin">
+    <img src="https://img.shields.io/badge/-000000?logo=medium&logoColor=white&style=flat-square" alt="Medium">
+  </a>  
+</div>
