@@ -22,11 +22,6 @@
 
 *Designed specifically for developers and technical professionals who need a clean, efficient way to interact with AI models.*
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)
-![React](https://img.shields.io/badge/React-19.0-blue.svg)
-![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)
-
 ## ✨ Features
 
 ### 🤖 Multi-Model AI Chat
