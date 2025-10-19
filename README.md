@@ -30,15 +30,17 @@
 - **Real-time Responses**: Fast, responsive chat experience with immediate feedback
 
 ### 🔐 Secure Authentication
-- **GitHub OAuth**: Secure authentication using your GitHub account
-- **Token Management**: Safe handling of authentication tokens with proxy server
-- **Session Persistence**: Stay logged in across browser sessions
+- **VS Code-Style Auth**: Modern authentication flow inspired by VS Code
+- **GitHub OAuth via Supabase**: No custom backend required
+- **Persistent Sessions**: Stay logged in across browser sessions
+- **Secure Token Management**: Tokens managed by Supabase Auth
 
 ### 💬 Advanced Chat Features
-- **Conversation History**: Persistent chat history with ability to create new conversations
+- **Conversation History**: Persistent chat history stored in Supabase database
 - **Message Management**: Edit messages and switch between different response versions
 - **Image Upload**: Upload and analyze images with AI (drag-and-drop support)
 - **Code Highlighting**: Syntax highlighting for code blocks with copy functionality
+- **RAG Integration**: Retrieval-Augmented Generation for context-aware responses
 
 ### 🎨 Professional UI/UX
 - **Clean Design**: Modern, glassmorphic interface optimized for long coding sessions
@@ -57,9 +59,10 @@
 - **React Router** for navigation
 
 ### Backend
-- **Express.js** server for OAuth proxy
-- **CORS** enabled for secure cross-origin requests
-- **GitHub OAuth** integration
+- **Supabase** for authentication, database, and real-time features
+- **PostgreSQL with pgvector** for vector similarity search
+- **Row Level Security (RLS)** for data protection
+- **Supabase Auth** for OAuth integration
 
 ### Development Tools
 - **ESLint** for code linting
@@ -72,7 +75,9 @@
 
 - **Node.js** 18 or higher
 - **npm** or **yarn** package manager
-- **GitHub OAuth App** (for authentication)
+- **Supabase Account** (free tier available at https://supabase.com)
+- **OpenAI API Key** (for RAG functionality)
+- **GitHub OAuth App** (configured in Supabase)
 
 ### Installation
 
@@ -87,74 +92,104 @@
    npm install
    ```
 
-3. **Set up environment variables**
+3. **Set up Supabase**
    
-   Create a `.env` file in the root directory:
+   Follow the detailed guide in [`docs/SUPABASE_SETUP.md`](docs/SUPABASE_SETUP.md)
+   
+   Quick steps:
+   - Create a Supabase project
+   - Enable GitHub OAuth provider
+   - Run database migrations
+   - Get your Supabase credentials
+
+4. **Set up environment variables**
+   
+   Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Fill in your credentials:
    ```env
-   # GitHub OAuth Configuration
-   VITE_GITHUB_CLIENT_ID=your_github_client_id
-   VITE_GITHUB_CLIENT_SECRET=your_github_client_secret
-   VITE_GITHUB_REDIRECT_URI=http://localhost:3001/auth/callback
+   # Supabase Configuration
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   
+   # OpenAI Configuration (for RAG)
+   VITE_OPENAI_API_KEY=your-openai-api-key
+   
+   # GitHub OAuth (optional - for additional API calls)
+   VITE_GITHUB_CLIENT_ID=your-github-client-id
    ```
 
-4. **Start the development servers**
+5. **Start the development server**
    
-   **Terminal 1** - Start the OAuth proxy server:
-   ```bash
-   node server.js
-   ```
-   
-   **Terminal 2** - Start the frontend development server:
    ```bash
    npm run dev
    ```
 
-5. **Access the application**
-   - Frontend: http://localhost:5174 (or auto-assigned port)
-   - OAuth Server: http://localhost:3001
+6. **Access the application**
+   - Frontend: http://localhost:4173 (or auto-assigned port)
+   - Supabase Dashboard: Check your project URL
 
 ## 🔧 Configuration
 
-### GitHub OAuth Setup
+### Supabase Setup
 
-1. Go to GitHub Settings > Developer settings > OAuth Apps
-2. Create a new OAuth App with:
-   - **Application name**: Pilot Server
-   - **Homepage URL**: http://localhost:5174
-   - **Authorization callback URL**: http://localhost:3001/auth/callback
-3. Copy the Client ID and Client Secret to your `.env` file
+For detailed Supabase configuration, see [`docs/SUPABASE_SETUP.md`](docs/SUPABASE_SETUP.md)
+
+Quick overview:
+1. Create a Supabase project
+2. Enable GitHub OAuth provider in Authentication settings
+3. Run the SQL migration from `supabase/migrations/001_initial_schema.sql`
+4. Copy your Supabase URL and anon key to `.env`
 
 ### Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `VITE_GITHUB_CLIENT_ID` | GitHub OAuth Client ID | Yes |
-| `VITE_GITHUB_CLIENT_SECRET` | GitHub OAuth Client Secret | Yes |
-| `VITE_GITHUB_REDIRECT_URI` | OAuth callback URL | Yes |
+| `VITE_SUPABASE_URL` | Your Supabase project URL | Yes |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
+| `VITE_OPENAI_API_KEY` | OpenAI API key for embeddings | Yes (for RAG) |
+| `VITE_GITHUB_CLIENT_ID` | GitHub OAuth Client ID | Optional |
+
+**Note**: The Supabase anon key is safe to expose in the browser because Row Level Security (RLS) protects all data access.
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   OAuth Proxy    │    │    GitHub       │
-│   (React App)   │    │   (Express.js)   │    │    OAuth        │
-│   Port: 5174    │◄──►│   Port: 3001     │◄──►│    Server       │
+│   Frontend      │    │   Supabase       │    │    GitHub       │
+│   (React App)   │    │   Platform       │    │    OAuth        │
+│   Static Site   │◄──►│   Auth + DB      │◄──►│    Server       │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
+                              │
+                              ▼
+                       ┌──────────────────┐
+                       │   PostgreSQL     │
+                       │   + pgvector     │
+                       │   + RLS          │
+                       └──────────────────┘
 ```
+
+For detailed architecture documentation, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
 ### Key Components
 
 - **Frontend (React)**: User interface and chat functionality
-- **OAuth Proxy (Express)**: Secure token exchange with GitHub
-- **GitHub OAuth**: Authentication and authorization
+- **Supabase Auth**: VS Code-style GitHub OAuth authentication
+- **Supabase Database**: PostgreSQL with Row Level Security
+- **pgvector**: Vector similarity search for RAG
+- **OpenAI API**: Embedding generation for RAG
 
 ### Data Flow
 
-1. User initiates GitHub OAuth login
-2. GitHub redirects to OAuth proxy server
-3. Proxy exchanges code for access token
-4. Frontend receives token and authenticates user
-5. User can now access chat functionality
+1. User initiates GitHub OAuth login via Supabase
+2. Supabase handles OAuth flow with GitHub
+3. User session is established and stored
+4. Chat messages are saved to Supabase database
+5. RAG system generates and stores embeddings
+6. Vector search provides context for AI responses
 
 ## 📱 Usage
 
@@ -206,20 +241,26 @@ npm run lint -- --fix
 ### Common Issues
 
 1. **OAuth Authentication Fails**
-   - Verify GitHub OAuth app configuration
-   - Check environment variables are set correctly
-   - Ensure callback URL matches OAuth app settings
+   - Verify Supabase GitHub OAuth is configured correctly
+   - Check callback URL matches Supabase settings
+   - Ensure browser allows cookies and localStorage
 
-2. **Build Errors**
+2. **Database Connection Errors**
+   - Verify Supabase URL and anon key are correct
+   - Check Row Level Security policies
+   - Ensure migrations were run successfully
+
+3. **Build Errors**
    - Clear node_modules and reinstall: `rm -rf node_modules package-lock.json && npm install`
    - Check Node.js version compatibility (18+)
 
-3. **CORS Issues**
-   - Verify both servers are running on correct ports
-   - Check CORS configuration in server.js
+4. **RAG Not Working**
+   - Verify OpenAI API key is valid
+   - Check pgvector extension is enabled in Supabase
+   - Ensure embeddings table exists
 
-4. **Port Conflicts**
-   - Change ports in vite.config.ts (frontend) or server.js (backend)
+5. **Port Conflicts**
+   - Change port in vite.config.ts
    - Kill existing processes: `npm run kill`
 
 ### Performance Optimization
