@@ -141,6 +141,8 @@ This requires some manual testing via SQL:
 
 ```sql
 -- In Supabase SQL Editor
+-- Note: This example uses an arbitrary embedding for testing the query structure.
+-- In production, you would generate a proper query embedding from your search text.
 SELECT 
   content,
   metadata,
@@ -154,6 +156,8 @@ LIMIT 5;
 - [ ] Query returns results
 - [ ] Similarity scores are between 0 and 1
 - [ ] Results are ordered by similarity
+
+Note: For production use, generate embeddings using the RAG system's `generateEmbedding()` function.
 
 #### Test 4.4: Context Augmentation
 
@@ -195,12 +199,17 @@ This requires two different GitHub accounts:
 Try to access another user's data directly via SQL:
 
 ```sql
--- This should return empty or error
+-- This should return empty results due to RLS policies
+-- RLS policies automatically filter data based on auth.uid()
+-- Even with an explicit WHERE clause, RLS policies override
 SELECT * FROM chats WHERE user_id != auth.uid();
 ```
 
-- [ ] Query returns no results or access denied
+- [ ] Query returns no results (RLS filters automatically)
 - [ ] RLS policies are working correctly
+- [ ] Access denied errors indicate proper security
+
+**Important**: Row Level Security (RLS) policies are applied automatically by PostgreSQL and override any WHERE conditions in your queries. Users can only see their own data regardless of what they query.
 
 ### 6. Error Handling
 
@@ -341,13 +350,13 @@ Look for:
 For CI/CD pipelines:
 
 ```bash
-# Run all tests
+# Run all tests (combines linting, validation, and building - may take 3-5 minutes)
 npm run test:quality
 
-# Individual tests
-npm run lint        # Linting
-npm run build       # Build test
-npm run validate:all # Custom validations
+# Individual tests for faster debugging:
+npm run lint         # ESLint checking (~30 seconds)
+npm run build        # TypeScript compilation and Vite build (~1-2 minutes)
+npm run validate:all # Custom validations (~30 seconds)
 ```
 
 ## Performance Benchmarks

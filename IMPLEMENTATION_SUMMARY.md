@@ -2,7 +2,7 @@
 
 ## Overview
 
-Successfully implemented a complete overhaul of the Pilot Server authentication and data persistence system, transforming it from a custom OAuth proxy setup to a modern, production-ready architecture using VS Code-style authentication, Supabase backend, and RAG capabilities.
+Successfully implemented a complete overhaul of the Pilot Server authentication and data persistence system. The transformation moves from a custom OAuth proxy setup to a modern, production-ready architecture using VS Code-style authentication, Supabase backend, and RAG capabilities.
 
 ## What Was Implemented
 

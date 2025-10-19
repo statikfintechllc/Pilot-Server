@@ -33,10 +33,12 @@ npm install
 3. Create GitHub OAuth App:
    - Go to [github.com/settings/developers](https://github.com/settings/developers)
    - Click "New OAuth App"
-   - **Homepage URL**: `http://localhost:4173`
+   - **Homepage URL**: `http://localhost:5173` (development server)
    - **Callback URL**: Copy from Supabase (format: `https://xxx.supabase.co/auth/v1/callback`)
 4. Copy Client ID and Client Secret to Supabase
 5. Click "Save"
+
+**Note**: For production, create a separate OAuth app with your production URL.
 
 ### Step 4: Set Up Database (1 minute)
 
@@ -74,7 +76,10 @@ VITE_OPENAI_API_KEY=sk-xxx  # Optional for now
 npm run dev
 ```
 
-Open http://localhost:4173 in your browser.
+The development server will start on `http://localhost:4173`.
+Open this URL in your browser to access the application.
+
+**Note**: This project uses port 4173 for development (configured in `vite.config.ts`).
 
 ## ✅ Verify Everything Works
 
