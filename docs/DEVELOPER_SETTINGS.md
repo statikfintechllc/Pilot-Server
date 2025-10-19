@@ -2,17 +2,58 @@
 
 ## Overview
 
-The Developer Settings panel provides a comprehensive interface for managing API keys, configuring AI providers, viewing transparent pricing, and requesting new models. This guide explains how to use each feature.
+The Developer Settings panel provides a comprehensive interface for managing API keys, configuring AI providers, viewing transparent pricing, and requesting new models. 
+
+**⚠️ Important: Access Level Depends on Your Role**
+
+- **Maintainers** (repository owners/core developers): Full developer settings with all 4 tabs
+- **Regular Users**: Simplified "Usage & Tiers" panel with upgrade options and provider requests
+
+See [ROLE_BASED_ACCESS.md](./ROLE_BASED_ACCESS.md) for complete details on the role system.
 
 ## Accessing Developer Settings
 
 1. Click the **gear icon (⚙️)** in the top-right corner of the app
 2. Navigate to the **"Developer"** tab
-3. You'll see four sub-tabs: API Keys, Providers, Pricing, and Request Model
+3. **Maintainers** will see four sub-tabs: API Keys, Providers, Pricing, and Request Model
+4. **Regular Users** will see a simplified Usage & Tiers interface
 
-## Features
+## For Regular Users: Usage & Tiers Panel
 
-### 1. API Key Management
+If you're a regular user (not a repository maintainer), you'll see a simplified interface with the following sections:
+
+### Your Current Tier
+- Displays your active sponsorship tier (Free, Supporter, Pro, or Power)
+- Shows monthly cost and included features
+- Lists all features available at your tier level
+
+### Upgrade Options
+- View all available sponsorship tiers
+- See storage quotas and features for each tier
+- Direct link to GitHub Sponsors to upgrade
+
+### Transparent Pricing
+- Breakdown of what your sponsorship covers:
+  - Database hosting costs
+  - OpenAI API costs for RAG
+  - Infrastructure and CDN
+  - Development and support
+- Information about AI provider costs and markup
+
+### Request New AI Provider
+- Submit requests for new AI models via email
+- Maintainers review and assess feasibility
+- Cost impact and tier requirements communicated
+
+**Note:** Regular users cannot add API keys directly. This is by design to maintain security and cost control. All AI provider access is managed through the sponsorship tier system.
+
+---
+
+## For Maintainers: Full Developer Settings
+
+The following sections are available only to repository maintainers with full access.
+
+### 1. API Key Management (Maintainers Only)
 
 **Purpose:** Store and manage API keys for different AI providers locally in your browser.
 

@@ -12,7 +12,7 @@ import {
   Key, 
   Database, 
   Brain, 
-  DollarSign, 
+  CurrencyDollar, 
   PlusCircle,
   Eye,
   EyeSlash,
@@ -20,9 +20,23 @@ import {
   Warning,
   Info,
   Lightning,
-  ChartBar
+  ChartBar,
+  Crown,
+  Lock
 } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
+
+// Maintainer GitHub usernames (repository owners and core developers)
+const MAINTAINER_USERNAMES = [
+  'statikfintechllc',
+  // Add more maintainer usernames here as needed
+];
+
+// Check if user is a maintainer
+function isMaintainer(username: string | undefined): boolean {
+  if (!username) return false;
+  return MAINTAINER_USERNAMES.includes(username.toLowerCase());
+}
 
 interface APIProvider {
   id: string;
@@ -125,7 +139,13 @@ interface ModelRequest {
   email: string;
 }
 
-export function DeveloperSettings() {
+interface DeveloperSettingsProps {
+  userLogin?: string; // GitHub username
+  userTier?: string; // Current sponsorship tier
+}
+
+export function DeveloperSettings({ userLogin, userTier = 'Free' }: DeveloperSettingsProps) {
+  const isUserMaintainer = isMaintainer(userLogin);
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
   const [currentKey, setCurrentKey] = useState('');
@@ -215,11 +235,221 @@ export function DeveloperSettings() {
     }, 3000);
   };
 
+  // Regular user view (non-maintainers)
+  if (!isUserMaintainer) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Database className="w-6 h-6 text-primary" />
+            <h2 className="text-2xl font-bold">Usage & Tiers</h2>
+          </div>
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Lock className="w-3 h-3" />
+            User Access
+          </Badge>
+        </div>
+
+        {/* Current Tier Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5" />
+              Your Current Tier
+            </CardTitle>
+            <CardDescription>
+              Access level and features based on your sponsorship
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="p-6 rounded-lg border-2 border-primary/20 bg-primary/5">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-2xl font-bold">{userTier} Tier</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {userTier === 'Free' && 'localStorage only • No database features'}
+                    {userTier === 'Supporter' && '1 GB database storage • Cross-device sync'}
+                    {userTier === 'Pro' && '5 GB storage • RAG features • Premium AI providers'}
+                    {userTier === 'Power' && '20 GB storage • All features • Priority support'}
+                  </p>
+                </div>
+                <Badge 
+                  variant={userTier === 'Free' ? 'secondary' : 'default'}
+                  className="text-lg px-4 py-2"
+                >
+                  {userTier === 'Free' ? '$0' : userTier === 'Supporter' ? '$5' : userTier === 'Pro' ? '$10' : '$25'}/mo
+                </Badge>
+              </div>
+              
+              {/* Feature List */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-600" weight="fill" />
+                  <span>Full chat interface with all AI models</span>
+                </div>
+                {userTier !== 'Free' && (
+                  <>
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-600" weight="fill" />
+                      <span>Database storage for chat history</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-600" weight="fill" />
+                      <span>Cross-device synchronization</span>
+                    </div>
+                  </>
+                )}
+                {(userTier === 'Pro' || userTier === 'Power') && (
+                  <>
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-600" weight="fill" />
+                      <span>RAG (Retrieval-Augmented Generation)</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-600" weight="fill" />
+                      <span>Access to premium AI providers</span>
+                    </div>
+                  </>
+                )}
+                {userTier === 'Power' && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="w-4 h-4 text-green-600" weight="fill" />
+                    <span>Priority support & early feature access</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Upgrade Options */}
+        {userTier !== 'Power' && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lightning className="w-5 h-5" />
+                Upgrade Your Tier
+              </CardTitle>
+              <CardDescription>
+                Get more storage, features, and capabilities
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-3">
+                {['Supporter', 'Pro', 'Power'].map((tier) => (
+                  <div 
+                    key={tier}
+                    className={cn(
+                      "p-4 rounded-lg border-2 hover:border-primary/50 transition-colors",
+                      userTier === tier ? "border-primary bg-primary/5" : "border-muted"
+                    )}
+                  >
+                    <h4 className="font-semibold mb-1">{tier}</h4>
+                    <p className="text-2xl font-bold mb-2">
+                      ${tier === 'Supporter' ? '5' : tier === 'Pro' ? '10' : '25'}<span className="text-sm font-normal text-muted-foreground">/month</span>
+                    </p>
+                    <div className="space-y-1 mb-3">
+                      <p className="text-sm text-muted-foreground">
+                        {tier === 'Supporter' && '1 GB storage'}
+                        {tier === 'Pro' && '5 GB + RAG'}
+                        {tier === 'Power' && '20 GB + Priority'}
+                      </p>
+                    </div>
+                    {userTier !== tier && (
+                      <Button size="sm" className="w-full" asChild>
+                        <a href="https://github.com/sponsors/statikfintechllc" target="_blank" rel="noopener noreferrer">
+                          Sponsor Now
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Pricing Transparency */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CurrencyDollar className="w-5 h-5" />
+              Transparent Pricing
+            </CardTitle>
+            <CardDescription>
+              See exactly what you're paying for
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg bg-muted/50">
+                <h4 className="font-medium mb-2">What Your Sponsorship Covers:</h4>
+                <ul className="space-y-1 text-sm text-muted-foreground">
+                  <li>• Database hosting (~$0.50/user/month)</li>
+                  <li>• OpenAI API costs for RAG (~$2-5/user/month for heavy usage)</li>
+                  <li>• Infrastructure and CDN</li>
+                  <li>• Development and support</li>
+                  <li>• New AI provider integrations</li>
+                </ul>
+              </div>
+              
+              <div className="p-4 rounded-lg border border-blue-200 bg-blue-50">
+                <div className="flex items-start gap-2">
+                  <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-blue-700">
+                    <p className="font-medium">AI Provider Costs</p>
+                    <p className="text-xs mt-1">
+                      When using premium AI providers (OpenAI, Anthropic, etc.), you'll need your own API keys. 
+                      We add a small 3-5% markup to cover infrastructure costs. All pricing is fully transparent.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Request API Access */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PlusCircle className="w-5 h-5" />
+              Request New AI Provider
+            </CardTitle>
+            <CardDescription>
+              Want access to a specific AI model? Let us know!
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                We're always looking to add new AI providers based on user demand. Submit a request and 
+                we'll evaluate the cost, technical feasibility, and required sponsorship tier.
+              </p>
+              <Button variant="outline" className="w-full" asChild>
+                <a href="mailto:support@statikfintech.com?subject=AI Provider Request" target="_blank" rel="noopener noreferrer">
+                  Submit Provider Request
+                </a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Maintainer view (full developer settings)
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Code className="w-6 h-6 text-primary" />
-        <h2 className="text-2xl font-bold">Developer Settings</h2>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Code className="w-6 h-6 text-primary" />
+          <h2 className="text-2xl font-bold">Developer Settings</h2>
+        </div>
+        <Badge variant="default" className="flex items-center gap-1">
+          <Crown className="w-3 h-3" />
+          Maintainer Access
+        </Badge>
       </div>
 
       <Tabs defaultValue="api-keys" className="w-full">
@@ -443,7 +673,7 @@ export function DeveloperSettings() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5" />
+                <CurrencyDollar className="w-5 h-5" />
                 Transparent Pricing
               </CardTitle>
               <CardDescription>
@@ -524,7 +754,7 @@ export function DeveloperSettings() {
                 {/* Tier Price Adjustments */}
                 <div className="p-4 rounded-lg border bg-gradient-to-r from-purple-50 to-pink-50">
                   <h4 className="font-medium mb-2 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
+                    <CurrencyDollar className="w-4 h-4" />
                     Sponsorship Tier Adjustments
                   </h4>
                   <div className="space-y-2 text-sm">

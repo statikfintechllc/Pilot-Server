@@ -313,27 +313,37 @@ export function SettingsDialog({ trigger, className }: SettingsDialogProps) {
               </CardContent>
             </Card>
           )}
+          </TabsContent>
 
-          {/* App Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>About Pilot Server</CardTitle>
-              <CardDescription>
-                AI Chat Interface with GitHub Integration
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="text-sm">
-                <span className="font-medium">Version:</span> 1.0.0
-              </div>
-              <div className="text-sm">
-                <span className="font-medium">Features:</span> Multi-model AI, GitHub integration, file uploads, voice input
-              </div>
-              <div className="text-sm">
-                <span className="font-medium">Support:</span> GitHub Issues and Discussions
-              </div>
-            </CardContent>
-          </Card>
+          {/* Developer Tab */}
+          <TabsContent value="developer" className="space-y-6 mt-6">
+            <DeveloperSettings 
+              userLogin={authState.user?.login}
+              userTier="Free" // TODO: Get from sponsorship service
+            />
+          </TabsContent>
+
+          {/* About Tab */}
+          <TabsContent value="about" className="space-y-6 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>About Pilot Server</CardTitle>
+                <CardDescription>
+                  AI Chat Interface with GitHub Integration
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="text-sm">
+                  <span className="font-medium">Version:</span> 1.0.0
+                </div>
+                <div className="text-sm">
+                  <span className="font-medium">Features:</span> Multi-model AI, GitHub integration, RAG system, database sync
+                </div>
+                <div className="text-sm">
+                  <span className="font-medium">Support:</span> GitHub Issues and Discussions
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </DialogContent>
