@@ -1,7 +1,8 @@
 import { supabase, Chat, ChatMessage } from './client';
+import { sponsorshipService } from './sponsorship-service';
 
 /**
- * Database service for chat operations
+ * Database service for chat operations with sponsorship quota enforcement
  */
 export class ChatDatabaseService {
   /**
@@ -47,6 +48,18 @@ export class ChatDatabaseService {
    */
   async createChat(userId: string, title: string): Promise<Chat | null> {
     try {
+      // Check if user can access database features
+      const canAccess = await sponsorshipService.canAccessDatabase(userId);
+      if (!canAccess) {
+        throw new Error('Database access requires sponsorship. Please upgrade your tier.');
+      }
+
+      // Check quota
+      const hasQuota = await sponsorshipService.hasQuota(userId);
+      if (!hasQuota) {
+        throw new Error('Storage quota exceeded. Please upgrade your tier for more storage.');
+      }
+
       const { data, error } = await supabase
         .from('chats')
         .insert({
@@ -118,6 +131,12 @@ export class ChatDatabaseService {
     model?: string
   ): Promise<ChatMessage | null> {
     try {
+      // Check quota before adding message
+      const hasQuota = await sponsorshipService.hasQuota(userId);
+      if (!hasQuota) {
+        throw new Error('Storage quota exceeded. Please upgrade your tier for more storage.');
+      }
+
       const { data, error } = await supabase
         .from('chat_messages')
         .insert({

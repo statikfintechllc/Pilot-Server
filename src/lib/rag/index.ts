@@ -1,4 +1,5 @@
 import { supabase } from '../supabase/client';
+import { sponsorshipService } from '../supabase/sponsorship-service';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
@@ -39,6 +40,18 @@ export async function storeDocument(
   metadata: Record<string, unknown> = {}
 ): Promise<string> {
   try {
+    // Check if user can access RAG features
+    const canAccess = await sponsorshipService.canAccessRAG(userId);
+    if (!canAccess) {
+      throw new Error('RAG features require Pro or Power tier sponsorship. Please upgrade.');
+    }
+
+    // Check quota
+    const hasQuota = await sponsorshipService.hasQuota(userId);
+    if (!hasQuota) {
+      throw new Error('Storage quota exceeded. Please upgrade your tier for more storage.');
+    }
+
     const embedding = await generateEmbedding(content);
 
     const { data, error } = await supabase
