@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { authProvider, VSCodeAuthSession } from '@/lib/auth/vscode-auth';
+import { authProvider } from '@/lib/auth/vscode-auth';
 import { supabase } from '@/lib/supabase/client';
 
 export interface GitHubUser {

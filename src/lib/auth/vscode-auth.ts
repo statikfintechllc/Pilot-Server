@@ -70,7 +70,7 @@ export class VSCodeAuthProvider {
   async createSession(scopes: string[] = ['read:user', 'user:email']): Promise<VSCodeAuthSession> {
     try {
       // Use Supabase Auth with GitHub provider
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
           scopes: scopes.join(' '),
@@ -108,7 +108,7 @@ export class VSCodeAuthProvider {
   /**
    * Convert Supabase session to VS Code session format
    */
-  private async convertToVSCodeSession(supabaseSession: any): Promise<VSCodeAuthSession> {
+  private async convertToVSCodeSession(supabaseSession: { user: { id: string; email?: string; user_metadata?: Record<string, unknown> }; access_token: string }): Promise<VSCodeAuthSession> {
     const user = supabaseSession.user;
     const session: VSCodeAuthSession = {
       accessToken: supabaseSession.access_token,
@@ -133,7 +133,7 @@ export class VSCodeAuthProvider {
   /**
    * Sync user profile with database
    */
-  private async syncUserProfile(user: any): Promise<void> {
+  private async syncUserProfile(user: { id: string; email?: string; user_metadata?: Record<string, unknown> }): Promise<void> {
     try {
       const profile = {
         id: user.id,

@@ -1,7 +1,6 @@
 import { useChat } from '@/hooks/use-chat';
 import { useVSCodeAuth } from '@/hooks/use-vscode-auth';
 import { ChatHeader } from '@/components/ChatHeader';
-import { ChatMessages } from '@/components/ChatMessages';
 import { MessageInput } from '@/components/MessageInput';
 import { ChatSidebar } from '@/components/ChatSidebar';
 import { ModelBubble } from '@/components/ModelBubble';
