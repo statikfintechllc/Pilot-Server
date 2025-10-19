@@ -4,9 +4,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth, AVAILABLE_GITHUB_MODELS } from '@/hooks/use-auth';
-import { Gear, SignIn, SignOut, Robot, GitBranch, User, Star, ArrowClockwise } from '@phosphor-icons/react';
+import { Gear, SignIn, SignOut, Robot, GitBranch, User, Star, ArrowClockwise, Code } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
+import { DeveloperSettings } from '@/components/DeveloperSettings';
 
 interface SettingsDialogProps {
   trigger?: React.ReactNode;
@@ -69,7 +71,7 @@ export function SettingsDialog({ trigger, className }: SettingsDialogProps) {
       <DialogTrigger asChild>
         {trigger || defaultTrigger}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Gear className="w-5 h-5" />
@@ -77,7 +79,23 @@ export function SettingsDialog({ trigger, className }: SettingsDialogProps) {
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6">
+        <Tabs defaultValue="github" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="github">
+              <GitBranch className="w-4 h-4 mr-2" />
+              GitHub
+            </TabsTrigger>
+            <TabsTrigger value="developer">
+              <Code className="w-4 h-4 mr-2" />
+              Developer
+            </TabsTrigger>
+            <TabsTrigger value="about">
+              <Gear className="w-4 h-4 mr-2" />
+              About
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="github" className="space-y-6 mt-6">
           {/* GitHub Authentication Section */}
           <Card>
             <CardHeader>
@@ -316,7 +334,8 @@ export function SettingsDialog({ trigger, className }: SettingsDialogProps) {
               </div>
             </CardContent>
           </Card>
-        </div>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
