@@ -22,7 +22,8 @@ import {
   Lightning,
   ChartBar,
   Crown,
-  Lock
+  Lock,
+  User
 } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 
@@ -235,20 +236,127 @@ export function DeveloperSettings({ userLogin, userTier = 'Free' }: DeveloperSet
     }, 3000);
   };
 
-  // Regular user view (non-maintainers)
+  // Regular user view (non-maintainers) - NOW WITH API KEY MANAGEMENT
   if (!isUserMaintainer) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Database className="w-6 h-6 text-primary" />
-            <h2 className="text-2xl font-bold">Usage & Tiers</h2>
+            <Code className="w-6 h-6 text-primary" />
+            <h2 className="text-2xl font-bold">Developer Settings</h2>
           </div>
           <Badge variant="outline" className="flex items-center gap-1">
-            <Lock className="w-3 h-3" />
+            <User className="w-3 h-3" />
             User Access
           </Badge>
         </div>
+
+        {/* API Key Management for Users */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Key className="w-5 h-5" />
+              Your API Keys
+            </CardTitle>
+            <CardDescription>
+              Add your own API keys to use AI providers. With your own keys, you only pay for storage!
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Add New Key */}
+            <div className="space-y-3">
+              <Label>Add API Key</Label>
+              <div className="flex gap-2">
+                <Select value={currentProvider} onValueChange={setCurrentProvider}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select provider" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {API_PROVIDERS.filter(p => p.available).map(provider => (
+                      <SelectItem key={provider.id} value={provider.id}>
+                        {provider.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  type="password"
+                  placeholder="Enter API key"
+                  value={currentKey}
+                  onChange={(e) => setCurrentKey(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={addApiKey} disabled={!currentKey || !currentProvider}>
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Add
+                </Button>
+              </div>
+            </div>
+
+            {/* Existing Keys */}
+            {apiKeys.length > 0 && (
+              <div className="space-y-2">
+                <Label>Your Configured Keys</Label>
+                {apiKeys.map(apiKey => {
+                  const provider = API_PROVIDERS.find(p => p.id === apiKey.provider);
+                  return (
+                    <div key={apiKey.provider} className="flex items-center gap-2 p-3 rounded-lg border">
+                      <Badge variant="outline">{provider?.name || apiKey.provider}</Badge>
+                      <Input
+                        type={showKeys[apiKey.provider] ? 'text' : 'password'}
+                        value={apiKey.key}
+                        readOnly
+                        className="flex-1 font-mono text-sm"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleShowKey(apiKey.provider)}
+                      >
+                        {showKeys[apiKey.provider] ? <EyeSlash className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeApiKey(apiKey.provider)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Benefits of Using Own API Keys */}
+            <div className="p-4 rounded-lg border border-green-200 bg-green-50">
+              <div className="flex items-start gap-2">
+                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" weight="fill" />
+                <div className="text-sm text-green-700">
+                  <p className="font-medium">Benefits of Your Own API Keys</p>
+                  <ul className="text-xs mt-2 space-y-1">
+                    <li>✅ <strong>No API markup</strong> - Pay providers directly at their base rates</li>
+                    <li>✅ <strong>Only pay for storage</strong> - Your sponsorship tier covers database costs only</li>
+                    <li>✅ <strong>Full control</strong> - Manage your own usage and billing with providers</li>
+                    <li>✅ <strong>Privacy</strong> - Keys stored locally in your browser, never on our servers</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Security Notice */}
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200">
+              <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-blue-700">
+                <p className="font-medium">Security Note</p>
+                <p className="text-xs mt-1">
+                  API keys are stored locally in your browser and never sent to our servers. 
+                  They're only used to authenticate directly with the AI provider.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Current Tier Card */}
         <Card>
@@ -258,7 +366,10 @@ export function DeveloperSettings({ userLogin, userTier = 'Free' }: DeveloperSet
               Your Current Tier
             </CardTitle>
             <CardDescription>
-              Access level and features based on your sponsorship
+              {apiKeys.length > 0 
+                ? 'Using your own API keys - You only pay for storage!' 
+                : 'Access level and features based on your sponsorship'
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -267,10 +378,22 @@ export function DeveloperSettings({ userLogin, userTier = 'Free' }: DeveloperSet
                 <div>
                   <h3 className="text-2xl font-bold">{userTier} Tier</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {userTier === 'Free' && 'localStorage only • No database features'}
-                    {userTier === 'Supporter' && '1 GB database storage • Cross-device sync'}
-                    {userTier === 'Pro' && '5 GB storage • RAG features • Premium AI providers'}
-                    {userTier === 'Power' && '20 GB storage • All features • Priority support'}
+                    {userTier === 'Free' && (apiKeys.length > 0 
+                      ? 'localStorage + Your API Keys • No database features'
+                      : 'localStorage only • No database features'
+                    )}
+                    {userTier === 'Supporter' && (apiKeys.length > 0
+                      ? '1 GB database storage • Your API Keys (No markup!)'
+                      : '1 GB database storage • Cross-device sync'
+                    )}
+                    {userTier === 'Pro' && (apiKeys.length > 0
+                      ? '5 GB storage • RAG • Your API Keys (No markup!)'
+                      : '5 GB storage • RAG features • Premium AI providers'
+                    )}
+                    {userTier === 'Power' && (apiKeys.length > 0
+                      ? '20 GB storage • All features • Your API Keys (No markup!)'
+                      : '20 GB storage • All features • Priority support'
+                    )}
                   </p>
                 </div>
                 <Badge 
@@ -280,6 +403,15 @@ export function DeveloperSettings({ userLogin, userTier = 'Free' }: DeveloperSet
                   {userTier === 'Free' ? '$0' : userTier === 'Supporter' ? '$5' : userTier === 'Pro' ? '$10' : '$25'}/mo
                 </Badge>
               </div>
+              
+              {apiKeys.length > 0 && (
+                <div className="mb-4 p-3 rounded-lg bg-green-100 border border-green-300">
+                  <div className="flex items-center gap-2 text-sm text-green-700">
+                    <CheckCircle className="w-4 h-4" weight="fill" />
+                    <span className="font-medium">Using {apiKeys.length} of your own API key{apiKeys.length > 1 ? 's' : ''} - No API markup!</span>
+                  </div>
+                </div>
+              )}
               
               {/* Feature List */}
               <div className="space-y-2">
@@ -382,29 +514,44 @@ export function DeveloperSettings({ userLogin, userTier = 'Free' }: DeveloperSet
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
+              {/* Own API Keys Benefit */}
+              {apiKeys.length > 0 && (
+                <div className="p-4 rounded-lg border border-green-200 bg-green-50">
+                  <h4 className="font-medium mb-2 text-green-700">🎉 You're Using Your Own API Keys!</h4>
+                  <ul className="space-y-1 text-sm text-green-700">
+                    <li>✅ <strong>$0 API markup</strong> - Pay providers directly at their base rates</li>
+                    <li>✅ <strong>Storage only</strong> - Your ${userTier === 'Supporter' ? '5' : userTier === 'Pro' ? '10' : userTier === 'Power' ? '25' : '0'}/month covers database costs</li>
+                    <li>✅ <strong>Full transparency</strong> - See exact costs from providers</li>
+                    <li>✅ <strong>Maximum savings</strong> - No middleman fees on API calls</li>
+                  </ul>
+                </div>
+              )}
+              
               <div className="p-4 rounded-lg bg-muted/50">
                 <h4 className="font-medium mb-2">What Your Sponsorship Covers:</h4>
                 <ul className="space-y-1 text-sm text-muted-foreground">
                   <li>• Database hosting (~$0.50/user/month)</li>
-                  <li>• OpenAI API costs for RAG (~$2-5/user/month for heavy usage)</li>
+                  {(userTier === 'Pro' || userTier === 'Power') && <li>• RAG OpenAI embeddings (~$1-3/user/month)</li>}
                   <li>• Infrastructure and CDN</li>
                   <li>• Development and support</li>
-                  <li>• New AI provider integrations</li>
+                  <li>• New feature development</li>
                 </ul>
               </div>
               
-              <div className="p-4 rounded-lg border border-blue-200 bg-blue-50">
-                <div className="flex items-start gap-2">
-                  <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-blue-700">
-                    <p className="font-medium">AI Provider Costs</p>
-                    <p className="text-xs mt-1">
-                      When using premium AI providers (OpenAI, Anthropic, etc.), you'll need your own API keys. 
-                      We add a small 3-5% markup to cover infrastructure costs. All pricing is fully transparent.
-                    </p>
+              {apiKeys.length === 0 && (
+                <div className="p-4 rounded-lg border border-blue-200 bg-blue-50">
+                  <div className="flex items-start gap-2">
+                    <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-blue-700">
+                      <p className="font-medium">Want to Save More?</p>
+                      <p className="text-xs mt-1">
+                        Add your own API keys above to avoid our 3-5% markup. You'll only pay for storage, 
+                        and API costs go directly to providers at their base rates.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </CardContent>
         </Card>

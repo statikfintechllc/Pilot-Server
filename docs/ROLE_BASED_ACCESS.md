@@ -2,7 +2,7 @@
 
 ## Overview
 
-Pilot Server implements a role-based access control system that provides different levels of access to the Developer Settings panel based on user roles.
+Pilot Server implements a role-based access control system that provides different levels of access to the Developer Settings panel. **Important Update:** All users (both maintainers and regular users) can now add and manage their own API keys. The main difference between roles is the visibility of advanced administrative features.
 
 ## User Roles
 
@@ -14,7 +14,7 @@ Pilot Server implements a role-based access control system that provides differe
 
 **Access Level:**
 - Full Developer Settings panel with all tabs
-- API Key Management (add/remove keys for all providers)
+- API Key Management (same as regular users)
 - Provider Directory (view all available and upcoming providers)
 - Transparent Pricing Calculator (real-time cost calculations)
 - Model Request Management (review user requests)
@@ -23,32 +23,51 @@ Pilot Server implements a role-based access control system that provides differe
 - Crown badge with "Maintainer Access" label
 
 **Purpose:**
-- Configure API keys for testing and development
-- Manage provider integrations
+- Same API key capabilities as regular users
+- Additional visibility into provider pricing and markup
 - Review and process user requests for new AI models
-- Monitor pricing and cost structures
+- Monitor pricing and cost structures for planning
 
-### 2. Regular User (All Other Users)
+### 2. Regular User (All Other Users) - **NOW WITH API KEY MANAGEMENT**
 
 **Identification:**
 - Any authenticated GitHub user not in the maintainer whitelist
 
 **Access Level:**
-- Simplified "Usage & Tiers" panel
-- View current sponsorship tier and features
-- See tier upgrade options with pricing
-- Access transparent pricing information
-- Submit requests for new AI providers via email
+- **API Key Management** - Add/remove your own API keys for all providers ✨ NEW!
+- **Current Tier Display** - View your sponsorship tier and features
+- **Tier Upgrade Options** - Upgrade via GitHub Sponsors
+- **Pricing Transparency** - Understand what you're paying for
+- **Provider Requests** - Request new AI providers via email
 
 **UI Indicator:**
-- Lock badge with "User Access" label
+- User badge with "User Access" label
 
 **Features Available:**
+- **API Key Management** - Full control over your own API keys ✅
+  - Add keys for OpenAI, Anthropic, xAI, Google AI
+  - Keys stored locally in your browser only
+  - No API markup when using your own keys
+  - Only pay for storage with your sponsorship tier
 - **Current Tier Display** - Shows active tier (Free, Supporter, Pro, Power)
 - **Feature List** - See what's included in current tier
 - **Upgrade Options** - View and upgrade to higher tiers via GitHub Sponsors
-- **Pricing Transparency** - Understand what sponsorship covers
+- **Pricing Transparency** - Understand infrastructure and storage costs
 - **Provider Requests** - Email-based system to request new AI models
+
+### Key Difference Between Roles
+
+**What's the Same:**
+- ✅ Both can add/manage API keys
+- ✅ Both can use all AI providers
+- ✅ Both store keys locally in browser
+- ✅ Both get direct provider billing with no markup (when using own keys)
+
+**What's Different:**
+- 🔧 Maintainers see advanced pricing calculator
+- 🔧 Maintainers see provider directory details
+- 🔧 Maintainers can review model request forms
+- 👤 Regular users see streamlined interface focused on tier management
 
 ## Adding Maintainers
 
@@ -65,26 +84,54 @@ const MAINTAINER_USERNAMES = [
 
 ## Security Considerations
 
-### User View
-- **No Sensitive Operations** - Regular users cannot add API keys or configure providers
-- **Email-Based Requests** - New provider requests go through maintainer review
+### User View (ALL USERS CAN NOW ADD API KEYS)
+- **Local Storage Only** - API keys stored in browser localStorage, never on servers
+- **Direct Provider Auth** - All API calls go directly to providers (no proxy)
+- **User-Controlled** - You manage your own keys and costs
+- **No Markup with Own Keys** - Pay providers directly at base rates
 - **Tier-Gated Features** - Database and RAG features require appropriate sponsorship
 - **Transparent Pricing** - All costs fully disclosed to build trust
 
 ### Maintainer View
-- **Local Storage Only** - API keys stored in browser localStorage, never on servers
-- **Direct Provider Auth** - All API calls go directly to providers (no proxy)
+- **Same API Key Security** - Maintainers use same secure local storage as regular users
+- **No Special Access** - Cannot see other users' API keys
+- **Administrative Tools** - Additional pricing calculator and provider management tools
 - **Whitelist-Based** - Maintainer access only for explicitly listed users
-- **Audit Trail** - All configuration changes happen client-side
+
+## Cost Model
+
+### With Your Own API Keys (ALL USERS)
+- **$0 API markup** - Pay AI providers directly at their base rates
+- **Storage-only billing** - Sponsorship tier covers database costs only
+- **Maximum savings** - 3-5% saved on every API call
+- **Full control** - Set usage limits with providers directly
+
+**Example Costs:**
+- Free Tier: $0/month + direct provider costs
+- Supporter Tier: $5/month (1GB storage) + direct provider costs
+- Pro Tier: $10/month (5GB + RAG) + direct provider costs
+- Power Tier: $25/month (20GB + all features) + direct provider costs
+
+### Without Your Own API Keys
+- **3-5% markup** - Small markup added to cover API management
+- **Simplified billing** - One sponsorship payment covers everything
+- **No provider accounts** - No need to sign up with multiple providers
 
 ## User Experience Flows
 
-### Regular User Flow
+### Regular User Flow (UPDATED)
 1. User clicks Settings → Developer tab
-2. Sees simplified "Usage & Tiers" interface
-3. Views current tier and available features
-4. Can upgrade via GitHub Sponsors link
-5. Can request new AI providers via email
+2. Sees "Developer Settings" interface with API key management
+3. Can add/remove API keys for any provider
+4. Views current tier and available features
+5. Sees benefits of using own keys (no markup!)
+6. Can upgrade via GitHub Sponsors link
+7. Can request new AI providers via email
+
+**Benefits Highlighted:**
+- "Using your own API keys - You only pay for storage!"
+- Green badge showing number of configured keys
+- Cost savings calculator showing 3-5% savings
 
 ### Maintainer Flow
 1. Maintainer clicks Settings → Developer tab

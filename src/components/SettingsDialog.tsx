@@ -82,7 +82,7 @@ export function SettingsDialog({ trigger, className }: SettingsDialogProps) {
         <Tabs defaultValue="github" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="github">
-              <GitBranch className="w-4 h-4 mr-2" />
+              <SignIn className="w-4 h-4 mr-2" />
               GitHub
             </TabsTrigger>
             <TabsTrigger value="developer">
