@@ -137,16 +137,20 @@ Expected flow:
 
 #### Test 4.3: Vector Search
 
-This requires some manual testing via SQL:
+This requires some manual testing via SQL. To properly test RAG functionality, you should generate a query embedding from your search text using the RAG system's `generateEmbedding()` function, and use that embedding in your SQL query.
 
-```sql
--- In Supabase SQL Editor
--- Note: This example uses an arbitrary embedding for testing the query structure.
--- In production, you would generate a proper query embedding from your search text.
-SELECT 
-  content,
-  metadata,
-  1 - (embedding <=> (SELECT embedding FROM document_embeddings LIMIT 1)) as similarity
+**Example: Generate a query embedding in Node.js**
+
+```js
+// Example: Generate a query embedding for your search text
+// Replace with your actual RAG embedding function import
+import { generateEmbedding } from './path/to/rag/embedding';
+
+const searchText = "your search query here";
+const embedding = await generateEmbedding(searchText);
+
+// Print the embedding as a comma-separated list for SQL
+console.log(embedding.join(', '));
 FROM document_embeddings
 WHERE user_id = 'your-user-id'
 ORDER BY similarity DESC
