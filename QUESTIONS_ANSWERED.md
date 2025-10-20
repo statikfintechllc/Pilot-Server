@@ -12,16 +12,16 @@
 > ---
 > 
 > Power Users:
->  - 1gb str, with user own api -- Level 1
->  - 5gb str, with user own api -- Level 2
->  - 10gb str, with user own api -- Level 3
+>  - 1GB storage, with user own api -- Level 1
+>  - 5GB storage, with user own api -- Level 2
+>  - 10GB storage, with user own api -- Level 3
 > 
 > ---
 > 
 > All-Access:
->  - 1 str, with provider API per million or end of month -- Level 1
->  - 5 str, with provider API per million or end of month -- Level 2
->  - 10gb str, with provider API per million or end of month -- Level 3
+>  - 1GB storage, with provider API per million or end of month -- Level 1
+>  - 5GB storage, with provider API per million or end of month -- Level 2
+>  - 10GB storage, with provider API per million or end of month -- Level 3
 > 
 > ---
 > 
