@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { IOSGitHubAuth } from '../lib/ios-oauth';
 
 // localStorage utility functions
 const useLocalStorage = <T>(key: string, defaultValue: T) => {
@@ -43,6 +44,342 @@ export interface AuthState {
   accessToken: string | null;
   isLoading: boolean;
   error: string | null;
+}
+
+export function useAuth() {
+  const [authState, setAuthState] = useLocalStorage<AuthState>('authState', {
+    isAuthenticated: false,
+    user: null,
+    accessToken: null,
+    isLoading: false,
+    error: null,
+  });
+
+  const [showDeviceFlow, setShowDeviceFlow] = useState(false);
+
+  // Get server URL dynamically
+  const getServerUrl = () => {
+    // Check if running in iOS app with embedded server
+    if (window.location.protocol === 'file:' || window.location.hostname === '127.0.0.1') {
+      return 'http://127.0.0.1:3001';
+    }
+    
+    // Check for network server
+    if (window.location.hostname !== 'localhost') {
+      return `${window.location.protocol}//${window.location.hostname}:3001`;
+    }
+    
+    return 'http://localhost:3001';
+  };
+
+  // Detect if running in iOS app
+  const isIOSApp = () => {
+    const userAgent = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    const isWebView = window.webkit && window.webkit.messageHandlers;
+    return isIOS && (isWebView || window.location.protocol === 'file:');
+  };
+
+  useEffect(() => {
+    checkAuthStatus();
+    
+    // Listen for authentication results from localStorage (iOS fallback)
+    const handleStorageChange = () => {
+      const authResult = localStorage.getItem('auth_result');
+      if (authResult) {
+        try {
+          const data = JSON.parse(authResult);
+          localStorage.removeItem('auth_result');
+          handleAuthenticationSuccess(data.token, data.user);
+        } catch (error) {
+          console.error('Failed to parse auth result:', error);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      if (!authState.accessToken) {
+        setAuthState(prev => ({ ...prev, isLoading: false }));
+        return;
+      }
+
+      const serverUrl = getServerUrl();
+      const response = await fetch(`${serverUrl}/auth/verify`, {
+        headers: {
+          Authorization: `Bearer ${authState.accessToken}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAuthState(prev => ({
+          ...prev,
+          isAuthenticated: true,
+          user: data.user,
+          isLoading: false,
+          error: null,
+        }));
+      } else {
+        // Clear invalid token
+        setAuthState({
+          isAuthenticated: false,
+          user: null,
+          accessToken: null,
+          isLoading: false,
+          error: null,
+        });
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      setAuthState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: 'Failed to verify authentication' 
+      }));
+    }
+  };
+
+  // **AUTOMATIC OAUTH - NO MANUAL INTERACTION**
+  const performAutomaticOAuth = useCallback(async () => {
+    try {
+      console.log('🚀 Starting automatic GitHub OAuth...');
+      setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
+      
+      const serverUrl = getServerUrl();
+      const redirectUri = `${serverUrl}/auth/callback`;
+      
+      if (isIOSApp()) {
+        // Use iOS automatic authentication
+        console.log('📱 Using iOS automatic authentication');
+        
+        const iosAuth = new IOSGitHubAuth();
+        const result = await iosAuth.authenticate(
+          'Iv1.b507a08c87ecfe98', // GitHub public client ID
+          redirectUri,
+          'user:email read:user'
+        );
+
+        if (result.success && result.code) {
+          // Exchange code for session token
+          const response = await fetch(`${serverUrl}/auth/exchange`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              code: result.code,
+              state: result.state
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to exchange authorization code');
+          }
+
+          const data = await response.json();
+          await handleAuthenticationSuccess(data.token, data.user);
+        } else {
+          throw new Error(result.error || 'Authentication failed');
+        }
+      } else {
+        // Use web automatic authentication
+        console.log('🌐 Using web automatic authentication');
+        
+        // Start OAuth flow
+        const startResponse = await fetch(`${serverUrl}/auth/automatic/start`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            redirectUri
+          }),
+        });
+
+        if (!startResponse.ok) {
+          throw new Error('Failed to start OAuth flow');
+        }
+
+        const { authUrl } = await startResponse.json();
+        
+        // Open authentication window
+        const authWindow = window.open(
+          authUrl,
+          'github-auth',
+          'width=500,height=600,scrollbars=yes,resizable=yes'
+        );
+
+        if (!authWindow) {
+          throw new Error('Failed to open authentication window');
+        }
+
+        // Wait for authentication completion
+        await new Promise<void>((resolve, reject) => {
+          const messageHandler = (event: MessageEvent) => {
+            if (event.data.type === 'GITHUB_AUTH_SUCCESS') {
+              window.removeEventListener('message', messageHandler);
+              clearInterval(checkClosed);
+              authWindow.close();
+              handleAuthenticationSuccess(event.data.token, event.data.user)
+                .then(resolve)
+                .catch(reject);
+            } else if (event.data.type === 'GITHUB_AUTH_ERROR') {
+              window.removeEventListener('message', messageHandler);
+              clearInterval(checkClosed);
+              authWindow.close();
+              reject(new Error(event.data.error));
+            }
+          };
+
+          window.addEventListener('message', messageHandler);
+
+          // Check if window was closed manually
+          const checkClosed = setInterval(() => {
+            if (authWindow.closed) {
+              clearInterval(checkClosed);
+              window.removeEventListener('message', messageHandler);
+              reject(new Error('Authentication window was closed'));
+            }
+          }, 1000);
+        });
+      }
+    } catch (error) {
+      console.error('❌ Automatic OAuth failed:', error);
+      setAuthState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: error instanceof Error ? error.message : 'Authentication failed' 
+      }));
+    }
+  }, []);
+
+  const handleAuthenticationSuccess = useCallback(async (token: string, user: GitHubUser) => {
+    console.log('✅ Authentication successful:', user.login);
+    
+    setAuthState({
+      isAuthenticated: true,
+      user,
+      accessToken: token,
+      isLoading: false,
+      error: null,
+    });
+    
+    setShowDeviceFlow(false);
+  }, []);
+
+  const signIn = useCallback(async () => {
+    try {
+      console.log('🔐 Starting sign in process...');
+      
+      // Always try automatic OAuth first
+      await performAutomaticOAuth();
+      
+    } catch (error) {
+      console.error('❌ Sign in failed:', error);
+      
+      // Fallback to device flow if automatic OAuth fails
+      console.log('🔄 Falling back to device flow...');
+      setShowDeviceFlow(true);
+      setAuthState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: 'Automatic authentication failed. Please try device flow.' 
+      }));
+    }
+  }, [performAutomaticOAuth]);
+
+  const signOut = useCallback(async () => {
+    try {
+      console.log('👋 Signing out...');
+      
+      setAuthState({
+        isAuthenticated: false,
+        user: null,
+        accessToken: null,
+        isLoading: false,
+        error: null,
+      });
+      
+      // Clear any stored auth results
+      localStorage.removeItem('auth_result');
+      
+    } catch (error) {
+      console.error('❌ Sign out failed:', error);
+    }
+  }, []);
+
+  // Device flow handlers (fallback only)
+  const handleDeviceFlowComplete = useCallback(async (token: string) => {
+    try {
+      const serverUrl = getServerUrl();
+      const response = await fetch(`${serverUrl}/auth/verify`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        await handleAuthenticationSuccess(token, data.user);
+      } else {
+        throw new Error('Failed to verify token');
+      }
+    } catch (error) {
+      console.error('❌ Device flow completion failed:', error);
+      setAuthState(prev => ({ 
+        ...prev, 
+        isLoading: false, 
+        error: 'Authentication failed' 
+      }));
+    }
+  }, [handleAuthenticationSuccess]);
+
+  const handleDeviceFlowCancel = useCallback(() => {
+    setShowDeviceFlow(false);
+    setAuthState(prev => ({ ...prev, isLoading: false }));
+  }, []);
+
+  // Listen for authentication messages from iOS app
+  useEffect(() => {
+    const handleIOSAuthMessage = (event: MessageEvent) => {
+      if (event.data.type === 'IOS_AUTH_SUCCESS') {
+        handleAuthenticationSuccess(event.data.token, event.data.user);
+      } else if (event.data.type === 'IOS_AUTH_RESULT' && event.data.success) {
+        handleAuthenticationSuccess(event.data.token, event.data.user);
+      }
+    };
+
+    const handleAuthComplete = (event: CustomEvent) => {
+      if (event.detail.success) {
+        handleAuthenticationSuccess(event.detail.token, event.detail.user);
+      }
+    };
+
+    window.addEventListener('message', handleIOSAuthMessage);
+    document.addEventListener('authComplete', handleAuthComplete as EventListener);
+    
+    return () => {
+      window.removeEventListener('message', handleIOSAuthMessage);
+      document.removeEventListener('authComplete', handleAuthComplete as EventListener);
+    };
+  }, [handleAuthenticationSuccess]);
+
+  return {
+    ...authState,
+    signIn,
+    signOut,
+    showDeviceFlow,
+    onDeviceFlowComplete: handleDeviceFlowComplete,
+    onDeviceFlowCancel: handleDeviceFlowCancel,
+  };
 }
 
 export interface GitHubModel {
@@ -524,46 +861,244 @@ export function useAuth() {
         }
       }
 
-      // Simple OAuth redirect - WORKS WITH YOUR GITHUB OAUTH APP
-      console.log('Redirecting to GitHub OAuth...');
+      // iOS App Device Flow Authentication - NO MANUAL OAUTH APP SETUP REQUIRED!
+      console.log('🚀 Starting GitHub Device Flow authentication...');
       
-      // YOUR ACTUAL CLIENT ID FROM GITHUB OAUTH APP
-      const clientId = 'Ov23lizjzU8av6EVJci2'; // Your GitHub OAuth App Client ID
-      const redirectUri = 'http://localhost:3001/auth/callback'; // OAuth proxy server
-      const scope = 'read:user user:email public_repo';
-      const state = Math.random().toString(36);
+      // Get server URL dynamically
+      const getServerUrl = () => {
+        if (typeof window !== 'undefined') {
+          const { protocol, hostname } = window.location;
+          return `${protocol}//${hostname}:3001`;
+        }
+        return 'http://localhost:3001';
+      };
+      
+      const serverUrl = getServerUrl();
+      console.log('Using server URL:', serverUrl);
 
-      sessionStorage.setItem('github_oauth_state', state);
-      
-      // Build URL without encoding issues that confuse GitHub
-      const params = new URLSearchParams({
-        client_id: clientId,
-        redirect_uri: redirectUri,
-        scope: scope,
-        state: state,
-        allow_signup: 'true'
+      // Step 1: Initiate device flow
+      const initiateResponse = await fetch(`${serverUrl}/auth/device-flow/initiate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
-      
-      const githubAuthUrl = `https://github.com/login/oauth/authorize?${params.toString()}`;
-      
-      console.log('Redirecting to:', githubAuthUrl);
-      console.log('Expected redirect_uri:', redirectUri);
 
-      // REDIRECT TO GITHUB NOW
-      window.location.href = githubAuthUrl;
+      if (!initiateResponse.ok) {
+        throw new Error('Failed to initiate device flow');
+      }
 
-      // REDIRECT TO GITHUB NOW
-      window.location.href = githubAuthUrl;
+      const deviceData = await initiateResponse.json();
+      console.log('✅ Device flow initiated:', deviceData);
+
+      // Store session info
+      sessionStorage.setItem('device_flow_session', deviceData.session_id);
       
-      return false;
+      // Step 2: Show user the verification code and open GitHub
+      const userConfirmed = await new Promise<boolean>((resolve) => {
+        // Create a custom modal/dialog showing the user code
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.8);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10000;
+          font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        `;
+        
+        modal.innerHTML = `
+          <div style="
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+          ">
+            <h2 style="margin: 0 0 20px 0; color: #333;">Authorize Pilot Server</h2>
+            <p style="margin: 0 0 20px 0; color: #666;">Copy this code and click "Open GitHub" to authorize:</p>
+            <div style="
+              background: #f5f5f5;
+              padding: 15px;
+              border-radius: 8px;
+              font-family: 'SFMono-Regular', Consolas, monospace;
+              font-size: 24px;
+              font-weight: bold;
+              color: #007AFF;
+              letter-spacing: 2px;
+              margin: 20px 0;
+            ">${deviceData.user_code}</div>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+              <button id="openGitHub" style="
+                background: #007AFF;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 16px;
+                cursor: pointer;
+              ">Open GitHub</button>
+              <button id="cancelAuth" style="
+                background: #ccc;
+                color: #333;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 16px;
+                cursor: pointer;
+              ">Cancel</button>
+            </div>
+            <p style="margin: 20px 0 0 0; font-size: 12px; color: #999;">
+              This code expires in ${Math.floor(deviceData.expires_in / 60)} minutes
+            </p>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        const openButton = modal.querySelector('#openGitHub') as HTMLButtonElement;
+        const cancelButton = modal.querySelector('#cancelAuth') as HTMLButtonElement;
+        
+        openButton.onclick = () => {
+          // Open GitHub in new tab/window
+          window.open(deviceData.verification_uri_complete, '_blank');
+          
+          // Start polling immediately
+          document.body.removeChild(modal);
+          resolve(true);
+        };
+        
+        cancelButton.onclick = () => {
+          document.body.removeChild(modal);
+          resolve(false);
+        };
+      });
+
+      if (!userConfirmed) {
+        setAuthState(prev => ({ ...prev, isLoading: false }));
+        return false;
+      }
+
+      // Step 3: Poll for completion
+      console.log('📡 Polling for authorization...');
+      let pollAttempts = 0;
+      const maxAttempts = Math.floor(deviceData.expires_in / deviceData.interval);
+      
+      const pollForToken = async (): Promise<boolean> => {
+        try {
+          pollAttempts++;
+          
+          const pollResponse = await fetch(`${serverUrl}/auth/device-flow/poll`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              session_id: deviceData.session_id
+            })
+          });
+
+          const pollData = await pollResponse.json();
+          
+          if (pollData.status === 'complete') {
+            console.log('✅ Authorization completed!');
+            
+            // Get user data with the new token
+            const userResponse = await fetch('https://api.github.com/user', {
+              headers: {
+                'Authorization': `token ${pollData.access_token}`,
+                'Accept': 'application/vnd.github.v3+json'
+              }
+            });
+
+            const userData = await userResponse.json();
+            
+            const githubUser: GitHubUser = {
+              id: userData.id,
+              login: userData.login,
+              name: userData.name || userData.login,
+              email: userData.email || '',
+              avatar_url: userData.avatar_url,
+              bio: userData.bio || '',
+              company: userData.company || '',
+              location: userData.location || '',
+              public_repos: userData.public_repos || 0,
+              followers: userData.followers || 0,
+              following: userData.following || 0
+            };
+
+            // Update auth state
+            setAuthState(prev => ({
+              ...prev,
+              isAuthenticated: true,
+              user: githubUser,
+              accessToken: pollData.access_token,
+              isLoading: false,
+              error: null
+            }));
+
+            // Store auth for persistence
+            localStorage.setItem('github_auth', JSON.stringify({
+              isAuthenticated: true,
+              user: githubUser,
+              accessToken: pollData.access_token,
+              timestamp: Date.now()
+            }));
+
+            console.log('🔥 AUTH STORED - Device Flow completed successfully!');
+            
+            // Fetch available models
+            await fetchAvailableModels();
+            
+            // Clean up
+            sessionStorage.removeItem('device_flow_session');
+            
+            return true;
+            
+          } else if (pollData.status === 'pending') {
+            // Continue polling
+            if (pollAttempts < maxAttempts) {
+              await new Promise(resolve => setTimeout(resolve, deviceData.interval * 1000));
+              return await pollForToken();
+            } else {
+              throw new Error('Authorization timeout');
+            }
+            
+          } else if (pollData.status === 'slow_down') {
+            // GitHub wants us to slow down
+            await new Promise(resolve => setTimeout(resolve, (deviceData.interval + 5) * 1000));
+            return await pollForToken();
+            
+          } else {
+            throw new Error(pollData.error || 'Authorization failed');
+          }
+          
+        } catch (error) {
+          console.error('Polling error:', error);
+          throw error;
+        }
+      };
+
+      const success = await pollForToken();
+      return success;
 
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error('Device flow authentication error:', error);
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Authentication failed'
       }));
+      
+      // Clean up
+      sessionStorage.removeItem('device_flow_session');
+      
       return false;
     }
   }, [setAuthState, fetchAvailableModels]);

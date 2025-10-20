@@ -1,20 +1,24 @@
 {
-    "name": "spark-template",
+    "name": "Pilot-Server",
     "private": true,
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "dev": "vite",
+        "dev": "vite --config utils/vite.config.ts",
+        "dev:server": "node scripts/server.js",
+        "dev:full": "concurrently \"npm run dev:server\" \"npm run dev\"",
         "kill": "fuser -k 5000/tcp",
-        "build": "tsc -b --noCheck && vite build",
+        "build": "tsc -b --config utils/tsconfig.json --noCheck && vite build --config utils/vite.config.ts",
         "lint": "eslint .",
         "optimize": "vite optimize",
-        "preview": "vite preview",
+        "preview": "vite preview --config utils/vite.config.ts",
         "validate:imports": "node scripts/validate-imports.cjs",
         "validate:api-usage": "node scripts/validate-api-usage.cjs",
         "validate:error-handling": "node scripts/validate-error-handling.cjs",
         "validate:all": "npm run validate:imports && npm run validate:api-usage && npm run validate:error-handling",
-        "test:quality": "npm run lint && npm run validate:all && npm run build"
+        "test:quality": "npm run lint && npm run validate:all && npm run build",
+        "test:device-flow": "node -e \"fetch('http://localhost:3001/auth/device-flow/initiate', {method: 'POST', headers: {'Content-Type': 'application/json'}}).then(r => r.json()).then(console.log).catch(console.error)\"",
+        "start:ios": "npm run dev:server"
     },
     "dependencies": {
         "@heroicons/react": "^2.2.0",
