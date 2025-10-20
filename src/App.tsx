@@ -3,11 +3,13 @@ import { useVSCodeAuth } from '@/hooks/use-vscode-auth';
 import { ChatHeader } from '@/components/ChatHeader';
 import { MessageInput } from '@/components/MessageInput';
 import { ChatSidebar } from '@/components/ChatSidebar';
+import { ChatMessages } from '@/components/ChatMessages';
 import { ModelBubble } from '@/components/ModelBubble';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthGuard } from '@/components/AuthGuard';
 import { GitHubCallback } from '@/components/GitHubCallback';
+import { SignUp } from '@/components/SignUp';
 import { Toaster } from '@/components/ui/sonner';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -133,68 +135,69 @@ function ChatApp() {
   };
 
   return (
-    <ThemeProvider>
-      <ErrorBoundary>
-        <AuthGuard>
-          <div className="h-screen flex bg-background overflow-hidden">
-            <ChatSidebar
-              chats={chats}
-              currentChatId={chatState.currentChatId}
-              onSelectChat={selectChat}
-              onDeleteChat={deleteChat}
+    <ErrorBoundary>
+      <AuthGuard>
+        <div className="h-screen flex bg-background overflow-hidden">
+          <ChatSidebar
+            chats={chats}
+            currentChatId={chatState.currentChatId}
+            onSelectChat={selectChat}
+            onDeleteChat={deleteChat}
+            onNewChat={handleNewChat}
+            onSidebarCollapse={handleSidebarCollapse}
+          />
+          
+          {/* Desktop main content with proper spacing */}
+          <div className={cn(
+            "flex-1 flex flex-col min-w-0 min-h-0 relative max-h-screen overflow-hidden transition-all duration-300",
+            "md:ml-72", // Default sidebar width
+            isSidebarCollapsed && "md:ml-12" // Collapsed sidebar width
+          )}>
+            <ChatHeader
               onNewChat={handleNewChat}
-              onSidebarCollapse={handleSidebarCollapse}
+              isLoading={chatState.isLoading}
             />
             
-            {/* Desktop main content with proper spacing */}
-            <div className={cn(
-              "flex-1 flex flex-col min-w-0 min-h-0 relative max-h-screen overflow-hidden transition-all duration-300",
-              "md:ml-72", // Default sidebar width
-              isSidebarCollapsed && "md:ml-12" // Collapsed sidebar width
-            )}>
-              <ChatHeader
-                onNewChat={handleNewChat}
-                isLoading={chatState.isLoading}
-              />
-              
-              {/* Floating Model Selector Bubble */}
-              <ModelBubble
-                selectedModel={chatState.selectedModel}
-                onModelChange={setModel}
-                isLoading={chatState.isLoading}
-                isSidebarCollapsed={isSidebarCollapsed}
-              />
-              
-              <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-                <ChatMessages
-                  messages={currentChat?.messages || []}
-                  isLoading={chatState.isLoading}
-                  onEditMessage={editMessage}
-                  onSwitchVersion={switchMessageVersion}
-                />
-                
-                <MessageInput
-                  onSendMessage={sendMessage}
-                  isLoading={chatState.isLoading}
-                />
-              </div>
-            </div>
+            {/* Floating Model Selector Bubble */}
+            <ModelBubble
+              selectedModel={chatState.selectedModel}
+              onModelChange={setModel}
+              isLoading={chatState.isLoading}
+              isSidebarCollapsed={isSidebarCollapsed}
+            />
             
-            <Toaster position="top-right" />
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              <ChatMessages
+                messages={currentChat?.messages || []}
+                isLoading={chatState.isLoading}
+                onEditMessage={editMessage}
+                onSwitchVersion={switchMessageVersion}
+              />
+              
+              <MessageInput
+                onSendMessage={sendMessage}
+                isLoading={chatState.isLoading}
+              />
+            </div>
           </div>
-        </AuthGuard>
-      </ErrorBoundary>
-    </ThemeProvider>
+          
+          <Toaster position="top-right" />
+        </div>
+      </AuthGuard>
+    </ErrorBoundary>
   );
 }
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/auth/callback" element={<GitHubCallback />} />
-        <Route path="/*" element={<ChatApp />} />
-      </Routes>
+      <ThemeProvider>
+        <Routes>
+          <Route path="/auth/callback" element={<GitHubCallback />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/*" element={<ChatApp />} />
+        </Routes>
+      </ThemeProvider>
     </Router>
   );
 }

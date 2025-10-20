@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useVSCodeAuth } from '@/hooks/use-vscode-auth';
 import { GitBranch, Robot, Lightning, Shield, SignIn, Star } from '@phosphor-icons/react';
+import { Link } from 'react-router-dom';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { authState, signIn } = useVSCodeAuth();
@@ -112,10 +113,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Info Text */}
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-sm text-muted-foreground space-y-2">
               <p>
                 By continuing, you agree to use this service responsibly and in accordance with GitHub's terms.
               </p>
+              <Link to="/signup" className="inline-block text-primary hover:underline font-medium">
+                View Pricing & Tiers →
+              </Link>
             </div>
           </CardContent>
         </Card>

@@ -6,8 +6,9 @@ Pilot Server uses a GitHub Sponsors-based tier system to provide sustainable fun
 
 ## Tier Structure
 
-### Free Tier ($0/month)
+### Open Use ($0/month) - Base Tier
 - **Features:**
+  - ✅ GitHub Authentication
   - ✅ Full chat interface
   - ✅ All AI models access
   - ✅ localStorage persistence (browser only)
@@ -15,34 +16,83 @@ Pilot Server uses a GitHub Sponsors-based tier system to provide sustainable fun
   - ❌ No database storage
   - ❌ No RAG features
 - **Storage:** Browser localStorage only (~5-10 MB limit)
+- **API Type:** N/A
 - **Perfect for:** Testing, personal use, offline access
 
-### Supporter Tier ($5/month)
+---
+
+## Power Users (Your Own API)
+
+These tiers are for users who want to use their own API keys with cloud storage capabilities.
+
+### Power User Level 1 ($5/month)
 - **Features:**
-  - ✅ All Free tier features
+  - ✅ All Open Use features
   - ✅ Database storage
   - ✅ Cross-device sync
   - ✅ Persistent chat history
-  - ❌ No RAG features
+  - ✅ Use your own API keys
+  - ❌ No provider API access
 - **Storage:** 1 GB database quota
-- **Perfect for:** Regular users who want sync
+- **API Type:** Your Own API Key Required
+- **Perfect for:** Regular users who want sync with their own keys
 
-### Pro Tier ($10/month)
+### Power User Level 2 ($10/month)
 - **Features:**
-  - ✅ All Supporter tier features
+  - ✅ All Level 1 features
+  - ✅ Extended chat history
+  - ✅ Use your own API keys
+- **Storage:** 5 GB database quota
+- **API Type:** Your Own API Key Required
+- **Perfect for:** Power users with their own API keys
+
+### Power User Level 3 ($15/month)
+- **Features:**
+  - ✅ All Level 2 features
+  - ✅ Unlimited chat history
+  - ✅ Use your own API keys
+- **Storage:** 10 GB database quota
+- **API Type:** Your Own API Key Required
+- **Perfect for:** Heavy users with extensive storage needs
+
+---
+
+## All-Access (Provider API)
+
+These tiers include provider API access with per-million token billing or end-of-month billing.
+
+### All-Access Level 1 ($20/month)
+- **Features:**
+  - ✅ All Power User features
+  - ✅ Provider API access (no API key required)
+  - ✅ Per million tokens billing
   - ✅ RAG (Retrieval-Augmented Generation)
   - ✅ Context-aware AI responses
-  - ✅ Document embeddings
-- **Storage:** 5 GB database quota
-- **Perfect for:** Power users, developers
+- **Storage:** 1 GB database quota
+- **API Type:** Provider API (included)
+- **Billing:** Per million tokens or end of month
+- **Perfect for:** Users who want hassle-free API access
 
-### Power Tier ($25/month)
+### All-Access Level 2 ($35/month)
 - **Features:**
-  - ✅ All Pro tier features
+  - ✅ All Level 1 features
   - ✅ Priority support
+  - ✅ Extended token limits
+- **Storage:** 5 GB database quota
+- **API Type:** Provider API (included)
+- **Billing:** Per million tokens or end of month
+- **Perfect for:** Professional users, developers
+
+### All-Access Level 3 ($50/month)
+- **Features:**
+  - ✅ All Level 2 features
+  - ✅ Premium support
   - ✅ Early access to new features
-- **Storage:** 20 GB database quota
-- **Perfect for:** Heavy users, teams
+  - ✅ Highest token limits
+- **Storage:** 10 GB database quota
+- **API Type:** Provider API (included)
+- **Billing:** Per million tokens or end of month
+- **Perfect for:** Heavy users, teams, enterprises
 
 ## How It Works
 
