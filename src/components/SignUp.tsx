@@ -163,7 +163,7 @@ export function SignUp() {
             <div className="flex items-center justify-center gap-4">
               <Badge variant="outline" className="px-4 py-2">
                 <Check className="w-4 h-4 mr-2" />
-                Signed in as {authState.user?.label}
+                Signed in as {authState.user?.login || authState.user?.name || 'User'}
               </Badge>
               <Button onClick={handleBackToApp} variant="outline">
                 Back to App

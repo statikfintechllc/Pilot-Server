@@ -3,6 +3,7 @@ import { useVSCodeAuth } from '@/hooks/use-vscode-auth';
 import { ChatHeader } from '@/components/ChatHeader';
 import { MessageInput } from '@/components/MessageInput';
 import { ChatSidebar } from '@/components/ChatSidebar';
+import { ChatMessages } from '@/components/ChatMessages';
 import { ModelBubble } from '@/components/ModelBubble';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ThemeProvider } from '@/components/ThemeProvider';
