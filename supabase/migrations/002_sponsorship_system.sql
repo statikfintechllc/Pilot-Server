@@ -43,15 +43,23 @@ CREATE TABLE IF NOT EXISTS storage_usage (
 
 -- Insert default sponsorship tiers
 INSERT INTO sponsorship_tiers (name, monthly_cost, storage_quota_gb, features) VALUES
-('Free', 0.00, 0, '{"database": false, "rag": false, "localStorage": true}'),
-('Supporter', 5.00, 1, '{"database": true, "rag": false, "localStorage": true}'),
-('Pro', 10.00, 5, '{"database": true, "rag": true, "localStorage": true}'),
-('Power', 25.00, 20, '{"database": true, "rag": true, "localStorage": true, "priority_support": true}')
+-- Open Use Tier
+('Open Use', 0.00, 0, '{"database": false, "rag": false, "localStorage": true, "auth": "github", "description": "Base Tier"}'),
+
+-- Power Users Tiers (with user own API)
+('Power User Level 1', 5.00, 1, '{"database": true, "rag": false, "localStorage": true, "auth": "github", "api": "user_own", "description": "1GB storage with user own API"}'),
+('Power User Level 2', 10.00, 5, '{"database": true, "rag": false, "localStorage": true, "auth": "github", "api": "user_own", "description": "5GB storage with user own API"}'),
+('Power User Level 3', 15.00, 10, '{"database": true, "rag": false, "localStorage": true, "auth": "github", "api": "user_own", "description": "10GB storage with user own API"}'),
+
+-- All-Access Tiers (with provider API)
+('All-Access Level 1', 20.00, 1, '{"database": true, "rag": true, "localStorage": true, "auth": "github", "api": "provider", "billing": "per_million_or_month", "description": "1GB storage with provider API"}'),
+('All-Access Level 2', 35.00, 5, '{"database": true, "rag": true, "localStorage": true, "auth": "github", "api": "provider", "billing": "per_million_or_month", "description": "5GB storage with provider API"}'),
+('All-Access Level 3', 50.00, 10, '{"database": true, "rag": true, "localStorage": true, "auth": "github", "api": "provider", "billing": "per_million_or_month", "description": "10GB storage with provider API"}')
 ON CONFLICT (name) DO NOTHING;
 
 -- Add sponsorship columns to user_profiles
 ALTER TABLE user_profiles 
-ADD COLUMN IF NOT EXISTS sponsorship_tier TEXT DEFAULT 'Free',
+ADD COLUMN IF NOT EXISTS sponsorship_tier TEXT DEFAULT 'Open Use',
 ADD COLUMN IF NOT EXISTS storage_used_gb DECIMAL(10, 4) DEFAULT 0,
 ADD COLUMN IF NOT EXISTS storage_quota_gb DECIMAL(10, 2) DEFAULT 0;
 

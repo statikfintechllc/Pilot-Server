@@ -9,6 +9,7 @@ import { useAuth, AVAILABLE_GITHUB_MODELS } from '@/hooks/use-auth';
 import { Gear, SignIn, SignOut, Robot, GitBranch, User, Star, ArrowClockwise, Code } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { DeveloperSettings } from '@/components/DeveloperSettings';
+import { Link } from 'react-router-dom';
 
 interface SettingsDialogProps {
   trigger?: React.ReactNode;
@@ -153,6 +154,18 @@ export function SettingsDialog({ trigger, className }: SettingsDialogProps) {
                     <SignOut className="w-4 h-4 mr-2" />
                     Sign Out
                   </Button>
+
+                  <Separator />
+
+                  <Link to="/signup">
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                    >
+                      <Star className="w-4 h-4 mr-2" />
+                      View Pricing & Tiers
+                    </Button>
+                  </Link>
                 </div>
               ) : (
                 <div className="text-center space-y-4">
