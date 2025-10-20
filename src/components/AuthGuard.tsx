@@ -1,11 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/hooks/use-auth';
+import { useVSCodeAuth } from '@/hooks/use-vscode-auth';
 import { GitBranch, Robot, Lightning, Shield, SignIn, Star } from '@phosphor-icons/react';
-import { cn } from '@/lib/utils';
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { authState, signIn } = useAuth();
+  const { authState, signIn } = useVSCodeAuth();
 
   console.log('AuthGuard - Current auth state:', authState);
 

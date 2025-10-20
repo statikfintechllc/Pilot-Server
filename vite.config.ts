@@ -1,5 +1,9 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
+import { defineConfig } from "vite";
+import path from "path";
+
+const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname;
 import { defineConfig, PluginOption } from "vite";
 import { fileURLToPath, URL } from 'node:url'
 
@@ -10,13 +14,10 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    // DO NOT REMOVE
-    createIconImportProxy() as PluginOption,
-    sparkPlugin() as PluginOption,
   ],
   resolve: {
     alias: {
-      '@': resolve(projectRoot, 'src')
+      '@': path.resolve(projectRoot, 'src')
     }
   },
   server: {

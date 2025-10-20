@@ -1,7 +1,6 @@
 import { useChat } from '@/hooks/use-chat';
-import { useAuth } from '@/hooks/use-auth';
+import { useVSCodeAuth } from '@/hooks/use-vscode-auth';
 import { ChatHeader } from '@/components/ChatHeader';
-import { ChatMessages } from '@/components/ChatMessages';
 import { MessageInput } from '@/components/MessageInput';
 import { ChatSidebar } from '@/components/ChatSidebar';
 import { ModelBubble } from '@/components/ModelBubble';
@@ -10,18 +9,15 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { AuthGuard } from '@/components/AuthGuard';
 import { GitHubCallback } from '@/components/GitHubCallback';
 import { Toaster } from '@/components/ui/sonner';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 function ChatApp() {
-  const { authState, signIn } = useAuth();
-  
   // Check for OAuth callback parameters on page load and redirect to callback route
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-    const state = urlParams.get('state');
     
     if (code) {
       console.log('OAuth callback detected on root route, redirecting to /auth/callback...');
