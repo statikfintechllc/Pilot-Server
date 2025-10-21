@@ -1,0 +1,29 @@
+{
+  "name": "Pilot Server",
+  "short_name": "Pilot",
+  "description": "A GitHub Powered AI Chat Interface with Multi-Model Support",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./src/assets/pilot.card.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "developer tools"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "New Chat",
+      "short_name": "New Chat",
+      "description": "Start a new conversation",
+      "url": "./?action=new-chat",
+      "icons": [{ "src": "./src/assets/pilot.card.png", "sizes": "512x512", "type": "image/png" }]
+    }
+  ]
+}
