@@ -70,15 +70,11 @@ export class VSCodeAuthProvider {
   async createSession(scopes: string[] = ['read:user', 'user:email']): Promise<VSCodeAuthSession> {
     try {
       // Use Supabase Auth with GitHub provider
-      // Use BASE_URL from Vite to support both local dev and GitHub Pages
-      const basePath = import.meta.env.BASE_URL || '/';
-      const redirectUrl = `${window.location.origin}${basePath}auth/callback`.replace(/\/+/g, '/').replace(':/', '://');
-      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
           scopes: scopes.join(' '),
-          redirectTo: redirectUrl,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 

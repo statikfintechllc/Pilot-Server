@@ -8,7 +8,6 @@ const projectRoot = fileURLToPath(new URL('..', import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/Pilot-Server/',
   plugins: [
     react(),
     tailwindcss(),
