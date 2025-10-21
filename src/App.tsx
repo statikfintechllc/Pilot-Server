@@ -24,7 +24,9 @@ function ChatApp() {
     if (code) {
       console.log('OAuth callback detected on root route, redirecting to /auth/callback...');
       // Redirect to the proper callback route with parameters
-      window.location.href = `/Pilot-Server/auth/callback${window.location.search}`;
+      // Use relative path to support both local dev and GitHub Pages
+      const basePath = import.meta.env.BASE_URL || '/';
+      window.location.href = `${basePath}auth/callback${window.location.search}`;
       return;
     }
   }, []);
@@ -189,8 +191,11 @@ function ChatApp() {
 }
 
 function App() {
+  // Use BASE_URL from Vite to support both local dev and GitHub Pages
+  const basename = import.meta.env.BASE_URL;
+  
   return (
-    <Router basename="/Pilot-Server">
+    <Router basename={basename}>
       <ThemeProvider>
         <Routes>
           <Route path="/auth/callback" element={<GitHubCallback />} />
