@@ -44,13 +44,25 @@ jobs:
           VITE_OPENAI_API_KEY: ${{ secrets.VITE_OPENAI_API_KEY }}
         run: npm run build
       
+      - name: Move built files to root for GitHub Pages
+        run: |
+          # Move built index.html to root
+          cp dist/index.html index.html
+          
+          # Move assets folder to root
+          cp -r dist/assets assets
+          
+          # Copy manifest and other static files if they were built
+          if [ -f dist/manifest.json ]; then cp dist/manifest.json manifest.json; fi
+          if [ -f dist/service-worker.js ]; then cp dist/service-worker.js service-worker.js; fi
+      
       - name: Setup Pages
         uses: actions/configure-pages@v5
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: '.'
       
       - name: Deploy to GitHub Pages
         id: deployment

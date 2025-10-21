@@ -13,6 +13,9 @@ export default defineConfig({
   build: {
     outDir: resolve(projectRoot, 'dist'),
     emptyOutDir: true,
+    rollupOptions: {
+      input: resolve(projectRoot, 'template.index.html')
+    }
   },
   plugins: [
     react(),
