@@ -74,7 +74,7 @@ export class VSCodeAuthProvider {
         provider: 'github',
         options: {
           scopes: scopes.join(' '),
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/Pilot-Server/auth/callback`,
         },
       });
 

@@ -1,10 +1,10 @@
 // Service Worker for Pilot Server PWA
 const CACHE_NAME = 'pilot-server-v1';
+const BASE_PATH = '/Pilot-Server';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/src/main.tsx',
-  '/manifest.json'
+  `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/manifest.json`
 ];
 
 // Install event - cache essential resources

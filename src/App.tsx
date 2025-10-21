@@ -24,7 +24,7 @@ function ChatApp() {
     if (code) {
       console.log('OAuth callback detected on root route, redirecting to /auth/callback...');
       // Redirect to the proper callback route with parameters
-      window.location.href = `/auth/callback${window.location.search}`;
+      window.location.href = `/Pilot-Server/auth/callback${window.location.search}`;
       return;
     }
   }, []);
@@ -190,7 +190,7 @@ function ChatApp() {
 
 function App() {
   return (
-    <Router>
+    <Router basename="/Pilot-Server">
       <ThemeProvider>
         <Routes>
           <Route path="/auth/callback" element={<GitHubCallback />} />
