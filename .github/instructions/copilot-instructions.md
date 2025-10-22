@@ -1,353 +1,306 @@
 # Copilot Instructions for Pilot Server
 
-This repository contains a modern AI Chat Interface built with React, TypeScript, Vite, and Express.js. These instructions will help GitHub Copilot provide optimal assistance for development, testing, and maintenance of this codebase.
+This is **Pilot Server**, a production-ready AI chat interface built as a **static site** with **Supabase backend**. The application uses a sophisticated tier-based access system, VS Code-style authentication, and includes RAG (Retrieval-Augmented Generation) capabilities.
 
 ## Project Overview
 
-**Pilot Server** is a clean, modern web-based AI chat interface that demonstrates multi-model conversation capabilities with a focus on developer workflows. The application features:
+**Pilot Server** is a GitHub-powered AI chat interface featuring:
 
-- Multi-model chat interface (GPT-4o, GPT-4o-mini)
-- Conversation history and persistence  
-- Image upload and analysis capabilities
-- Code syntax highlighting and developer-focused features
-- Modern glassmorphic UI with Radix UI components and Tailwind CSS
+- **Dual-mode operation**: localStorage-only (no setup) + Supabase cloud sync
+- **Tier-based access system**: 7 tiers from free to premium ($0-$50/month)  
+- **VS Code-style GitHub OAuth**: Seamless authentication via Supabase
+- **Multi-model AI chat**: GitHub Models API integration with conversation history
+- **RAG system**: Vector search with pgvector for enhanced responses
+- **PWA support**: Installable as native app with offline capabilities
+- **Message versioning**: Edit messages and switch between AI response versions
+
+## Architecture
+
+```
+Static Site (GitHub Pages) ←→ Supabase (Auth+DB+RLS) ←→ GitHub OAuth
+                ↓
+localStorage (fallback) + PostgreSQL + pgvector (RAG)
+                ↓  
+GitHub Models API (GPT-4o, GPT-4o-mini, etc.)
+```
+
+**Key Architectural Decisions:**
+- **No custom backend server** - Supabase handles all backend needs
+- **Static site deployment** - Works on GitHub Pages with zero configuration  
+- **localStorage fallback** - App works immediately without any setup
+- **RLS security** - All database access controlled by Row Level Security policies
+- **GitHub Models direct integration** - No proxy server, uses user's GitHub auth token
 
 ## Technology Stack
 
-- **Frontend**: React 19, TypeScript, Vite 6.3.5
-- **Backend**: Express.js 5.1.0, Node.js
-- **UI Framework**: Radix UI components, Tailwind CSS 4.1.11
-- **Styling**: CSS-in-JS with Tailwind, Inter & JetBrains Mono fonts
-- **Build Tools**: Vite, TypeScript, ESLint 9.28.0
-- **State Management**: React hooks, TanStack React Query 5.87.1
-- **Authentication**: Custom auth system with GitHub integration
+- **Frontend**: React 19, TypeScript, Vite 7.1.10 (static site)
+- **Backend**: Supabase (PostgreSQL + Auth + RLS + Edge Functions)
+- **Database**: PostgreSQL with pgvector extension for RAG
+- **Authentication**: VS Code-style GitHub OAuth via Supabase
+- **UI Framework**: Radix UI, Tailwind CSS 4.1.11, Framer Motion
+- **Build/Deploy**: GitHub Actions → GitHub Pages (zero config)
+- **AI Models**: GitHub Models API (no proxy server needed)
 
-## Development Guidelines
+## Essential Development Patterns
 
-### Code Style and Quality
+### 1. Dual-Mode State Management Pattern
 
-1. **TypeScript Best Practices**
-   - Use strict TypeScript configurations
-   - Avoid `any` types - use proper typing
-   - Implement proper error handling with typed errors
-   - Use const assertions where appropriate
-   - Prefer interfaces over types for object shapes
+The app operates in two modes seamlessly:
 
-2. **React Patterns**
-   - Use functional components with hooks
-   - Implement proper error boundaries
-   - Follow React best practices for state management
-   - Use React.memo() for performance optimization where needed
-   - Implement proper cleanup in useEffect hooks
-
-3. **Import/Export Standards**
-   - Use named exports for components and utilities
-   - Use default exports only for main component files
-   - Group imports: external libraries, then internal modules
-   - Use absolute imports from src/ directory when configured
-   - Verify all imports resolve correctly before suggesting code
-
-### Testing Requirements
-
-#### MCP Server Integration Testing
-
-When implementing MCP (Model Context Protocol) server functionality:
-
-1. **Connection Testing**
-   - Test MCP server connectivity before making requests
-   - Implement proper timeout handling (5-10 seconds)
-   - Test error scenarios (network failures, invalid responses)
-   - Validate MCP server capabilities and supported operations
-
-2. **API Integration Testing**
-   - Test all API endpoints with proper error handling
-   - Validate request/response schemas
-   - Test authentication and authorization flows
-   - Implement rate limiting considerations
-
-3. **Import Validation**
-   - Always verify imports exist and are properly typed
-   - Test that all dependencies are installed in package.json
-   - Check for circular dependency issues
-   - Validate that imported modules export expected functions/types
-
-#### Error Handling Standards
-
-1. **Frontend Error Handling**
-   ```typescript
-   try {
-     // API calls or risky operations
-   } catch (error) {
-     console.error('Operation failed:', error);
-     // Show user-friendly error message
-     // Log error for debugging
-   }
-   ```
-
-2. **Backend Error Handling**
-   ```typescript
-   // Express error middleware
-   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-     console.error(err.stack);
-     res.status(500).json({ error: 'Internal server error' });
-   });
-   ```
-
-3. **Async Operation Error Handling**
-   - Always wrap async operations in try-catch
-   - Implement proper loading states
-   - Show user feedback for error states
-   - Implement retry mechanisms where appropriate
-
-### Tasking System Guidelines
-
-#### Feature Development Tasks
-
-1. **Planning Phase**
-   - Understand the feature requirements completely
-   - Identify affected components and files
-   - Plan testing strategy before implementation
-   - Consider accessibility and responsive design
-
-2. **Implementation Phase**
-   - Create minimal, focused changes
-   - Follow existing code patterns and conventions
-   - Implement proper TypeScript typing
-   - Add error handling and loading states
-
-3. **Testing Phase**
-   - Test the feature manually in development
-   - Verify responsive design works
-   - Test error scenarios and edge cases
-   - Ensure accessibility standards are met
-
-4. **Integration Phase**
-   - Test integration with existing features
-   - Verify no regressions are introduced
-   - Update documentation if needed
-   - Consider performance implications
-
-#### Debugging Tasks
-
-1. **Error Investigation**
-   - Check browser console for errors
-   - Verify network requests in DevTools
-   - Check server logs for backend issues
-   - Use TypeScript compiler for type errors
-
-2. **Performance Issues**
-   - Use React DevTools profiler
-   - Check bundle size and chunking
-   - Analyze runtime performance
-   - Monitor memory usage
-
-### Component Architecture
-
-#### UI Components Structure
-```
-src/components/
-├── ui/           # Reusable UI primitives (Radix UI components)
-├── chat/         # Chat-specific components
-├── auth/         # Authentication components
-└── shared/       # Shared business logic components
-```
-
-#### Component Guidelines
-- Keep components focused and single-purpose
-- Use composition over inheritance
-- Implement proper prop validation with TypeScript
-- Follow the established design system (analogous blue/teal colors)
-- Ensure components are accessible (ARIA attributes, keyboard navigation)
-
-### API Integration Guidelines
-
-#### Frontend API Calls
 ```typescript
-// Use proper error handling and loading states
-const [loading, setLoading] = useState(false);
-const [error, setError] = useState<string | null>(null);
+// Hook pattern: localStorage with database sync
+const [chats, setChats] = useState<Chat[]>(() => {
+  const saved = localStorage.getItem('pilot-chats');
+  return saved ? JSON.parse(saved) : [];
+});
 
-const handleApiCall = async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const response = await fetch('/api/endpoint');
-    if (!response.ok) throw new Error('API call failed');
-    const data = await response.json();
-    // Handle success
-  } catch (err) {
-    setError(err instanceof Error ? err.message : 'Unknown error');
-  } finally {
-    setLoading(false);
-  }
-};
+// Save to localStorage AND Supabase when available
+useEffect(() => {
+  localStorage.setItem('pilot-chats', JSON.stringify(chats));
+  // Database sync happens separately in chat service
+}, [chats]);
 ```
 
-#### Backend API Routes
+**Critical**: Always maintain localStorage fallback - app must work without Supabase.
+
+### 2. VS Code Authentication Pattern
+
+Authentication mimics VS Code's GitHub integration:
+
 ```typescript
-// Express route with proper error handling
-router.post('/api/chat', async (req: Request, res: Response) => {
-  try {
-    const { message, model } = req.body;
-    // Validate input
-    if (!message || !model) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-    // Process request
-    const result = await processChatMessage(message, model);
-    res.json(result);
-  } catch (error) {
-    console.error('Chat API error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+// VSCodeAuthProvider creates GitHub OAuth sessions
+const session = await authProvider.createSession(['read:user', 'user:email']);
+// Uses user's GitHub token directly with GitHub Models API
+const response = await fetch('https://models.github.ai/inference/chat/completions', {
+  headers: { 'Authorization': `Bearer ${authState.accessToken}` }
 });
 ```
 
-### MCP Server Configuration
+**File locations:**
+- `src/lib/auth/vscode-auth.ts` - Core auth provider
+- `src/hooks/use-vscode-auth.ts` - React hook wrapper
+- `src/components/AuthGuard.tsx` - Route protection
 
-#### Required MCP Servers for Development
+### 3. Message Versioning System
 
-1. **File System MCP Server**
-   - For reading/writing project files
-   - Configuration: Read-only access to src/ directory
-   - Write access only to designated output directories
-
-2. **Git MCP Server**
-   - For version control operations
-   - Configuration: Standard git operations (status, diff, commit)
-   - Branch management and merge operations
-
-3. **Package Manager MCP Server**
-   - For npm/dependency management
-   - Configuration: Install, update, audit packages
-   - Lock file management
-
-4. **Testing MCP Server**
-   - For running tests and collecting results
-   - Configuration: Jest/Vitest integration
-   - Coverage reporting and analysis
-
-#### MCP Server Integration Examples
+Messages support editing with version history:
 
 ```typescript
-// Example MCP server communication
-interface MCPRequest {
-  method: string;
-  params: Record<string, unknown>;
+interface Message {
+  id: string;
+  content: string;
+  versions?: MessageVersion[];         // Edit history
+  currentVersionIndex?: number;        // Active version
+  isEdited?: boolean;
 }
 
-interface MCPResponse {
-  result?: unknown;
-  error?: { code: number; message: string };
-}
+// Edit user message → regenerates AI response
+const editMessage = async (messageId: string, newContent: string) => {
+  // Truncate conversation after edited message
+  // Call GitHub Models API for new response
+  // Maintain version history
+};
+```
 
-async function callMCPServer(request: MCPRequest): Promise<MCPResponse> {
-  try {
-    const response = await fetch('/api/mcp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request)
-    });
-    
-    if (!response.ok) {
-      throw new Error(`MCP call failed: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    return {
-      error: {
-        code: -1,
-        message: error instanceof Error ? error.message : 'Unknown error'
-      }
-    };
-  }
+### 4. Tier System Integration
+
+Access control through database-driven tier system:
+
+```typescript
+// Check user's sponsorship tier
+const tierAccess = await checkUserTier(userId);
+if (tierAccess.tier < REQUIRED_TIER) {
+  // Show upgrade prompt, limit features
 }
 ```
 
-### Build and Development Commands
+**Tiers**: Open Use ($0) → Power User ($5-15) → All-Access ($20-50)
+
+## Critical File Structure
+
+```
+src/
+├── hooks/
+│   ├── use-chat.ts              # Main chat state management
+│   ├── use-vscode-auth.ts       # VS Code-style authentication  
+│   └── use-chat-with-db.ts      # Database integration for chats
+├── lib/
+│   ├── auth/vscode-auth.ts      # GitHub OAuth provider (VS Code style)
+│   ├── supabase/
+│   │   ├── client.ts            # Supabase client config
+│   │   └── chat-service.ts      # Chat database operations
+│   ├── rag/index.ts             # RAG system (vector search)
+│   └── types.ts                 # Core TypeScript definitions
+├── components/
+│   ├── AuthGuard.tsx            # Route protection
+│   ├── GitHubCallback.tsx       # OAuth callback handler
+│   ├── SignUp.tsx               # Tier pricing page
+│   └── ui/                      # Radix UI components
+scripts/
+├── validate-imports.cjs         # Import validation for CI
+├── validate-api-usage.cjs       # API usage validation  
+└── validate-error-handling.cjs  # Error handling validation
+supabase/migrations/             # Database schema
+```
+
+## Development Commands
 
 ```bash
-# Development
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
+# Development (runs on port 4173)
+npm run dev
 
-# Code Quality
-npm run lint         # Run ESLint
-npm run lint --fix   # Fix auto-fixable issues
+# Quality checks (run before commits)
+npm run validate:all            # Validates imports, API usage, error handling
+npm run lint                    # ESLint with React hooks rules
+npm run test:quality            # Full quality suite
 
-# Server Management
-npm run kill         # Kill development server on port 5000
-node server.js       # Start Express backend
+# Build and deployment
+npm run build                   # Static site build
+npm run preview                 # Preview production build
+
+# Validation scripts for AI development
+npm run validate:imports        # Check all imports resolve
+npm run validate:api-usage      # Validate API integration patterns
+npm run validate:error-handling # Ensure proper error boundaries
 ```
 
-### Environment Configuration
+## Core Integration Patterns
 
-#### Required Environment Variables
-```env
-# Authentication
-GITHUB_CLIENT_ID=your_github_client_id
-GITHUB_CLIENT_SECRET=your_github_client_secret
+### GitHub Models API Usage
 
-# API Configuration
-OPENAI_API_KEY=your_openai_api_key
-API_BASE_URL=http://localhost:5000
-
-# Development
-NODE_ENV=development
-PORT=5000
+```typescript
+// Direct API call with user's GitHub token (no proxy)
+const response = await fetch('https://models.github.ai/inference/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${authState?.accessToken}`,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  },
+  body: JSON.stringify({
+    model: chatState.selectedModel,
+    messages: conversationHistory,
+    temperature: 0.7,
+    max_tokens: 32000
+  })
+});
 ```
 
-### Security Considerations
+### Supabase Database Pattern
 
-1. **Input Validation**
-   - Sanitize all user inputs
-   - Validate file uploads (type, size limits)
-   - Implement proper CORS policies
+```typescript
+// RLS automatically filters by user
+const { data: chats } = await supabase
+  .from('chats')
+  .select('*')
+  .order('updated_at', { ascending: false });
 
-2. **Authentication**
-   - Use secure session management
-   - Implement proper logout functionality
-   - Validate tokens on each request
+// RLS policies ensure users only see their own data
+// No need to filter by user_id in queries
+```
 
-3. **API Security**
-   - Rate limiting on API endpoints
-   - Input validation and sanitization
-   - Proper error messages (don't leak sensitive info)
+### RAG Vector Search
 
-### Performance Guidelines
+```typescript
+// Store document with embeddings
+await storeDocument(userId, content, metadata);
 
-1. **Bundle Optimization**
-   - Use dynamic imports for code splitting
-   - Optimize images and assets
-   - Implement proper caching strategies
+// Search for relevant context
+const context = await matchDocuments(
+  queryEmbedding, 
+  0.7, // similarity threshold
+  5    // max results
+);
+```
 
-2. **React Performance**
-   - Use React.memo for expensive components
-   - Implement proper dependency arrays in hooks
-   - Avoid unnecessary re-renders
+## Component Architecture Guidelines
 
-3. **Network Optimization**
-   - Implement request deduplication
-   - Use proper loading states
-   - Cache API responses where appropriate
+### AuthGuard Pattern
+Every protected component should be wrapped in `<AuthGuard>`:
 
-## Common Issues and Solutions
+```typescript
+function ProtectedComponent() {
+  return (
+    <AuthGuard>
+      {/* Component content */}
+    </AuthGuard>
+  );
+}
+```
 
-### TypeScript Issues
-- **Unused variables**: Remove or prefix with underscore for intentionally unused params
-- **Any types**: Replace with proper typing, use unknown for truly unknown types
-- **Missing dependencies**: Add to useEffect dependency arrays or use useCallback
+### Error Boundaries
+Critical components use error boundaries:
 
-### Build Issues
-- **Import errors**: Verify all imports exist and are properly exported
-- **Type errors**: Check TypeScript configuration and resolve type conflicts
-- **Bundle size**: Use dynamic imports and code splitting
+```typescript
+<ErrorBoundary fallback={<ErrorFallback />}>
+  <ChatMessages />
+</ErrorBoundary>
+```
 
-### Runtime Issues
-- **Network errors**: Implement proper error boundaries and retry mechanisms
-- **State issues**: Check React DevTools and component lifecycle
-- **Memory leaks**: Ensure proper cleanup in useEffect hooks
+### Theme Provider
+All UI components support dual themes:
 
-Remember: Always test your code changes thoroughly, implement proper error handling, and maintain the existing code style and architecture patterns.
+```typescript
+<ThemeProvider>
+  <Component /> {/* Automatically gets theme context */}
+</ThemeProvider>
+```
+
+## Common Development Issues
+
+### 1. Import Resolution
+**Issue**: TypeScript can't resolve `@/` imports
+**Solution**: Check `utils/vite.config.ts` alias configuration
+
+### 2. Supabase RLS Policies
+**Issue**: Database queries return empty results
+**Solution**: Verify RLS policies in Supabase dashboard, ensure `auth.uid()` matches `user_id`
+
+### 3. GitHub API Rate Limits  
+**Issue**: API calls failing with 403
+**Solution**: Implement exponential backoff, check token scopes
+
+### 4. localStorage Persistence
+**Issue**: State not persisting across browser sessions
+**Solution**: Ensure `useEffect` dependencies are correct for localStorage sync
+
+### 5. Message Versioning
+**Issue**: Edit operations corrupting chat state
+**Solution**: Always create new version entries, never mutate existing versions
+
+## Security Considerations
+
+### Client-Side API Keys
+- **Supabase anon key**: Safe to expose (protected by RLS)
+- **GitHub tokens**: Managed by Supabase Auth (secure)
+- **OpenAI key**: Currently client-side (consider Edge Functions for production)
+
+### Row Level Security
+All database tables have RLS policies:
+```sql
+CREATE POLICY "Users can view their own chats"
+    ON chats FOR SELECT
+    USING (auth.uid() = user_id);
+```
+
+### Content Validation
+Always validate user inputs before database storage or API calls.
+
+## PWA Configuration
+
+App supports installation as native app:
+- `public/manifest.json` - PWA manifest
+- `public/service-worker.js` - Offline support
+- `index.html` - PWA meta tags and service worker registration
+
+Users can install via browser "Add to Home Screen" prompt.
+
+## Deployment Flow
+
+1. **Push to main branch** → GitHub Actions triggered
+2. **Build static site** → `npm run build`
+3. **Deploy to GitHub Pages** → Automatic deployment
+4. **Users access** → `https://username.github.io/Pilot-Server`
+
+No server configuration needed - works entirely as static site with Supabase backend.
+
