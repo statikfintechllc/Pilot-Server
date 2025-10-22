@@ -77,8 +77,10 @@ const response = await fetch('https://models.github.ai/inference/chat/completion
 ```
 
 **File locations:**
-- `src/lib/auth/vscode-auth.ts` - Core auth provider
-- `src/hooks/use-vscode-auth.ts` - React hook wrapper
+- `src/lib/auth/vscode-auth.ts` - Core VS Code-style GitHub OAuth provider
+- `src/lib/auth/ios-oauth.ts` - iOS-specific GitHub OAuth integration (ASWebAuthenticationSession equivalent)
+- `src/hooks/use-vscode-auth.ts` - React hook wrapper for VS Code-style auth
+- `src/hooks/use-auth.ts` - React hook supporting both VS Code and iOS OAuth flows
 - `src/components/AuthGuard.tsx` - Route protection
 
 ### 3. Message Versioning System

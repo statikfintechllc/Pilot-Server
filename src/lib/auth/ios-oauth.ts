@@ -33,6 +33,9 @@ declare global {
   }
 }
 
+// Timeout for authentication window (5 minutes)
+const AUTH_TIMEOUT_MS = 300000;
+
 export class IOSGitHubAuth {
   private config: IOSAuthConfig;
   private authPromise: Promise<AuthResult> | null = null;
@@ -114,10 +117,13 @@ export class IOSGitHubAuth {
   private isIOSApp(): boolean {
     const userAgent = navigator.userAgent;
     const isIOS = /iPad|iPhone|iPod/.test(userAgent);
-    const hasWebKit = window.webkit && window.webkit.messageHandlers;
-    const isWebView = window.location.protocol === 'file:' || hasWebKit;
-    
-    return isIOS && isWebView;
+    const hasAuthHandler =
+      !!window.webkit &&
+      !!window.webkit.messageHandlers &&
+      typeof window.webkit.messageHandlers.authHandler === 'object' &&
+      typeof window.webkit.messageHandlers.authHandler.postMessage === 'function';
+
+    return isIOS && hasAuthHandler;
   }
 
   private startIOSAuthentication(authUrl: string) {
@@ -212,7 +218,7 @@ export class IOSGitHubAuth {
           error: 'Authentication timeout'
         });
       }
-    }, 300000);
+    }, AUTH_TIMEOUT_MS);
   }
 
   /**
