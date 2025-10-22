@@ -8,7 +8,7 @@ const projectRoot = fileURLToPath(new URL('..', import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/',
+  base: '',
   root: projectRoot,
   build: {
     outDir: resolve(projectRoot, 'dist'),
