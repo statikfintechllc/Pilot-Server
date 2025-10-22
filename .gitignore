@@ -32,11 +32,3 @@ pids
 .devcontainer/
 
 .spark-workbench-id
-
-# Jekyll
-_site
-.sass-cache
-.jekyll-cache
-.jekyll-metadata
-Gemfile.lock
-vendor
