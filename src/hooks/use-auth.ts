@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { IOSGitHubAuth } from '../lib/ios-oauth';
+import { IOSGitHubAuth } from '../lib/auth/ios-oauth';
 
 // localStorage utility functions
 const useLocalStorage = <T>(key: string, defaultValue: T) => {
