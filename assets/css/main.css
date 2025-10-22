@@ -91,3 +91,45 @@
 .card {
   @apply rounded-lg border bg-card text-card-foreground shadow-sm;
 }
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Prose styling for message content */
+.prose {
+  @apply text-foreground;
+}
+
+.prose p {
+  @apply my-2;
+}
+
+.prose code {
+  @apply bg-muted px-1 py-0.5 rounded text-sm;
+}
+
+.prose pre {
+  @apply bg-muted p-4 rounded overflow-x-auto;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0;
+}
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .chat-item {
+    @apply text-sm;
+  }
+}

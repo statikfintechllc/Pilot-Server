@@ -1,0 +1,32 @@
+<!-- Message Component -->
+{% assign role = include.role | default: 'user' %}
+{% assign content = include.content | default: '' %}
+{% assign timestamp = include.timestamp | default: '' %}
+
+<div class="message message-{{ role }} mb-4 p-4 rounded-lg {% if role == 'assistant' %}bg-muted{% else %}bg-card border border-border{% endif %}">
+  <div class="flex items-start gap-3">
+    <!-- Avatar -->
+    <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center {% if role == 'assistant' %}bg-primary text-primary-foreground{% else %}bg-secondary text-secondary-foreground{% endif %}">
+      {% if role == 'assistant' %}
+        🤖
+      {% else %}
+        👤
+      {% endif %}
+    </div>
+    
+    <!-- Content -->
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center justify-between mb-1">
+        <span class="font-semibold text-sm">
+          {% if role == 'assistant' %}AI Assistant{% else %}You{% endif %}
+        </span>
+        {% if timestamp %}
+        <span class="text-xs text-muted-foreground">{{ timestamp }}</span>
+        {% endif %}
+      </div>
+      <div class="prose prose-sm max-w-none">
+        {{ content }}
+      </div>
+    </div>
+  </div>
+</div>

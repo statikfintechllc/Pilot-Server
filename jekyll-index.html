@@ -5,71 +5,17 @@ title: Home
 
 {% include components/header.liquid %}
 
-<div class="flex h-screen">
-  <!-- Sidebar -->
-  <aside class="w-72 border-r border-border bg-card p-4">
-    <div class="space-y-2">
-      <h2 class="text-lg font-semibold mb-4">Chats</h2>
-      <div id="chat-list">
-        <!-- Chat list will be populated by JavaScript -->
-      </div>
-    </div>
-  </aside>
+<div class="flex h-[calc(100vh-64px)]">
+  {% include components/sidebar.liquid %}
   
   <!-- Main Chat Area -->
-  <main class="flex-1 flex flex-col">
-    <!-- Model Selector -->
-    <div class="p-4 border-b border-border">
-      <select 
-        id="model-selector" 
-        class="px-4 py-2 rounded-md border border-input bg-background"
-        onchange="PilotApp.chatState.selectedModel = this.value; PilotApp.chatState.save();"
-      >
-        <option value="gpt-4o">GPT-4o</option>
-        <option value="gpt-4o-mini">GPT-4o Mini</option>
-      </select>
-    </div>
-    
-    <!-- Messages -->
-    <div class="flex-1 overflow-y-auto p-4">
-      <div id="chat-messages">
-        <!-- Messages will be populated by JavaScript -->
-      </div>
+  <main class="flex-1 flex flex-col min-w-0">
+    <!-- Messages Area -->
+    <div id="chat-messages" class="flex-1 overflow-y-auto p-4">
+      <!-- Messages will be populated by JavaScript -->
     </div>
     
     <!-- Message Input -->
-    <div class="border-t border-border p-4">
-      <form id="message-form" class="flex space-x-2" onsubmit="return false;">
-        <input 
-          type="text" 
-          id="message-input"
-          placeholder="Type your message..."
-          class="flex-1 px-4 py-2 rounded-md border border-input bg-background"
-        />
-        {% include components/button.liquid 
-          text="Send" 
-          variant="primary"
-          type="submit"
-        %}
-      </form>
-    </div>
+    {% include components/message-input.liquid %}
   </main>
 </div>
-
-<script>
-  // Additional inline script for form handling
-  document.getElementById('message-form')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const input = document.getElementById('message-input');
-    if (input && input.value.trim()) {
-      PilotApp.chatState.addMessage({
-        role: 'user',
-        content: input.value,
-        timestamp: new Date().toISOString()
-      });
-      input.value = '';
-      // Re-render chat
-      PilotApp.startNewChat(); // This will trigger re-render
-    }
-  });
-</script>
