@@ -1,0 +1,13 @@
+<!-- Button Component -->
+{% assign btn_class = include.variant | default: 'primary' %}
+{% assign btn_size = include.size | default: 'medium' %}
+
+<button 
+  class="btn btn-{{ btn_class }} btn-{{ btn_size }} {{ include.class }}"
+  {% if include.onclick %}onclick="{{ include.onclick }}"{% endif %}
+  {% if include.disabled %}disabled{% endif %}
+  {% if include.id %}id="{{ include.id }}"{% endif %}
+  {% if include.type %}type="{{ include.type }}"{% else %}type="button"{% endif %}
+>
+  {{ include.text }}
+</button>
