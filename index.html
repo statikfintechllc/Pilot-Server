@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/Pilot-Server/assets/pilot.card-C_Sj6e3f.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Pilot Server - A GitHub Powered AI Chat Interface with Multi-Model Support" />
+    <meta name="theme-color" content="#000000" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/Pilot-Server/assets/manifest-B7frpCRw.json" />
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Pilot Server" />
+    <link rel="apple-touch-icon" href="/Pilot-Server/assets/pilot.card-C_Sj6e3f.png" />
+    
+    <title>Pilot Server - AI Chat Interface</title>
+    <script type="module" crossorigin src="/Pilot-Server/assets/index-Cv9yQPzG.js"></script>
+    <link rel="stylesheet" crossorigin href="/Pilot-Server/assets/index-ByqT6_kZ.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('service-worker.js')
+            .then(registration => {
+              console.log('ServiceWorker registered: ', registration);
+            })
+            .catch(error => {
+              console.log('ServiceWorker registration failed: ', error);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>

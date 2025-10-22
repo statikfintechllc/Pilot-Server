@@ -14,7 +14,19 @@ export default defineConfig({
     outDir: resolve(projectRoot, 'dist'),
     emptyOutDir: true,
     rollupOptions: {
-      input: resolve(projectRoot, 'template.index.html')
+      input: {
+        index: resolve(projectRoot, 'template.index.html')
+      },
+      output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'template.index.css') {
+            return 'assets/index-[hash].css';
+          }
+          return 'assets/[name]-[hash][extname]';
+        }
+      }
     }
   },
   plugins: [

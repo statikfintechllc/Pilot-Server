@@ -50,11 +50,12 @@ jobs:
       
       - name: Move built files to root for GitHub Pages
         run: |
-          # Move built index.html to root
-          cp dist/index.html index.html
+          # Move built index.html to root (rename from template.index.html)
+          mv dist/template.index.html index.html
           
           # Move assets folder to root
-          cp -r dist/assets assets
+          rm -rf assets || true
+          mv dist/assets assets
           
           # Copy manifest and other static files if they were built
           if [ -f dist/manifest.json ]; then cp dist/manifest.json manifest.json; fi
