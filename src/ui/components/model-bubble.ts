@@ -5,7 +5,7 @@
 
 import { chatStore, setModel } from '../../state/chat';
 import { AVAILABLE_MODELS } from '../../state/auth';
-import type { AIModel } from '../lib/types';
+import type { AIModel } from '../../lib/types';
 
 export class ModelBubble {
   private container: HTMLElement;
