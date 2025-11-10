@@ -53,7 +53,7 @@
         "@radix-ui/react-toggle-group": "^1.1.11",
         "@radix-ui/react-tooltip": "^1.1.8",
         "@supabase/ssr": "^0.7.0",
-        "@supabase/supabase-js": "^2.75.1",
+        "@supabase/supabase-js": "^2.81.0",
         "@tailwindcss/container-queries": "^0.1.1",
         "@tailwindcss/vite": "^4.1.11",
         "@tanstack/react-query": "^5.87.1",
