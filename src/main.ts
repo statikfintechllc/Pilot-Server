@@ -6,7 +6,12 @@
 import { router } from './router';
 import { Store } from './framework/store';
 import { initAuth, authStore, handleOAuthCallback } from './state/auth';
-import { chatStore } from './state/chat';
+import { chatStore, createNewChat } from './state/chat';
+import { ChatSidebar } from './ui/components/chat-sidebar';
+import { ChatHeader } from './ui/components/chat-header';
+import { ChatMessages } from './ui/components/chat-messages';
+import { MessageInput } from './ui/components/message-input';
+import { ModelBubble } from './ui/components/model-bubble';
 
 // Global app state interface
 interface AppState {
@@ -85,71 +90,69 @@ function initRouter(): void {
 }
 
 /**
- * Render main chat app
+ * Render main chat app with all components
  */
 function renderChatApp(): void {
   const root = document.getElementById('root');
   if (!root) return;
 
-  const authState = authStore.getState();
-  const chatState = chatStore.getState();
-
   root.innerHTML = `
     <div class="h-screen flex bg-background overflow-hidden">
-      <div class="flex-1 flex items-center justify-center p-8">
-        <div class="glass-card p-8 max-w-2xl w-full text-center space-y-6">
-          <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Pilot Server
-          </h1>
-          <p class="text-xl text-gray-400 mb-4">Vanilla JS PWA</p>
-          
-          <div class="glass-panel p-6 text-left space-y-4">
-            <h2 class="text-lg font-semibold text-gray-200">Migration Status</h2>
-            <ul class="text-sm text-gray-400 space-y-2">
-              <li>✅ Build system: esbuild + PostCSS + Tailwind v4</li>
-              <li>✅ Framework: Vanilla TypeScript with Store + Router</li>
-              <li>✅ State management: chat.ts and auth.ts</li>
-              <li>✅ PWA: Service worker + manifest configured</li>
-              <li>🚧 UI components: In progress</li>
-              <li>🚧 Chat functionality: In progress</li>
-            </ul>
-          </div>
-
-          <div class="glass-panel p-6 text-left space-y-4">
-            <h2 class="text-lg font-semibold text-gray-200">Auth Status</h2>
-            ${authState.isAuthenticated ? `
-              <div class="flex items-center gap-4">
-                ${authState.user?.avatar_url ? `
-                  <img src="${authState.user.avatar_url}" alt="Avatar" class="w-12 h-12 rounded-full" />
-                ` : ''}
-                <div>
-                  <p class="text-white font-semibold">${authState.user?.name || 'User'}</p>
-                  <p class="text-sm text-gray-400">@${authState.user?.login || 'unknown'}</p>
-                </div>
-              </div>
-              <button class="glass-button w-full mt-4" onclick="window.signOut()">
-                Sign Out
-              </button>
-            ` : `
-              <p class="text-gray-400 text-sm">Not authenticated - running in localStorage mode</p>
-              <button class="glass-button w-full" onclick="window.signIn()">
-                Sign In with GitHub
-              </button>
-            `}
-          </div>
-
-          <div class="glass-panel p-6 text-left space-y-4">
-            <h2 class="text-lg font-semibold text-gray-200">Chat State</h2>
-            <p class="text-sm text-gray-400">
-              Chats: ${chatState.chats.length}<br>
-              Selected Model: ${chatState.chatState.selectedModel}<br>
-              Current Chat: ${chatState.chatState.currentChatId || 'None'}
-            </p>
-          </div>
-        </div>
+      <!-- Sidebar -->
+      <div id="chat-sidebar"></div>
+      
+      <!-- Main Content -->
+      <div class="flex-1 flex flex-col min-w-0 min-h-0 relative max-h-screen overflow-hidden md:ml-72 transition-all duration-300">
+        <!-- Header -->
+        <div id="chat-header"></div>
+        
+        <!-- Model Bubble -->
+        <div id="model-bubble"></div>
+        
+        <!-- Messages Area -->
+        <div id="chat-messages" class="flex-1 overflow-hidden"></div>
+        
+        <!-- Input Area -->
+        <div id="message-input"></div>
       </div>
     </div>
   `;
+
+  // Initialize components
+  const sidebarEl = document.getElementById('chat-sidebar');
+  const headerEl = document.getElementById('chat-header');
+  const messagesEl = document.getElementById('chat-messages');
+  const inputEl = document.getElementById('message-input');
+  const modelBubbleEl = document.getElementById('model-bubble');
+
+  if (sidebarEl) {
+    const sidebar = new ChatSidebar(sidebarEl);
+    (window as any).__setSidebarInstance(sidebar);
+  }
+
+  if (headerEl) {
+    new ChatHeader(headerEl);
+  }
+
+  if (messagesEl) {
+    new ChatMessages(messagesEl);
+  }
+
+  if (inputEl) {
+    const input = new MessageInput(inputEl);
+    (window as any).__setMessageInputInstance(input);
+  }
+
+  if (modelBubbleEl) {
+    const bubble = new ModelBubble(modelBubbleEl);
+    (window as any).__setModelBubbleInstance(bubble);
+  }
+
+  // Create initial chat if none exists
+  const state = chatStore.getState();
+  if (state.chats.length === 0) {
+    createNewChat();
+  }
 }
 
 /**
