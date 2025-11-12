@@ -32,3 +32,10 @@ pids
 .devcontainer/
 
 .spark-workbench-id
+
+# Allow built assets in root for GitHub Pages deployment
+!assets/
+!manifest.json
+!service-worker.js
+!env.example.js
+!env.js
