@@ -1,0 +1,32 @@
+name: Question
+description: Ask a question about Pilot-Server
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question? We're here to help! Please provide as much context as possible.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: Ask your question here...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Provide any additional context that might help us answer your question
+      placeholder: Any relevant background information...
+
+  - type: textarea
+    id: attempts
+    attributes:
+      label: What have you tried?
+      description: If applicable, what have you already tried to solve this?
+      placeholder: Describe any attempts or research you've done...
