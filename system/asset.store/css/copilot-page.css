@@ -923,8 +923,24 @@ body {
   }
 }
 
+/* ===== Chat Root Container - Fixed Layout ===== */
+#chat-root {
+  position: fixed;
+  top: 70px; /* Below header */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent root from scrolling */
+}
+
 /* ===== Chat Messages Padding for Fixed Input Bar ===== */
 #chat-messages {
+  flex: 1;
+  overflow-y: auto; /* Only messages scroll */
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 100px; /* Space for fixed input bar at bottom */
 }
 
