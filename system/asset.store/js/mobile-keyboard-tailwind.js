@@ -24,14 +24,16 @@ class MobileChatKeyboard {
   constructor(rootElementId = 'chat-root') {
     this.root = document.getElementById(rootElementId);
     this.messages = document.getElementById('chat-messages');
-    this.input = document.getElementById('chat-input'); // Updated: now references .copilot-input-bar
-    this.inputField = document.getElementById('chat-input-field'); // Updated: now references .copilot-input
+    this.input = document.getElementById('chat-input'); // Container for input elements
     this.header = document.getElementById('chat-header'); // Navigation header
     
-    if (!this.root || !this.messages || !this.input || !this.inputField) {
+    if (!this.root || !this.messages || !this.input) {
       console.warn('MobileChatKeyboard: Required elements not found');
       return;
     }
+    
+    // Create textarea and button dynamically to avoid DOM positioning issues
+    this.createInputElements();
     
     // Feature detection for iOS instead of user agent sniffing
     this.isIOS = this.detectIOS();
@@ -44,6 +46,34 @@ class MobileChatKeyboard {
     this.updateCSSVariables();
     
     this.init();
+  }
+  
+  /**
+   * Create textarea and send button dynamically
+   * Avoids mobile browser DOM positioning issues
+   */
+  createInputElements() {
+    // Create textarea
+    this.inputField = document.createElement('textarea');
+    this.inputField.id = 'chat-input-field';
+    this.inputField.className = 'copilot-input';
+    this.inputField.placeholder = 'Ask about your trading...';
+    this.inputField.rows = 1;
+    
+    // Create send button
+    const sendButton = document.createElement('button');
+    sendButton.id = 'send-button';
+    sendButton.className = 'copilot-send';
+    sendButton.innerHTML = `
+      <span>Send</span>
+      <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+      </svg>
+    `;
+    
+    // Append to container
+    this.input.appendChild(this.inputField);
+    this.input.appendChild(sendButton);
   }
   
   /**

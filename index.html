@@ -169,20 +169,9 @@
       </div>
     </div>
     
-    <!-- Input Area - Inside chat-root so keyboard positions correctly -->
+    <!-- Input Area - Container only, textarea created by JS -->
     <div id="chat-input" class="copilot-input-bar">
-      <textarea 
-        id="chat-input-field"
-        class="copilot-input"
-        placeholder="Ask about your trading..." 
-        rows="1"
-      ></textarea>
-      <button id="send-button" class="copilot-send">
-        <span>Send</span>
-        <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
-        </svg>
-      </button>
+      <!-- Textarea and button will be created by mobile-keyboard-tailwind.js -->
     </div>
   </div>
   
