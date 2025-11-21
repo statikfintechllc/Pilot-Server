@@ -15,11 +15,22 @@ The render system handles:
 ### Template-Based Rendering
 
 ```javascript
-// Simple template rendering
+// Escape HTML to prevent XSS attacks
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Simple template rendering with security
 function render(template, data) {
   let html = template;
   for (const [key, value] of Object.entries(data)) {
-    html = html.replace(`{{${key}}}`, value);
+    const escapedValue = escapeHtml(String(value));
+    html = html.replace(new RegExp(`{{${key}}}`, 'g'), escapedValue);
   }
   return html;
 }

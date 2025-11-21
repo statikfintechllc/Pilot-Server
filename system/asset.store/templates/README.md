@@ -43,11 +43,22 @@ async function loadTemplate(templateName) {
   return template;
 }
 
-// Populate template with data
+// Escape HTML to prevent XSS attacks
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Populate template with escaped data
 function populateTemplate(template, data) {
   let html = template;
   for (const [key, value] of Object.entries(data)) {
-    html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
+    const escapedValue = escapeHtml(String(value));
+    html = html.replace(new RegExp(`{{${key}}}`, 'g'), escapedValue);
   }
   return html;
 }
@@ -70,6 +81,7 @@ document.getElementById('container').innerHTML = html;
 3. **Maintain Consistency**: Follow existing patterns and naming conventions
 4. **Document Template Variables**: Comment what data each template expects
 5. **Test Thoroughly**: Verify templates work with various data inputs
+6. **Security First**: Always escape user-provided content to prevent XSS vulnerabilities
 
 ## Template Guidelines
 
