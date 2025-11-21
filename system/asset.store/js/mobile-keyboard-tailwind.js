@@ -65,19 +65,14 @@ class MobileChatKeyboard {
   
   /**
    * Update CSS custom properties for dynamic positioning
-   * This ensures html, body, and chat-root always know their dimensions
-   * Uses CSS custom properties instead of inline styles for better maintainability
-   * 
-   * With interactive-widget=resizes-content, the keyboard pushes content up,
-   * so we need to position input bar above the keyboard manually
    */
   updateCSSVariables() {
     const headerHeight = this.header ? this.header.offsetHeight : MobileChatKeyboard.HEADER_DEFAULT_HEIGHT;
     const inputHeight = this.input ? this.input.offsetHeight : 0;
     const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     
-    // Chat root should extend from header to input bar
-    const chatRootBottom = inputHeight + this.keyboardHeight;
+    // Chat root extends from header to just above input bar (which stays at bottom: 0)
+    const chatRootBottom = inputHeight;
     
     // Set CSS custom properties on document root
     document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
@@ -208,11 +203,7 @@ class MobileChatKeyboard {
   
   /**
    * Handle keyboard height change
-   * Updates inline styles on chat components
-   * Uses CSS variables for dynamic layout
-   * 
-   * With interactive-widget=resizes-content, we need to manually position
-   * the input bar above the keyboard by setting bottom: ${keyboardHeight}px
+   * Uses transform instead of bottom positioning to avoid iOS viewport issues
    */
   handleKeyboardChange(keyboardHeight) {
     this.keyboardHeight = keyboardHeight;
@@ -221,18 +212,19 @@ class MobileChatKeyboard {
     this.updateCSSVariables();
     
     if (keyboardHeight > MobileChatKeyboard.KEYBOARD_THRESHOLD) {
-      // Keyboard is open - move input bar up by keyboard height
+      // Keyboard is open - use transform to move input up
+      // Transform works relative to element position, avoiding viewport calculation issues
       requestAnimationFrame(() => {
-        this.input.style.bottom = `${keyboardHeight}px`;
+        this.input.style.transform = `translateY(-${keyboardHeight}px) translateZ(0)`;
         
         const inputHeight = this.input.offsetHeight;
-        const totalBottomSpace = inputHeight + MobileChatKeyboard.BOTTOM_SPACING_BUFFER;
+        const totalBottomSpace = inputHeight + keyboardHeight + MobileChatKeyboard.BOTTOM_SPACING_BUFFER;
         
         this.messages.style.paddingBottom = `${totalBottomSpace}px`;
       });
     } else {
       // Keyboard is closed - reset to defaults
-      this.input.style.bottom = '';
+      this.input.style.transform = 'translateZ(0)';
       this.messages.style.paddingBottom = '';
     }
   }

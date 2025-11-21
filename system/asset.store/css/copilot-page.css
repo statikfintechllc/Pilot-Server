@@ -23,28 +23,23 @@
 }
 
 /* HTML and Body managed by JavaScript for dynamic positioning */
+/* HTML and Body - allow natural document flow for iOS keyboard */
 html {
   height: 100%;
-  position: fixed;
   width: 100%;
   overflow: hidden;
   margin: 0;
   padding: 0;
-  top: 0;
-  left: 0;
   /* Match app background to prevent white space */
   background: linear-gradient(135deg, rgba(15, 20, 41, 1) 0%, rgba(10, 14, 39, 1) 100%);
 }
 
 body {
   height: 100%;
-  position: fixed;
   width: 100%;
   overflow: hidden;
   margin: 0;
   padding: 0;
-  top: 0;
-  left: 0;
   /* Match app background to prevent white space */
   background: linear-gradient(135deg, rgba(15, 20, 41, 1) 0%, rgba(10, 14, 39, 1) 100%);
 }
