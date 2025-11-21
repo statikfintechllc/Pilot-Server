@@ -25,7 +25,19 @@ Process-specific stylesheets:
 - Animation for process flows
 
 ### `js/`
-JavaScript modules for process management:
+JavaScript modules for process management and application logic:
+- **auth.js**: Firebase authentication logic and GitHub API integration
+  - Handles OAuth and PAT authentication flows
+  - Manages GitHub repository access and file operations
+  - Provides authentication UI and token management
+- **copilot-chat.js**: Copilot chat functionality and AI integration
+  - Manages chat interface, navbar, and side menu initialization
+  - Handles model selection and chat history
+  - Coordinates user interactions with send button and input handling
+- **mobile-keyboard-tailwind.js**: Mobile keyboard handling and viewport adjustments
+  - Creates and manages chat input elements dynamically
+  - Handles textarea auto-resize functionality
+  - Optimizes mobile browser keyboard behavior
 - Process state handling
 - Workflow logic
 - Event coordination

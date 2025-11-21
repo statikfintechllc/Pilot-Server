@@ -12,11 +12,9 @@ Stylesheets for the application:
 - Additional utility and component styles
 
 ### `js/`
-JavaScript modules:
-- **auth.js**: Firebase authentication logic
-- **copilot-chat.js**: Copilot chat functionality and AI integration
-- **mobile-keyboard-tailwind.js**: Mobile keyboard handling and viewport adjustments
-- Additional feature modules
+JavaScript modules (if any):
+- Reserved for asset-related utilities and helpers
+- Processing logic has been moved to `../process.store/js/`
 
 ### `templates/`
 HTML template files for dynamic content rendering
