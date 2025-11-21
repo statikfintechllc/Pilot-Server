@@ -177,25 +177,38 @@ class MobileChatKeyboard {
    * iOS-specific fixes to prevent body scroll jump
    */
   setupIOSFixes() {
+    // CRITICAL: Prevent mobile browser from auto-scrolling document when input focuses
+    // Mobile browsers ignore overflow:hidden and scroll to bring inputs into view
+    this.inputField.addEventListener('focus', (e) => {
+      // Prevent default scroll-into-view behavior
+      e.preventDefault();
+      
+      // Force scroll position to stay at top
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      
+      this.isKeyboardOpen = true;
+      this.updateCSSVariables();
+    }, { passive: false }); // MUST be non-passive to allow preventDefault
+    
     // Prevent scroll on touchmove while typing
     this.inputField.addEventListener('touchmove', (e) => {
       e.stopPropagation();
     }, { passive: true });
     
-    // When input is focused, mark keyboard as open and update CSS variables
-    this.inputField.addEventListener('focus', () => {
-      this.isKeyboardOpen = true;
-      
-      // Update CSS variables for keyboard-open state
-      this.updateCSSVariables();
-    });
+    // Prevent touchstart from triggering scroll
+    this.inputField.addEventListener('touchstart', (e) => {
+      // Lock scroll position
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, { passive: true });
     
     // When input loses focus, mark keyboard as closed
     this.inputField.addEventListener('blur', () => {
       if (this.isKeyboardOpen) {
         this.isKeyboardOpen = false;
-        
-        // Update CSS variables for keyboard-closed state
         this.updateCSSVariables();
       }
     });
