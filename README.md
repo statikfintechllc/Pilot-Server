@@ -87,6 +87,114 @@ Pilot-Server/
 
 4. Navigate to `http://localhost:8000` in your browser
 
+## 💻 How to Use the UI
+
+Pilot-Server features an intuitive, modern interface designed for professional traders. Here's a comprehensive guide to navigating and using the application:
+
+### 🎯 Main Interface Components
+
+#### **Navigation Bar (Top)**
+The fixed navigation bar at the top of the screen provides quick access to all major features:
+
+- **Hamburger Menu (Left)**: Click to open the sidebar navigation menu
+- **Copilot Icon & Title (Center)**: Shows you're in the Copilot chat interface
+- **Model Selector**: Drop-down button displaying current AI model (e.g., "GPT-4o")
+  - Click to see and select from available AI models
+  - Models are categorized by capability (Fast, Versatile, Powerful)
+- **History Button**: View and access your previous chat conversations
+- **New Chat Button (+)**: Start a fresh conversation with the AI
+
+#### **Sidebar Menu**
+Access the sidebar by clicking the hamburger menu (☰) in the top-left:
+
+- **Home**: Return to the main copilot interface
+- **Books**: Access your trading education library
+- **Notes**: View and manage your trading notes
+- **Trades Section**:
+  - All Trades: Complete trade history
+  - All Summaries: Weekly/monthly trade summaries
+  - Analytics: Performance metrics and visualizations
+  - Import CSV: Bulk import trades from CSV files
+- **Mentors**: Quick links to Timothy Sykes and Tim Bohen resources
+
+#### **Chat Interface (Center)**
+The main area where you interact with the AI:
+
+- **Welcome Message**: Greeting and quick guide to what you can ask
+- **Message History**: Scrollable conversation with the AI
+- **Input Area (Bottom)**:
+  - Text box: Type your questions or requests
+  - Send Button: Submit your message to the AI
+
+### 📝 Using the Copilot Chat
+
+#### **Starting a Conversation**
+1. Click in the input box at the bottom of the screen
+2. Type your question or request about trading
+3. Click "Send" or press Enter
+
+#### **Example Questions You Can Ask**
+- "Analyze my recent trades and identify patterns"
+- "What are the key indicators for penny stock momentum?"
+- "Help me create a trading plan for volatile stocks"
+- "Review my trade from [date] and suggest improvements"
+- "What risk management strategies should I use?"
+
+#### **Switching AI Models**
+Different models excel at different tasks:
+
+1. Click the model selector button (shows current model name)
+2. Browse the categorized list:
+   - **Fast & Efficient**: Quick responses for simple queries
+   - **Versatile**: Balanced performance for most tasks
+   - **Powerful**: Deep analysis for complex trading scenarios
+3. Click your preferred model to switch
+
+#### **Managing Chat History**
+1. Click the "History" button in the top-right
+2. View all your previous conversations
+3. Click any conversation to restore it
+4. Use "New Chat" button to start fresh while keeping history
+
+### 🎨 Interface Features
+
+#### **Glass-Morphism Design**
+- Semi-transparent panels with blur effects
+- Smooth animations and transitions
+- Purple/cyan accent colors for interactive elements
+
+#### **Mobile-Optimized**
+- Responsive layout adapts to any screen size
+- Touch-friendly buttons and controls
+- Optimized keyboard handling on mobile devices
+- Gesture support for navigation
+
+#### **Dark Theme**
+- Eye-friendly dark interface for extended trading sessions
+- High contrast for readability
+- Reduced blue light for night trading
+
+### 💡 Pro Tips
+
+1. **Quick Navigation**: Use the sidebar menu to quickly switch between different sections
+2. **Context Matters**: Provide specific details in your questions for better AI responses
+3. **Save Important Chats**: Review your history to revisit valuable insights
+4. **Try Different Models**: Experiment with various AI models for different types of analysis
+5. **Mobile Usage**: The interface works perfectly on phones and tablets for trading on-the-go
+
+### 🔧 Keyboard Shortcuts
+
+- **Enter**: Send message (in chat input)
+- **Esc**: Close dropdowns and modals
+- **Tab**: Navigate between interactive elements
+
+### 📱 Mobile-Specific Features
+
+- **Adaptive Input**: Keyboard automatically adjusts viewport
+- **Touch Gestures**: Swipe to open/close sidebar menu
+- **Optimized Buttons**: Large touch targets for easy interaction
+- **Auto-Focus**: Input field activates for quick message entry
+
 ## 💻 Usage
 
 ### Main Features
