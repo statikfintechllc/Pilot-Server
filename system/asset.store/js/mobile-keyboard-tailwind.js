@@ -68,16 +68,16 @@ class MobileChatKeyboard {
    * This ensures html, body, and chat-root always know their dimensions
    * Uses CSS custom properties instead of inline styles for better maintainability
    * 
-   * With interactive-widget=resizes-visual, the visual viewport excludes keyboard,
-   * so input bar at bottom: 0 is automatically positioned above keyboard
+   * With interactive-widget=resizes-content, the keyboard pushes content up,
+   * so we need to position input bar above the keyboard manually
    */
   updateCSSVariables() {
     const headerHeight = this.header ? this.header.offsetHeight : MobileChatKeyboard.HEADER_DEFAULT_HEIGHT;
     const inputHeight = this.input ? this.input.offsetHeight : 0;
     const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     
-    // Chat root should extend from header to input bar (which is at bottom: 0)
-    const chatRootBottom = inputHeight;
+    // Chat root should extend from header to input bar
+    const chatRootBottom = inputHeight + this.keyboardHeight;
     
     // Set CSS custom properties on document root
     document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
@@ -211,9 +211,8 @@ class MobileChatKeyboard {
    * Updates inline styles on chat components
    * Uses CSS variables for dynamic layout
    * 
-   * With interactive-widget=resizes-visual, the visual viewport automatically
-   * adjusts to exclude the keyboard area, so we don't need to manually
-   * reposition the input bar - bottom: 0 keeps it at the bottom of visible area
+   * With interactive-widget=resizes-content, we need to manually position
+   * the input bar above the keyboard by setting bottom: ${keyboardHeight}px
    */
   handleKeyboardChange(keyboardHeight) {
     this.keyboardHeight = keyboardHeight;
@@ -222,10 +221,10 @@ class MobileChatKeyboard {
     this.updateCSSVariables();
     
     if (keyboardHeight > MobileChatKeyboard.KEYBOARD_THRESHOLD) {
-      // Keyboard is open
-      // Adjust messages container bottom padding to account for input bar
-      // The input bar stays at bottom: 0, which is bottom of visual viewport (above keyboard)
+      // Keyboard is open - move input bar up by keyboard height
       requestAnimationFrame(() => {
+        this.input.style.bottom = `${keyboardHeight}px`;
+        
         const inputHeight = this.input.offsetHeight;
         const totalBottomSpace = inputHeight + MobileChatKeyboard.BOTTOM_SPACING_BUFFER;
         
@@ -233,6 +232,7 @@ class MobileChatKeyboard {
       });
     } else {
       // Keyboard is closed - reset to defaults
+      this.input.style.bottom = '';
       this.messages.style.paddingBottom = '';
     }
   }
