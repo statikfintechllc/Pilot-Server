@@ -30,6 +30,17 @@
   <link rel="apple-touch-icon" href="system/icons.logo/pilot.card.png">
   
   <style>
+    /* Background canvas - full screen coverage */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      background: linear-gradient(135deg, rgba(15, 20, 41, 1) 0%, rgba(10, 14, 39, 1) 100%);
+    }
+    
     /* Chat root - dynamically positioned by JS using CSS variables */
     #chat-root {
       position: fixed;
@@ -42,6 +53,7 @@
     }
   </style>
 </head>
+<body>
   <canvas id="bg-canvas"></canvas>
   
   <!-- Unified Navigation & Copilot Header Bar -->
@@ -138,10 +150,10 @@
     </ul>
   </div>
   <div class="copilot-nav-overlay" id="copilot-nav-overlay"></div>
-<body>
+
   <!-- Chat Container with Tailwind - Mobile Keyboard Optimized -->
-  <div id="chat-root" class="flex flex-col" style="background: linear-gradient(135deg, rgba(15, 20, 41, 1) 0%, rgba(10, 14, 39, 1) 100%); z-index: 1; overflow: hidden;">
-</body>    
+  <div id="chat-root" class="flex flex-col" style="z-index: 1; overflow: hidden;">
+
     <!-- Messages Container - Independently scrollable -->
     <div id="chat-messages" class="flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 space-y-4" style="-webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: 120px;">
       <div class="flex flex-col items-center justify-center text-center py-12 px-4">
@@ -184,4 +196,5 @@
   <!-- Main App -->
   <!-- <script src="assets/js/app.js"></script> -->
   
+</body>
 </html>

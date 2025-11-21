@@ -125,13 +125,16 @@ class CopilotChat {
   }
   
   init() {
-    // Only create FAB button if not on copilot.html page
-    const isCopilotPage = window.location.pathname.includes('copilot.html');
+    // Only create FAB button if not on copilot.html page or index.html
+    const isCopilotPage = window.location.pathname.includes('copilot.html') || 
+                          window.location.pathname.includes('index.html') ||
+                          window.location.pathname === '/' ||
+                          window.location.pathname.endsWith('/');
     
     if (!isCopilotPage) {
       this.createCopilotButton();
     } else {
-      // On copilot.html, populate the model dropdown and attach event listeners
+      // On copilot.html or index.html, populate the model dropdown and attach event listeners
       this.populateModelDropdown();
       this.attachEventListeners();
     }
