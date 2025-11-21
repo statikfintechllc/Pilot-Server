@@ -23,25 +23,26 @@
 }
 
 /* HTML and Body managed by JavaScript for dynamic positioning */
-/* HTML and Body - allow natural document flow for iOS keyboard */
 html {
   height: 100%;
+  position: fixed;
   width: 100%;
   overflow: hidden;
   margin: 0;
   padding: 0;
-  /* Match app background to prevent white space */
-  background: linear-gradient(135deg, rgba(15, 20, 41, 1) 0%, rgba(10, 14, 39, 1) 100%);
+  top: 0;
+  left: 0;
 }
 
 body {
   height: 100%;
+  position: fixed;
   width: 100%;
   overflow: hidden;
   margin: 0;
   padding: 0;
-  /* Match app background to prevent white space */
-  background: linear-gradient(135deg, rgba(15, 20, 41, 1) 0%, rgba(10, 14, 39, 1) 100%);
+  top: 0;
+  left: 0;
 }
 
 /* ===== Unified Navigation & Copilot Header ===== */
@@ -944,11 +945,10 @@ body {
   /* No background on container - only on input elements */
   background: transparent;
   
-  /* Optimized transition - faster response with hardware acceleration */
-  transition: bottom 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  will-change: bottom;
+  /* Smooth transition for keyboard movements */
+  transition: bottom 0.2s ease-out;
   
-  /* Ensure proper stacking and hardware acceleration */
+  /* Ensure proper stacking and no extra visual borders */
   transform: translateZ(0);
   border: none;
   outline: none;
