@@ -926,7 +926,7 @@ body {
 /* ===== Chat Root Container ===== */
 #chat-root {
   position: fixed;
-  top: 70px; /* Below header */
+  top: var(--header-height); /* Below header */
   left: 0;
   right: 0;
   bottom: 0;
