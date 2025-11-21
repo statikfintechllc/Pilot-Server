@@ -56,8 +56,8 @@ class MobileChatKeyboard {
     this.input.appendChild(this.inputField);
     this.input.appendChild(sendButton);
     
-    // Append input bar to chat root
-    this.root.appendChild(this.input);
+    // Append input bar directly to body, not chat-root, so it floats independently
+    document.body.appendChild(this.input);
   }
   
   /**
