@@ -64,6 +64,14 @@ class MobileChatKeyboard {
    * Setup auto-resize for textarea
    */
   setupTextareaAutoResize() {
+    // Prevent viewport scrolling when keyboard opens
+    this.inputField.addEventListener('focus', () => {
+      // Scroll to input to prevent page shift
+      setTimeout(() => {
+        this.input.scrollIntoView({ behavior: 'instant', block: 'end' });
+      }, 300);
+    });
+    
     this.inputField.addEventListener('input', () => {
       // Reset height to auto to get the correct scrollHeight
       this.inputField.style.height = 'auto';
