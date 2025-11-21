@@ -213,13 +213,17 @@ class MobileChatKeyboard {
       if (!this.isKeyboardOpen) {
         // Keep viewport at top - single attempt
         this.bodyScrollY = 0;
-        this.forceScrollToTop();
       }
       
       this.isKeyboardOpen = true;
       
       // Update CSS variables
       this.updateCSSVariables();
+      
+      // Force scroll to top after state is set for consistency
+      if (this.bodyScrollY === 0) {
+        this.forceScrollToTop();
+      }
     });
     
     // When input loses focus, restore body position
