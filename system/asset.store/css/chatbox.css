@@ -1,0 +1,10 @@
+/* Chat root - dynamically positioned by JS using CSS variables */
+#chat-root {
+  position: fixed;
+  top: var(--header-height, 70px);
+  left: 0;
+  right: 0;
+  bottom: var(--chat-root-bottom, 0);
+  z-index: 1; /* Keep below input bar which is z-index: 10000 */
+  overflow: hidden;
+}
