@@ -11,31 +11,32 @@
     // Initialize component loader
     if (window.ComponentLoader) {
       const componentLoader = new window.ComponentLoader();
-      componentLoader.init();
+      componentLoader.init().then(() => {
+        // Initialize managers after components are mounted
+        
+        // Initialize keyboard manager
+        if (window.KeyboardManager) {
+          const keyboardManager = new window.KeyboardManager();
+          keyboardManager.init();
+        }
+
+        // Initialize viewport manager
+        if (window.ViewportManager) {
+          const viewportManager = new window.ViewportManager();
+          viewportManager.init();
+        }
+
+        // Initialize message handler
+        if (window.MessageHandler) {
+          const messageHandler = new window.MessageHandler();
+          messageHandler.init();
+        }
+
+        console.log('Application initialized successfully');
+      }).catch((error) => {
+        console.error('Failed to initialize application:', error);
+      });
     }
-
-    // Initialize managers after a short delay to ensure components are mounted
-    setTimeout(() => {
-      // Initialize keyboard manager
-      if (window.KeyboardManager) {
-        const keyboardManager = new window.KeyboardManager();
-        keyboardManager.init();
-      }
-
-      // Initialize viewport manager
-      if (window.ViewportManager) {
-        const viewportManager = new window.ViewportManager();
-        viewportManager.init();
-      }
-
-      // Initialize message handler
-      if (window.MessageHandler) {
-        const messageHandler = new window.MessageHandler();
-        messageHandler.init();
-      }
-
-      console.log('Application initialized successfully');
-    }, 100);
   }
 
   // Start initialization

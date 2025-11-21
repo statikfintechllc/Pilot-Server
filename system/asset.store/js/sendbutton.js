@@ -28,6 +28,8 @@ class SendButtonComponent {
     const chatInput = container.querySelector('#chat-input');
     if (chatInput) {
       chatInput.appendChild(this.element);
+    } else {
+      console.error('SendButtonComponent: chat-input container not found');
     }
   }
 }

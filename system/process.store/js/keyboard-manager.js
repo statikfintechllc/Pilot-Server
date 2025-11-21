@@ -5,10 +5,17 @@
 
 class KeyboardManager {
   constructor() {
-    this.listeners = [];
+    this.initialized = false;
   }
 
   init() {
+    // Prevent multiple initializations
+    if (this.initialized) {
+      console.warn('KeyboardManager already initialized');
+      return;
+    }
+    this.initialized = true;
+    
     // Handle Enter key in chat input
     const chatInput = document.getElementById('chat-input-field');
     if (chatInput) {

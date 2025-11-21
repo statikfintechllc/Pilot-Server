@@ -5,10 +5,17 @@
 
 class MessageHandler {
   constructor() {
-    this.messageQueue = [];
+    this.initialized = false;
   }
 
   init() {
+    // Prevent multiple initializations
+    if (this.initialized) {
+      console.warn('MessageHandler already initialized');
+      return;
+    }
+    this.initialized = true;
+    
     // Set up event listeners for message handling
     const sendButton = document.getElementById('send-button');
     if (sendButton) {

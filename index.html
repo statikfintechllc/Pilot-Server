@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-visual">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -18,18 +18,10 @@
     
     <!-- Asset Store CSS -->
     <link rel="stylesheet" href="system/asset.store/css/background.css">
-    <link rel="stylesheet" href="system/asset.store/css/navbar.css">
     <link rel="stylesheet" href="system/asset.store/css/chatbox.css">
-    <link rel="stylesheet" href="system/asset.store/css/chatbar.css">
-    <link rel="stylesheet" href="system/asset.store/css/sendbutton.css">
     <link rel="stylesheet" href="system/asset.store/css/glass-effects.css">
     <link rel="stylesheet" href="system/asset.store/css/copilot-page.css">
     <link rel="stylesheet" href="system/asset.store/css/copilot-chat.css">
-    
-    <!-- Process Store CSS -->
-    <link rel="stylesheet" href="system/process.store/css/layout.css">
-    <link rel="stylesheet" href="system/process.store/css/keyboard-handler.css">
-    <link rel="stylesheet" href="system/process.store/css/viewport-fix.css">
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -49,6 +41,12 @@
     <script src="system/asset.store/js/chatbar.js"></script>
     <script src="system/asset.store/js/sendbutton.js"></script>
     
+    <!-- Process Store JS - Logic & Handlers -->
+    <script src="system/process.store/js/component-loader.js"></script>
+    <script src="system/process.store/js/keyboard-manager.js"></script>
+    <script src="system/process.store/js/viewport-manager.js"></script>
+    <script src="system/process.store/js/message-handler.js"></script>
+    
     <!-- Firebase Auth -->
     <script src="system/asset.store/js/auth.js"></script>
     
@@ -58,11 +56,7 @@
     <!-- Copilot Chat -->
     <script src="system/asset.store/js/copilot-chat.js"></script>
     
-    <!-- Process Store JS - Logic & Handlers -->
-    <script src="system/process.store/js/component-loader.js"></script>
-    <script src="system/process.store/js/keyboard-manager.js"></script>
-    <script src="system/process.store/js/viewport-manager.js"></script>
-    <script src="system/process.store/js/message-handler.js"></script>
+    <!-- Initialize Application -->
     <script src="system/process.store/js/init.js"></script>
 </body>
 </html>

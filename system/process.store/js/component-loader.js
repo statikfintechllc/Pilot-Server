@@ -6,39 +6,62 @@
 class ComponentLoader {
   constructor() {
     this.components = [];
+    this.initialized = false;
   }
 
   loadComponents() {
     const appRoot = document.getElementById('app-root');
     if (!appRoot) {
       console.error('app-root element not found');
-      return;
+      return Promise.reject(new Error('app-root element not found'));
     }
 
     // Load components in order
-    const components = [
-      { Component: window.BackgroundComponent, container: document.body },
-      { Component: window.NavbarComponent, container: document.body },
-      { Component: window.ChatboxComponent, container: appRoot },
-      { Component: window.ChatbarComponent, container: appRoot },
-      { Component: window.SendButtonComponent, container: appRoot }
+    const componentConfigs = [
+      { name: 'BackgroundComponent', Component: window.BackgroundComponent, container: document.body },
+      { name: 'NavbarComponent', Component: window.NavbarComponent, container: document.body },
+      { name: 'ChatboxComponent', Component: window.ChatboxComponent, container: appRoot },
+      { name: 'ChatbarComponent', Component: window.ChatbarComponent, container: appRoot },
+      { name: 'SendButtonComponent', Component: window.SendButtonComponent, container: appRoot }
     ];
 
-    components.forEach(({ Component, container }) => {
+    componentConfigs.forEach(({ name, Component, container }, idx) => {
       if (Component) {
-        const instance = new Component();
-        instance.mount(container);
-        this.components.push(instance);
+        try {
+          const instance = new Component();
+          instance.mount(container);
+          this.components.push(instance);
+        } catch (error) {
+          console.error(`Failed to mount ${name}:`, error);
+        }
+      } else {
+        console.warn(
+          `Component at index ${idx} (${name}) not found or failed to load. ` +
+          `Check that the script loaded correctly.`
+        );
       }
     });
+    
+    return Promise.resolve();
   }
 
   init() {
+    // Prevent multiple initializations
+    if (this.initialized) {
+      console.warn('ComponentLoader already initialized');
+      return Promise.resolve();
+    }
+    this.initialized = true;
+
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => this.loadComponents());
+      return new Promise((resolve) => {
+        document.addEventListener('DOMContentLoaded', () => {
+          this.loadComponents().then(resolve);
+        });
+      });
     } else {
-      this.loadComponents();
+      return this.loadComponents();
     }
   }
 }

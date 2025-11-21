@@ -117,6 +117,10 @@ class NavbarComponent {
 
   mount(container) {
     const components = this.render();
+    this.element = components.nav;
+    this.sidebar = components.sidebar;
+    this.overlay = components.overlay;
+    
     container.appendChild(components.nav);
     container.appendChild(components.sidebar);
     container.appendChild(components.overlay);

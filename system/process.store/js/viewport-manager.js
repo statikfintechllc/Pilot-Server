@@ -8,19 +8,30 @@ class ViewportManager {
     this.isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
     this.isAndroid = /Android/.test(navigator.userAgent);
     this.isMobile = this.isIOS || this.isAndroid;
+    this.initialized = false;
+    this._resizeHandler = null;
+    this._orientationHandler = null;
   }
 
   init() {
+    // Prevent multiple initializations
+    if (this.initialized) {
+      console.warn('ViewportManager already initialized');
+      return;
+    }
+    this.initialized = true;
+    
     if (!this.isMobile) return;
 
     // Handle viewport resize on mobile
-    this.handleViewportResize();
-    window.addEventListener('resize', () => this.handleViewportResize());
+    this._resizeHandler = () => this.handleViewportResize();
+    this._orientationHandler = () => {
+      setTimeout(this.handleViewportResize.bind(this), 100);
+    };
     
-    // Handle orientation change
-    window.addEventListener('orientationchange', () => {
-      setTimeout(() => this.handleViewportResize(), 100);
-    });
+    this.handleViewportResize();
+    window.addEventListener('resize', this._resizeHandler);
+    window.addEventListener('orientationchange', this._orientationHandler);
   }
 
   handleViewportResize() {
