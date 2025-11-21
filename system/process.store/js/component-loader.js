@@ -55,9 +55,9 @@ class ComponentLoader {
 
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         document.addEventListener('DOMContentLoaded', () => {
-          resolve(this.loadComponents());
+          this.loadComponents().then(resolve).catch(reject);
         });
       });
     } else {

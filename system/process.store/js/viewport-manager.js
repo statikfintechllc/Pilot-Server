@@ -26,6 +26,7 @@ class ViewportManager {
     // Handle viewport resize on mobile
     this._resizeHandler = () => this.handleViewportResize();
     this._orientationHandler = () => {
+      // Delay to allow orientation change to complete before recalculating
       setTimeout(() => this.handleViewportResize(), 100);
     };
     
