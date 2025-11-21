@@ -93,31 +93,14 @@ class MobileChatKeyboard {
   }
   
   /**
-   * Aggressively scroll to top to keep viewport pinned at header
-   * iOS requires multiple scroll attempts due to async keyboard behavior
-   * This method schedules scroll attempts at strategic intervals during keyboard animation
+   * Simplified scroll to top - single attempt with requestAnimationFrame
+   * Reduces conflict with viewport adjustments
    */
   forceScrollToTop() {
-    // Immediate scroll
-    window.scrollTo(0, 0);
-    requestAnimationFrame(() => window.scrollTo(0, 0));
-    
-    // Early keyboard animation (10ms)
-    setTimeout(() => {
+    // Single scroll attempt synchronized with browser paint
+    requestAnimationFrame(() => {
       window.scrollTo(0, 0);
-      requestAnimationFrame(() => window.scrollTo(0, 0));
-    }, 10);
-    
-    // Mid keyboard animation (50ms)
-    setTimeout(() => {
-      window.scrollTo(0, 0);
-      requestAnimationFrame(() => window.scrollTo(0, 0));
-    }, 50);
-    
-    // Late keyboard animation (100ms)
-    setTimeout(() => {
-      window.scrollTo(0, 0);
-    }, 100);
+    });
   }
   
   init() {
@@ -161,18 +144,11 @@ class MobileChatKeyboard {
    */
   setupVisualViewport() {
     const viewport = window.visualViewport;
-    let debounceTimer = null;
     
     const handleViewportChange = () => {
-      // Debounce to prevent glitchy animations during keyboard open
-      if (debounceTimer) {
-        clearTimeout(debounceTimer);
-      }
-      
-      debounceTimer = setTimeout(() => {
-        const keyboardHeight = this.initialHeight - viewport.height;
-        this.handleKeyboardChange(keyboardHeight);
-      }, 50); // 50ms debounce
+      // Remove debounce for instant response - prevents visible lag/twitch
+      const keyboardHeight = this.initialHeight - viewport.height;
+      this.handleKeyboardChange(keyboardHeight);
     };
     
     viewport.addEventListener('resize', handleViewportChange);
@@ -220,13 +196,7 @@ class MobileChatKeyboard {
     // Prevent iOS from scrolling when input is tapped
     // Lock body BEFORE focus event fires - keep viewport at top
     this.inputField.addEventListener('touchstart', (e) => {
-      // Store scroll position but always reset to 0
-      const currentScroll = window.scrollY;
-      if (currentScroll > 0) {
-        window.scrollTo(0, 0);
-      }
-      
-      // Always lock to top (0) to keep header visible
+      // Prevent any scroll before keyboard opens
       this.bodyScrollY = 0;
       
       // Update CSS variables for locked state
@@ -240,28 +210,16 @@ class MobileChatKeyboard {
     
     // When input is focused, ensure lock is in place and viewport at top
     this.inputField.addEventListener('focus', (e) => {
-      // Prevent default scroll behavior
-      if (e.preventDefault) {
-        try {
-          e.preventDefault();
-        } catch (err) {
-          // Some browsers don't allow preventDefault on focus
-        }
-      }
-      
       if (!this.isKeyboardOpen) {
-        // Keep viewport at top
+        // Keep viewport at top - single attempt
         this.bodyScrollY = 0;
+        this.forceScrollToTop();
       }
       
       this.isKeyboardOpen = true;
       
       // Update CSS variables
       this.updateCSSVariables();
-      
-      // Force scroll to top to keep header visible
-      // Multiple attempts needed due to iOS async keyboard behavior
-      this.forceScrollToTop();
     });
     
     // When input loses focus, restore body position
@@ -289,15 +247,19 @@ class MobileChatKeyboard {
     
     if (keyboardHeight > MobileChatKeyboard.KEYBOARD_THRESHOLD) {
       // Keyboard is open
-      // Move input up by keyboard height using bottom property (not transform)
-      // This maintains proper z-index stacking
-      this.input.style.bottom = `${keyboardHeight}px`;
-      
-      // Adjust messages container bottom padding to account for input + keyboard
-      const inputHeight = this.input.offsetHeight;
-      const totalBottomSpace = keyboardHeight + inputHeight + MobileChatKeyboard.BOTTOM_SPACING_BUFFER;
-      
-      this.messages.style.paddingBottom = `${totalBottomSpace}px`;
+      // Use transform for instant visual feedback, then transition to bottom positioning
+      // This prevents the visible "jump" by immediately positioning the element
+      requestAnimationFrame(() => {
+        // Move input up by keyboard height using bottom property
+        // Transition is handled by CSS for smooth animation
+        this.input.style.bottom = `${keyboardHeight}px`;
+        
+        // Adjust messages container bottom padding to account for input + keyboard
+        const inputHeight = this.input.offsetHeight;
+        const totalBottomSpace = keyboardHeight + inputHeight + MobileChatKeyboard.BOTTOM_SPACING_BUFFER;
+        
+        this.messages.style.paddingBottom = `${totalBottomSpace}px`;
+      });
     } else {
       // Keyboard is closed - reset to defaults
       this.input.style.bottom = '';

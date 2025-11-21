@@ -945,10 +945,11 @@ body {
   /* No background on container - only on input elements */
   background: transparent;
   
-  /* Smooth transition for keyboard movements */
-  transition: bottom 0.2s ease-out;
+  /* Optimized transition - faster response with hardware acceleration */
+  transition: bottom 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: bottom;
   
-  /* Ensure proper stacking and no extra visual borders */
+  /* Ensure proper stacking and hardware acceleration */
   transform: translateZ(0);
   border: none;
   outline: none;
