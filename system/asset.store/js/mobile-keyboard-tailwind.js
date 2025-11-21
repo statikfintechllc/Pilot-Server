@@ -36,7 +36,6 @@ class MobileChatKeyboard {
     // Feature detection for iOS instead of user agent sniffing
     this.isIOS = this.detectIOS();
     this.initialHeight = window.innerHeight;
-    this.bodyScrollY = 0;
     this.keyboardHeight = 0;
     this.isKeyboardOpen = false;
     
@@ -90,17 +89,6 @@ class MobileChatKeyboard {
     if (this.root) {
       this.root.style.bottom = `${chatRootBottom}px`;
     }
-  }
-  
-  /**
-   * Simplified scroll to top - single attempt with requestAnimationFrame
-   * Reduces conflict with viewport adjustments
-   */
-  forceScrollToTop() {
-    // Single scroll attempt synchronized with browser paint
-    requestAnimationFrame(() => {
-      window.scrollTo(0, 0);
-    });
   }
   
   init() {
@@ -193,46 +181,25 @@ class MobileChatKeyboard {
    * iOS-specific fixes to prevent body scroll jump
    */
   setupIOSFixes() {
-    // Prevent iOS from scrolling when input is tapped
-    // Lock body BEFORE focus event fires - keep viewport at top
-    this.inputField.addEventListener('touchstart', (e) => {
-      // Prevent any scroll before keyboard opens
-      this.bodyScrollY = 0;
-      
-      // Update CSS variables for locked state
-      this.updateCSSVariables();
-    }, { passive: true });
-    
     // Prevent scroll on touchmove while typing
     this.inputField.addEventListener('touchmove', (e) => {
       e.stopPropagation();
     }, { passive: true });
     
-    // When input is focused, ensure lock is in place and viewport at top
+    // When input is focused, mark keyboard as open and update layout
     this.inputField.addEventListener('focus', (e) => {
-      if (!this.isKeyboardOpen) {
-        // Keep viewport at top - single attempt
-        this.bodyScrollY = 0;
-      }
-      
       this.isKeyboardOpen = true;
       
-      // Update CSS variables
+      // Update CSS variables for keyboard-open state
       this.updateCSSVariables();
-      
-      // Force scroll to top after state is set for consistency
-      if (this.bodyScrollY === 0) {
-        this.forceScrollToTop();
-      }
     });
     
-    // When input loses focus, restore body position
+    // When input loses focus, mark keyboard as closed
     this.inputField.addEventListener('blur', () => {
       if (this.isKeyboardOpen) {
-        window.scrollTo(0, 0);
         this.isKeyboardOpen = false;
         
-        // Update CSS variables for unlocked state
+        // Update CSS variables for keyboard-closed state
         this.updateCSSVariables();
       }
     });
