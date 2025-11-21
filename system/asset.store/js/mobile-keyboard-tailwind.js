@@ -12,24 +12,28 @@ class MobileChatKeyboard {
   constructor(rootElementId = 'chat-root') {
     this.root = document.getElementById(rootElementId);
     this.messages = document.getElementById('chat-messages');
-    this.input = document.getElementById('chat-input'); // Container for input elements
     
-    if (!this.root || !this.messages || !this.input) {
+    if (!this.root || !this.messages) {
       console.warn('MobileChatKeyboard: Required elements not found');
       return;
     }
     
-    // Create textarea and button dynamically
-    this.createInputElements();
+    // Create entire input bar container, textarea, and button dynamically
+    this.createInputBar();
     
     // Setup textarea auto-resize
     this.setupTextareaAutoResize();
   }
   
   /**
-   * Create textarea and send button dynamically
+   * Create entire input bar container with textarea and send button
    */
-  createInputElements() {
+  createInputBar() {
+    // Create input bar container
+    this.input = document.createElement('div');
+    this.input.id = 'chat-input';
+    this.input.className = 'copilot-input-bar';
+    
     // Create textarea
     this.inputField = document.createElement('textarea');
     this.inputField.id = 'chat-input-field';
@@ -48,9 +52,12 @@ class MobileChatKeyboard {
       </svg>
     `;
     
-    // Append to container
+    // Append textarea and button to input bar
     this.input.appendChild(this.inputField);
     this.input.appendChild(sendButton);
+    
+    // Append input bar to chat root
+    this.root.appendChild(this.input);
   }
   
   /**

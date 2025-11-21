@@ -927,11 +927,10 @@ body {
 /* All positioning, layout, and styling in one consolidated section */
 
 .copilot-input-bar {
-  /* Positioning - at bottom of chat-root container, not fixed to viewport */
+  /* Positioning */
   position: relative;
   flex-shrink: 0;
   width: 100%;
-  z-index: 10; /* Above messages within chat-root */
   
   /* Layout */
   display: flex;
@@ -943,12 +942,6 @@ body {
   
   /* No background on container - only on input elements */
   background: transparent;
-  
-  /* Ensure proper stacking */
-  transform: translateZ(0);
-  border: none;
-  outline: none;
-  box-shadow: none;
 }
 
 .copilot-input {
