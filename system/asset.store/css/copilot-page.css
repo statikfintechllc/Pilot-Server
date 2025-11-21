@@ -926,13 +926,14 @@ body {
 /* ===== Chat Root Container ===== */
 #chat-root {
   position: fixed;
-  top: var(--header-height); /* Below header */
+  top: 70px; /* Below fixed header */
   left: 0;
   right: 0;
   bottom: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  z-index: 1;
 }
 
 #chat-messages {
@@ -940,6 +941,8 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  padding: 1rem;
+  padding-top: 1.5rem;
   padding-bottom: 1rem;
 }
 
@@ -952,7 +955,7 @@ body {
   bottom: 0;
   flex-shrink: 0;
   width: 100%;
-  z-index: 10000; /* Highest in normal state per z-index hierarchy */
+  z-index: 10000;
   
   /* Layout */
   display: flex;
@@ -960,12 +963,17 @@ body {
   gap: 0.5rem;
   max-width: 900px;
   margin: 0 auto;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   
-  /* Background for sticky positioning */
-  background: linear-gradient(to top, rgba(10, 14, 39, 0.98) 0%, rgba(10, 14, 39, 0.95) 80%, transparent 100%);
+  /* Background */
+  background: linear-gradient(to top, 
+    rgba(15, 20, 41, 0.98) 0%, 
+    rgba(15, 20, 41, 0.95) 70%, 
+    rgba(15, 20, 41, 0.85) 100%);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .copilot-input {
