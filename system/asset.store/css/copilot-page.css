@@ -926,7 +926,7 @@ body {
 /* ===== Chat Root Container ===== */
 #chat-root {
   position: fixed;
-  top: 70px; /* Below fixed header */
+  top: var(--header-height); /* Below fixed header */
   left: 0;
   right: 0;
   bottom: 0;
@@ -941,9 +941,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding: 1rem;
-  padding-top: 1.5rem;
-  padding-bottom: 1rem;
+  padding: 1.5rem 1rem 1rem 1rem;
 }
 
 /* ===== Input Bar - Simplified Single Component ===== */

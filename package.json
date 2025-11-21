@@ -1,0 +1,22 @@
+{
+  "name": "pilot-server",
+  "version": "1.0.0",
+  "description": "> A professional penny stock trading journal with automated tracking, analysis, and GitHub Copilot integration.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./system/asset.store/css/tailwind-input.css -o ./system/asset.store/css/tailwind-output.css --minify",
+    "watch:css": "tailwindcss -i ./system/asset.store/css/tailwind-input.css -o ./system/asset.store/css/tailwind-output.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.18"
+  }
+}
