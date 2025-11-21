@@ -186,7 +186,7 @@ class MobileChatKeyboard {
       e.stopPropagation();
     }, { passive: true });
     
-    // When input is focused, mark keyboard as open and update layout
+    // When input is focused, mark keyboard as open and update CSS variables
     this.inputField.addEventListener('focus', () => {
       this.isKeyboardOpen = true;
       
