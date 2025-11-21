@@ -927,12 +927,11 @@ body {
 /* All positioning, layout, and styling in one consolidated section */
 
 .copilot-input-bar {
-  /* Positioning - HIGHEST z-index to always float on top */
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10000; /* Highest - always on top of everything */
+  /* Positioning - at bottom of chat-root container, not fixed to viewport */
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  z-index: 10; /* Above messages within chat-root */
   
   /* Layout */
   display: flex;
@@ -945,10 +944,7 @@ body {
   /* No background on container - only on input elements */
   background: transparent;
   
-  /* Smooth transition for keyboard movements */
-  transition: bottom 0.2s ease-out;
-  
-  /* Ensure proper stacking and no extra visual borders */
+  /* Ensure proper stacking */
   transform: translateZ(0);
   border: none;
   outline: none;

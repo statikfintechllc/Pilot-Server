@@ -41,15 +41,17 @@
       background: linear-gradient(135deg, rgba(15, 20, 41, 1) 0%, rgba(10, 14, 39, 1) 100%);
     }
     
-    /* Chat root - dynamically positioned by JS using CSS variables */
+    /* Chat root - contains messages and input */
     #chat-root {
       position: fixed;
       top: var(--header-height, 70px);
       left: 0;
       right: 0;
-      bottom: var(--chat-root-bottom, 0);
-      z-index: 1; /* Keep below input bar which is z-index: 10000 */
+      bottom: 0;
+      z-index: 1;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
   </style>
 </head>
@@ -166,22 +168,22 @@
         <p class="text-gray-400 max-w-md">Ask me anything about trading, analyze your trades, or get help with your trading journal. I'm here to assist you!</p>
       </div>
     </div>
-  </div>
-  
-  <!-- Input Area - Fixed at bottom, simplified structure -->
-  <div id="chat-input" class="copilot-input-bar">
-    <textarea 
-      id="chat-input-field"
-      class="copilot-input"
-      placeholder="Ask about your trading..." 
-      rows="1"
-    ></textarea>
-    <button id="send-button" class="copilot-send">
-      <span>Send</span>
-      <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
-      </svg>
-    </button>
+    
+    <!-- Input Area - Inside chat-root so keyboard positions correctly -->
+    <div id="chat-input" class="copilot-input-bar">
+      <textarea 
+        id="chat-input-field"
+        class="copilot-input"
+        placeholder="Ask about your trading..." 
+        rows="1"
+      ></textarea>
+      <button id="send-button" class="copilot-send">
+        <span>Send</span>
+        <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+        </svg>
+      </button>
+    </div>
   </div>
   
   <!-- Firebase Auth -->
