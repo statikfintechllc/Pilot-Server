@@ -22,23 +22,27 @@
   --viewport-height: 100vh;
 }
 
-/* HTML and Body - Allow viewport to resize for mobile keyboard */
+/* HTML and Body - Prevent all scrolling */
 html {
+  position: fixed;
   height: 100%;
   width: 100%;
   overflow: hidden;
   margin: 0;
   padding: 0;
+  top: 0;
+  left: 0;
 }
 
 body {
+  position: fixed;
   height: 100%;
   width: 100%;
   overflow: hidden;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
+  top: 0;
+  left: 0;
 }
 
 /* ===== Unified Navigation & Copilot Header ===== */
@@ -921,11 +925,14 @@ body {
 
 /* ===== Chat Root Container - Flex Layout ===== */
 #chat-root {
-  flex: 1;
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  min-height: 0; /* Important for flex child with overflow */
 }
 
 /* ===== Chat Messages Padding for Fixed Input Bar ===== */
