@@ -22,20 +22,27 @@
   --viewport-height: 100vh;
 }
 
-/* HTML and Body - Simple layout */
+/* HTML and Body managed by JavaScript for dynamic positioning */
 html {
   height: 100%;
+  position: fixed;
   width: 100%;
+  overflow: hidden;
   margin: 0;
   padding: 0;
+  top: 0;
+  left: 0;
 }
 
 body {
   height: 100%;
+  position: fixed;
   width: 100%;
+  overflow: hidden;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  top: 0;
+  left: 0;
 }
 
 /* ===== Unified Navigation & Copilot Header ===== */
@@ -916,39 +923,14 @@ body {
   }
 }
 
-/* ===== Chat Root Container - Flex Layout ===== */
-#chat-root {
-  position: fixed;
-  top: 70px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-/* ===== Chat Messages Padding for Fixed Input Bar ===== */
-#chat-messages {
-  flex: 1;
-  overflow-y: auto; /* Only messages scroll */
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 100px; /* Space for fixed input bar at bottom */
-}
-
 /* ===== Input Bar - Simplified Single Component ===== */
 /* All positioning, layout, and styling in one consolidated section */
 
 .copilot-input-bar {
-  /* Positioning - Fixed to bottom of viewport */
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  /* Positioning */
+  position: relative;
   flex-shrink: 0;
   width: 100%;
-  z-index: 10000;
   
   /* Layout */
   display: flex;
@@ -956,17 +938,10 @@ body {
   gap: 0.5rem;
   max-width: 900px;
   margin: 0 auto;
-  padding: 0.75rem 1rem;
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding: 0.5rem 1rem;
   
-  /* Background for visibility */
-  background: linear-gradient(to top, 
-    rgba(15, 20, 41, 0.98) 0%, 
-    rgba(15, 20, 41, 0.95) 70%, 
-    rgba(15, 20, 41, 0.85) 100%);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  /* No background on container - only on input elements */
+  background: transparent;
 }
 
 .copilot-input {

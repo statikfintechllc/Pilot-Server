@@ -56,22 +56,14 @@ class MobileChatKeyboard {
     this.input.appendChild(this.inputField);
     this.input.appendChild(sendButton);
     
-    // Append input bar directly to body, not chat-root, so it floats independently
-    document.body.appendChild(this.input);
+    // Append input bar to chat root
+    this.root.appendChild(this.input);
   }
   
   /**
    * Setup auto-resize for textarea
    */
   setupTextareaAutoResize() {
-    // Prevent viewport scrolling when keyboard opens
-    this.inputField.addEventListener('focus', () => {
-      // Scroll to input to prevent page shift
-      setTimeout(() => {
-        this.input.scrollIntoView({ behavior: 'instant', block: 'end' });
-      }, 300);
-    });
-    
     this.inputField.addEventListener('input', () => {
       // Reset height to auto to get the correct scrollHeight
       this.inputField.style.height = 'auto';
