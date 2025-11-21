@@ -82,7 +82,7 @@ If you have suggestions on how this process could be improved, please submit a p
 Pilot-Server implements several security features:
 
 - Client-side data storage (no server-side data exposure)
-- Firebase Authentication integration
+- GitHub OAuth/PAT authentication
 - Input validation and sanitization
 - Content Security Policy headers (when deployed)
 - Regular dependency updates (when applicable)

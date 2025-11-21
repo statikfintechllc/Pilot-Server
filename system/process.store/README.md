@@ -26,7 +26,7 @@ Process-specific stylesheets:
 
 ### `js/`
 JavaScript modules for process management and application logic:
-- **auth.js**: Firebase authentication logic and GitHub API integration
+- **auth.js**: GitHub authentication logic and API integration
   - Handles OAuth and PAT authentication flows
   - Manages GitHub repository access and file operations
   - Provides authentication UI and token management

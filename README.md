@@ -15,13 +15,13 @@ Pilot-Server is a web-based trading journal application designed specifically fo
 - **📚 Books & Resources**: Access curated trading resources and educational materials
 - **📱 Mobile-Optimized**: Fully responsive design that works seamlessly on all devices
 - **🎨 Modern UI**: Glass-morphism design with smooth animations and interactions
-- **🔐 Firebase Auth**: Secure authentication using Firebase
+- **🔐 GitHub Authentication**: Secure authentication using GitHub OAuth/PAT
 
 ## 🛠️ Technology Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
 - **Styling**: Tailwind CSS, Custom CSS with glass effects
-- **Authentication**: Firebase Auth
+- **Authentication**: GitHub OAuth/PAT
 - **Fonts**: Inter, JetBrains Mono
 - **Icons**: SVG graphics
 
