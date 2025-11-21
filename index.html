@@ -17,18 +17,30 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="assets/css/main.css">
-  <link rel="stylesheet" href="assets/css/glass-effects.css">
-  <link rel="stylesheet" href="assets/css/copilot-page.css">
+  <!-- <link rel="stylesheet" href="assets/css/main.css"> -->
+  <link rel="stylesheet" href="system/asset.store/css/glass-effects.css">
+  <link rel="stylesheet" href="system/asset.store/css/copilot-page.css">
+  <link rel="stylesheet" href="system/asset.store/css/copilot-chat.css">
   
   <!-- PWA Manifest -->
-  <link rel="manifest" href="../manifest.json">
+  <link rel="manifest" href="manifest.json">
   
   <!-- Icons -->
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
-  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="system/icons.logo/pilot.card.png">
+  <link rel="apple-touch-icon" href="system/icons.logo/pilot.card.png">
   
   <style>
+    /* Background canvas - full screen coverage */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      background: linear-gradient(135deg, rgba(15, 20, 41, 1) 0%, rgba(10, 14, 39, 1) 100%);
+    }
+    
     /* Chat root - dynamically positioned by JS using CSS variables */
     #chat-root {
       position: fixed;
@@ -41,6 +53,7 @@
     }
   </style>
 </head>
+<body>
   <canvas id="bg-canvas"></canvas>
   
   <!-- Unified Navigation & Copilot Header Bar -->
@@ -104,8 +117,8 @@
   <!-- Navigation Sidebar Menu -->
   <div class="copilot-nav-sidebar" id="copilot-nav-sidebar">
     <div class="copilot-nav-header">
-      <a href="../index.html" class="copilot-nav-brand">
-        <img src="assets/img/chart-logo.svg" alt="Chart Logo">
+      <a href="index.html" class="copilot-nav-brand">
+        <!-- <img src="system/icons.logo/chart-logo.svg" alt="Chart Logo"> -->
         <span>SFTi-Pennies</span>
       </a>
       <button class="copilot-nav-close" id="copilot-nav-close">
@@ -115,7 +128,7 @@
       </button>
     </div>
     <ul class="copilot-nav-menu">
-      <li><a href="../index.html" class="copilot-nav-link">Home</a></li>
+      <li><a href="index.html" class="copilot-nav-link">Home</a></li>
       <li><a href="books.html" class="copilot-nav-link">Books</a></li>
       <li><a href="notes.html" class="copilot-nav-link">Notes</a></li>
       <li class="copilot-nav-section">
@@ -137,10 +150,10 @@
     </ul>
   </div>
   <div class="copilot-nav-overlay" id="copilot-nav-overlay"></div>
-<body>
+
   <!-- Chat Container with Tailwind - Mobile Keyboard Optimized -->
-  <div id="chat-root" class="flex flex-col" style="background: linear-gradient(135deg, rgba(15, 20, 41, 1) 0%, rgba(10, 14, 39, 1) 100%); z-index: 1; overflow: hidden;">
-</body>    
+  <div id="chat-root" class="flex flex-col" style="z-index: 1; overflow: hidden;">
+
     <!-- Messages Container - Independently scrollable -->
     <div id="chat-messages" class="flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 space-y-4" style="-webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: 120px;">
       <div class="flex flex-col items-center justify-center text-center py-12 px-4">
@@ -172,15 +185,16 @@
   </div>
   
   <!-- Firebase Auth -->
-  <script src="assets/js/auth.js"></script>
+  <script src="system/asset.store/js/auth.js"></script>
   
   <!-- Mobile Keyboard Handler for Tailwind Chat -->
-  <script src="assets/js/mobile-keyboard-tailwind.js"></script>
+  <script src="system/asset.store/js/mobile-keyboard-tailwind.js"></script>
   
   <!-- Copilot Chat -->
-  <script src="assets/js/copilot-chat.js"></script>
+  <script src="system/asset.store/js/copilot-chat.js"></script>
   
   <!-- Main App -->
-  <script src="assets/js/app.js"></script>
+  <!-- <script src="assets/js/app.js"></script> -->
   
+</body>
 </html>
