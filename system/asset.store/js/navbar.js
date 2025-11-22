@@ -143,6 +143,7 @@ class NavbarComponent {
   }
 
   handleLogout() {
+    // TODO: Replace with custom modal dialog to match glassmorphic design
     if (confirm('Are you sure you want to logout?')) {
       localStorage.removeItem('github_pat');
       this.isAuthenticated = false;
@@ -171,17 +172,14 @@ class NavbarComponent {
   handleModelChange(modelId) {
     // Check if authenticated
     if (!this.isAuthenticated) {
-      // Show a more subtle notification
-      console.warn('Authentication required to use AI models');
+      // Automatically trigger the login prompt when user tries to select a model
+      this.handleLogin();
       
       // Reset to default model
       const modelSelect = document.getElementById('model-selector');
       if (modelSelect) {
         modelSelect.value = 'gpt-4o';
       }
-      
-      // Trigger the login prompt
-      this.handleLogin();
       return;
     }
 
