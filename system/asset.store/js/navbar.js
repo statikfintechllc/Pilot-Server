@@ -38,7 +38,6 @@ class NavbarComponent {
         <!-- Model Selector Bubble -->
         <div class="nav-bubble model-bubble">
           <select class="nav-native-select model-select" id="model-selector" aria-label="Select AI model">
-            <option value="" disabled selected>Select Model</option>
             <optgroup label="Fast & Efficient">
               <option value="gpt-5-mini">GPT-5-mini</option>
               <option value="grok-code-fast-1">Grok Code Fast 1</option>
@@ -139,7 +138,7 @@ class NavbarComponent {
     if (window.showAuthPrompt) {
       window.showAuthPrompt();
     } else {
-      alert('Authentication system not loaded. Please refresh the page.');
+      console.error('Authentication system not loaded. Please refresh the page.');
     }
   }
 
@@ -147,19 +146,42 @@ class NavbarComponent {
     if (confirm('Are you sure you want to logout?')) {
       localStorage.removeItem('github_pat');
       this.isAuthenticated = false;
-      alert('Logged out successfully');
-      window.location.reload();
+      
+      // Update UI to show logged out state
+      const profileSelect = document.getElementById('profile-select');
+      if (profileSelect) {
+        // Update the login/logout option
+        const loginOption = profileSelect.querySelector('option[value="logout"]');
+        if (loginOption) {
+          loginOption.value = 'login';
+          loginOption.textContent = 'Sign In';
+        }
+      }
+      
+      // Reset model selector to default
+      const modelSelect = document.getElementById('model-selector');
+      if (modelSelect) {
+        modelSelect.value = 'gpt-4o';
+      }
+      
+      console.log('Logged out successfully');
     }
   }
 
   handleModelChange(modelId) {
     // Check if authenticated
     if (!this.isAuthenticated) {
-      alert('Please sign in to use AI models. You need a GitHub account to access these models.');
+      // Show a more subtle notification
+      console.warn('Authentication required to use AI models');
+      
+      // Reset to default model
       const modelSelect = document.getElementById('model-selector');
       if (modelSelect) {
-        modelSelect.value = 'gpt-4o'; // Reset to default
+        modelSelect.value = 'gpt-4o';
       }
+      
+      // Trigger the login prompt
+      this.handleLogin();
       return;
     }
 

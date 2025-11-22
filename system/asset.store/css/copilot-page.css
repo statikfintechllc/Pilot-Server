@@ -121,6 +121,7 @@ body {
   font-weight: 500;
   cursor: pointer;
   padding-right: 1.5rem;
+  padding-left: 2rem;
   outline: none;
   min-width: 100px;
 }
@@ -153,10 +154,6 @@ body {
   pointer-events: none;
   position: absolute;
   left: 0.75rem;
-}
-
-.nav-native-select {
-  padding-left: 2rem;
 }
 
 /* Bubble Button for History and New Chat */
