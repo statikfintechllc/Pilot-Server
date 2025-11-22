@@ -11,17 +11,15 @@ Pilot-Server is a web-based GitHub Copilot chat application that provides an int
 - **🤖 AI Chat Interface**: Interactive chat with multiple AI model options
 - **🔄 Model Selection**: Choose from various AI models (GPT-4o, Claude, Gemini, and more)
 - **💬 Conversation Management**: Save, organize, and revisit chat histories
-- **📝 Notes & Resources**: Keep organized notes and access helpful resources
 - **📱 Mobile-Optimized**: Fully responsive design that works seamlessly on all devices
 - **🎨 Modern UI**: Glass-morphism design with smooth animations and interactions
-- **🔐 Firebase Auth**: Secure authentication using Firebase
 - **⌨️ Smart Input Handling**: Advanced keyboard and mobile input management
 
 ## 🛠️ Technology Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
 - **Styling**: Tailwind CSS, Custom CSS with glass effects
-- **Authentication**: Firebase Auth
+- **Authentication**: GitHub Personal Access Token (PAT)
 - **Fonts**: Inter, JetBrains Mono
 - **Icons**: SVG graphics
 
@@ -40,13 +38,13 @@ Pilot-Server/
 │   ├── icons.logo/         # Application logos and icons
 │   └── system.html         # System configuration page
 ├── docs/                   # Documentation
-├── .github/                # GitHub templates and workflows
-│   ├── ISSUE_TEMPLATE/    # Issue templates (bug, feature, question)
-│   ├── DISCUSSION_TEMPLATE/ # Discussion templates
-│   └── pull_request_template.md
-├── CODE_OF_CONDUCT.md      # Community guidelines
-├── CONTRIBUTING.md         # Contribution guidelines
-└── SECURITY.md             # Security policy
+│   ├── CODE_OF_CONDUCT.md  # Community guidelines
+│   ├── CONTRIBUTING.md     # Contribution guidelines
+│   └── SECURITY.md         # Security policy
+└── .github/                # GitHub templates and workflows
+    ├── ISSUE_TEMPLATE/     # Issue templates (bug, feature, question)
+    ├── DISCUSSION_TEMPLATE/ # Discussion templates
+    └── pull_request_template.md
 ```
 
 ## 🚦 Getting Started
@@ -108,9 +106,6 @@ The fixed navigation bar at the top of the screen provides quick access to all m
 Access the sidebar by clicking the hamburger menu (☰) in the top-left:
 
 - **Home**: Return to the main copilot interface
-- **Books**: Access your resource library
-- **Notes**: View and manage your notes
-- **Additional Resources**: Quick links to helpful resources
 
 #### **Chat Interface (Center)**
 The main area where you interact with the AI:
@@ -204,14 +199,9 @@ Different models excel at different tasks:
    - Access previous chats from the history
    - Start new conversations while preserving history
 
-3. **Notes & Resources**:
-   - Access helpful resources and documentation
-   - Keep organized notes on various topics
-   - Quick access to reference materials
-
 ## 🤝 Contributing
 
-We welcome contributions from the community! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting pull requests.
+We welcome contributions from the community! Please read our [Contributing Guidelines](docs/CONTRIBUTING.md) before submitting pull requests.
 
 ### Quick Contribution Guide
 
@@ -221,15 +211,15 @@ We welcome contributions from the community! Please read our [Contributing Guide
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 
 ## 🔒 Security
 
-Security is a top priority. If you discover a security vulnerability, please follow our [Security Policy](SECURITY.md) for responsible disclosure.
+Security is a top priority. If you discover a security vulnerability, please follow our [Security Policy](docs/SECURITY.md) for responsible disclosure.
 
 ## 📜 Code of Conduct
 
-This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+This project adheres to a [Code of Conduct](docs/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
 
 ## 📝 License
 
