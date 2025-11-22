@@ -61,7 +61,7 @@ When reporting a vulnerability, please include:
 When using Pilot-Server:
 
 - Keep your browser up to date
-- Be cautious about sharing sensitive trading data
+- Be cautious about sharing sensitive information in chats
 - Use secure connections (HTTPS) when available
 - Don't share your authentication credentials
 - Review the code before deploying in production environments
