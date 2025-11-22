@@ -87,14 +87,14 @@ bus.emit('process:start', { id: 123 });
 ## Example Workflow
 
 ```javascript
-class TradeProcessWorkflow {
-  async execute(tradeData) {
+class MessageProcessWorkflow {
+  async execute(messageData) {
     try {
       // Validate
-      await this.validate(tradeData);
+      await this.validate(messageData);
       
       // Process
-      const processed = await this.process(tradeData);
+      const processed = await this.process(messageData);
       
       // Store
       await this.store(processed);
@@ -110,8 +110,8 @@ class TradeProcessWorkflow {
   }
   
   async validate(data) {
-    if (!data.symbol) {
-      throw new Error('Symbol is required');
+    if (!data.content) {
+      throw new Error('Content is required');
     }
     // More validation...
   }
@@ -127,12 +127,12 @@ class TradeProcessWorkflow {
   
   async store(data) {
     // Store in database or local storage
-    localStorage.setItem(`trade_${data.id}`, JSON.stringify(data));
+    localStorage.setItem(`message_${data.id}`, JSON.stringify(data));
   }
   
   notify(type, data) {
     // Emit events or update UI
-    window.dispatchEvent(new CustomEvent(`trade:${type}`, { detail: data }));
+    window.dispatchEvent(new CustomEvent(`message:${type}`, { detail: data }));
   }
 }
 ```
@@ -174,14 +174,14 @@ Test all process states:
 
 ```javascript
 // Example test
-async function testTradeProcess() {
-  const workflow = new TradeProcessWorkflow();
+async function testMessageProcess() {
+  const workflow = new MessageProcessWorkflow();
   
   try {
     const result = await workflow.execute({
-      symbol: 'AAPL',
-      shares: 100,
-      price: 150.00
+      content: 'Hello, AI!',
+      sender: 'user',
+      timestamp: Date.now()
     });
     console.assert(result.processed === true, 'Should be marked as processed');
     console.log('Test passed');
