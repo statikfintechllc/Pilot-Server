@@ -134,16 +134,8 @@ class CopilotChat {
     if (!isCopilotPage) {
       this.createCopilotButton();
     } else {
-      // On copilot.html or index.html, populate the model dropdown and attach event listeners
-      this.populateModelDropdown();
+      // On copilot.html or index.html, attach event listeners
       this.attachEventListeners();
-    }
-  }
-  
-  populateModelDropdown() {
-    const modelDropdown = document.getElementById('model-dropdown');
-    if (modelDropdown) {
-      modelDropdown.innerHTML = this.renderModelsWithCategories();
     }
   }
   
@@ -172,33 +164,7 @@ class CopilotChat {
   }
   
   attachEventListeners() {
-    // Menu toggle
-    const menuToggle = document.getElementById('copilot-menu-toggle');
-    const navSidebar = document.getElementById('copilot-nav-sidebar');
-    const navOverlay = document.getElementById('copilot-nav-overlay');
-    const navClose = document.getElementById('copilot-nav-close');
-    
-    if (menuToggle && navSidebar && navOverlay) {
-      menuToggle.addEventListener('click', () => {
-        navSidebar.classList.add('active');
-        navOverlay.classList.add('active');
-        menuToggle.classList.add('active');
-      });
-      
-      const closeNav = () => {
-        navSidebar.classList.remove('active');
-        navOverlay.classList.remove('active');
-        menuToggle.classList.remove('active');
-      };
-      
-      if (navClose) {
-        navClose.addEventListener('click', closeNav);
-      }
-      
-      navOverlay.addEventListener('click', closeNav);
-    }
-    
-    // Trigger button
+    // Trigger button (for FAB on other pages)
     const triggerButton = document.getElementById('copilot-trigger');
     if (triggerButton) {
       triggerButton.addEventListener('click', () => this.openChat());
@@ -227,32 +193,23 @@ class CopilotChat {
       });
     }
     
-    // Model selector
-    const modelButton = document.getElementById('model-selector-button');
-    const modelDropdown = document.getElementById('model-dropdown');
-    if (modelButton && modelDropdown) {
-      modelButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        modelDropdown.classList.toggle('active');
-      });
-      
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!modelDropdown.contains(e.target) && e.target !== modelButton) {
-          modelDropdown.classList.remove('active');
+    // Model selector (native select)
+    const modelSelect = document.getElementById('model-selector');
+    if (modelSelect) {
+      modelSelect.addEventListener('change', (e) => {
+        const modelId = e.target.value;
+        if (modelId) {
+          this.switchModel(modelId);
         }
       });
-      
-      // Model selection
-      const modelOptions = modelDropdown.querySelectorAll('.copilot-model-option');
-      modelOptions.forEach(option => {
-        option.addEventListener('click', () => {
-          const modelId = option.dataset.model;
-          this.switchModel(modelId);
-          modelDropdown.classList.remove('active');
-        });
-      });
     }
+    
+    // Listen for model changes from navbar
+    document.addEventListener('modelChanged', (e) => {
+      if (e.detail && e.detail.modelId) {
+        this.switchModel(e.detail.modelId);
+      }
+    });
     
     // History button
     const historyButton = document.getElementById('history-button');
@@ -304,21 +261,11 @@ class CopilotChat {
     this.currentModel = modelId;
     const model = this.models.find(m => m.id === modelId);
     
-    // Update button text
-    const currentModelName = document.getElementById('current-model-name');
-    if (currentModelName && model) {
-      currentModelName.textContent = model.name;
+    // Update native select
+    const modelSelect = document.getElementById('model-selector');
+    if (modelSelect) {
+      modelSelect.value = modelId;
     }
-    
-    // Update active state
-    const modelOptions = document.querySelectorAll('.copilot-model-option');
-    modelOptions.forEach(option => {
-      if (option.dataset.model === modelId) {
-        option.classList.add('active');
-      } else {
-        option.classList.remove('active');
-      }
-    });
     
     // Log GitHub routing for debugging
     if (model && model.route) {

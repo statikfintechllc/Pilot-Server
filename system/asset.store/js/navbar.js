@@ -1,11 +1,19 @@
 /**
  * Navbar Component
- * Creates the unified navigation and copilot header bar
+ * Creates floating glassmorphic bubbles for navigation
  */
 
 class NavbarComponent {
   constructor() {
     this.element = null;
+    this.isAuthenticated = false;
+    this.checkAuthStatus();
+  }
+
+  checkAuthStatus() {
+    // Check if user is authenticated via GitHub
+    const storedPAT = localStorage.getItem('github_pat');
+    this.isAuthenticated = storedPAT !== null;
   }
 
   render() {
@@ -15,44 +23,52 @@ class NavbarComponent {
     
     nav.innerHTML = `
       <div class="nav-container">
-        <!-- Left: Hamburger Menu -->
-        <button class="nav-toggle" id="copilot-menu-toggle" aria-label="Toggle navigation">
-          <div class="hamburger">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </button>
-        
-        <!-- Center: Copilot Title & Model Selector -->
-        <div class="copilot-header-center">
-          <div class="copilot-header-title">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-            </svg>
-            <span>Copilot</span>
-          </div>
-          
-          <div class="copilot-model-selector">
-            <button class="copilot-model-button" id="model-selector-button">
-              <span id="current-model-name">GPT-4o</span>
-              <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-              </svg>
-            </button>
-            <div class="copilot-model-dropdown" id="model-dropdown">
-              <!-- Models will be populated by JavaScript -->
-            </div>
-          </div>
+        <!-- Profile Bubble -->
+        <div class="nav-bubble profile-bubble">
+          <select class="nav-native-select profile-select" id="profile-select" aria-label="Profile menu">
+            <option value="" disabled selected>Profile</option>
+            <option value="${this.isAuthenticated ? 'logout' : 'login'}">${this.isAuthenticated ? 'Logout' : 'Sign In'}</option>
+            <option value="preferences">Preferences</option>
+          </select>
+          <svg class="bubble-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
         </div>
         
-        <!-- Right: History & New Chat -->
-        <div class="copilot-header-right">
-          <button class="copilot-history-button" id="history-button">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Model Selector Bubble -->
+        <div class="nav-bubble model-bubble">
+          <select class="nav-native-select model-select" id="model-selector" aria-label="Select AI model">
+            <option value="" disabled selected>Select Model</option>
+            <optgroup label="Fast & Efficient">
+              <option value="gpt-5-mini">GPT-5-mini</option>
+              <option value="grok-code-fast-1">Grok Code Fast 1</option>
+            </optgroup>
+            <optgroup label="Versatile and Highly Intelligent">
+              <option value="gpt-4.1">GPT-4.1</option>
+              <option value="gpt-5">GPT-5</option>
+              <option value="gpt-4o" selected>GPT-4o</option>
+              <option value="claude-sonnet-3.5">Claude Sonnet 3.5</option>
+              <option value="claude-sonnet-4">Claude Sonnet 4</option>
+              <option value="claude-sonnet-4.5">Claude Sonnet 4.5</option>
+              <option value="claude-haiku-4.5">Claude Haiku 4.5</option>
+            </optgroup>
+            <optgroup label="Most Powerful at Complex Tasks">
+              <option value="claude-opus-4.1">Claude Opus 4.1</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+            </optgroup>
+          </select>
+          <svg class="bubble-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        
+        <!-- Recent Chats Bubble -->
+        <div class="nav-bubble history-bubble">
+          <button class="nav-bubble-button" id="history-button" aria-label="Recent chats">
+            <svg class="bubble-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <span>History</span>
+            <span class="bubble-label">History</span>
           </button>
           
           <div class="copilot-history-dropdown" id="history-dropdown">
@@ -60,52 +76,96 @@ class NavbarComponent {
               <div class="copilot-history-empty">No chat history yet</div>
             </div>
           </div>
-          
-          <button class="copilot-new-chat-button" id="copilot-new-chat" aria-label="New Chat">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        </div>
+        
+        <!-- New Chat Bubble -->
+        <div class="nav-bubble new-chat-bubble">
+          <button class="nav-bubble-button" id="copilot-new-chat" aria-label="New Chat">
+            <svg class="bubble-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
+            <span class="bubble-label">New Chat</span>
           </button>
         </div>
       </div>
     `;
     
-    // Also create the sidebar and overlay
-    const sidebar = document.createElement('div');
-    sidebar.className = 'copilot-nav-sidebar';
-    sidebar.id = 'copilot-nav-sidebar';
-    sidebar.innerHTML = `
-      <div class="copilot-nav-header">
-        <a href="index.html" class="copilot-nav-brand">
-          <span>SFTi-Pennies</span>
-        </a>
-        <button class="copilot-nav-close" id="copilot-nav-close">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
-      <ul class="copilot-nav-menu">
-        <li><a href="index.html" class="copilot-nav-link">Home</a></li>
-      </ul>
-    `;
-    
-    const overlay = document.createElement('div');
-    overlay.className = 'copilot-nav-overlay';
-    overlay.id = 'copilot-nav-overlay';
-    
-    return { nav, sidebar, overlay };
+    // No sidebar or overlay needed anymore
+    return { nav };
   }
 
   mount(container) {
     const components = this.render();
     this.element = components.nav;
-    this.sidebar = components.sidebar;
-    this.overlay = components.overlay;
     
     container.appendChild(components.nav);
-    container.appendChild(components.sidebar);
-    container.appendChild(components.overlay);
+    
+    // Attach event listeners after mounting
+    this.attachEventListeners();
+  }
+
+  attachEventListeners() {
+    // Profile select handler
+    const profileSelect = document.getElementById('profile-select');
+    if (profileSelect) {
+      profileSelect.addEventListener('change', (e) => {
+        const value = e.target.value;
+        if (value === 'login') {
+          this.handleLogin();
+        } else if (value === 'logout') {
+          this.handleLogout();
+        } else if (value === 'preferences') {
+          window.location.href = 'system/system.html';
+        }
+        // Reset select to default
+        e.target.value = '';
+      });
+    }
+
+    // Model selector handler
+    const modelSelect = document.getElementById('model-selector');
+    if (modelSelect) {
+      modelSelect.addEventListener('change', (e) => {
+        const modelId = e.target.value;
+        if (modelId) {
+          this.handleModelChange(modelId);
+        }
+      });
+    }
+  }
+
+  handleLogin() {
+    // Show authentication prompt
+    if (window.showAuthPrompt) {
+      window.showAuthPrompt();
+    } else {
+      alert('Authentication system not loaded. Please refresh the page.');
+    }
+  }
+
+  handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+      localStorage.removeItem('github_pat');
+      this.isAuthenticated = false;
+      alert('Logged out successfully');
+      window.location.reload();
+    }
+  }
+
+  handleModelChange(modelId) {
+    // Check if authenticated
+    if (!this.isAuthenticated) {
+      alert('Please sign in to use AI models. You need a GitHub account to access these models.');
+      const modelSelect = document.getElementById('model-selector');
+      if (modelSelect) {
+        modelSelect.value = 'gpt-4o'; // Reset to default
+      }
+      return;
+    }
+
+    // Dispatch event for model change
+    const event = new CustomEvent('modelChanged', { detail: { modelId } });
+    document.dispatchEvent(event);
   }
 }
 
