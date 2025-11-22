@@ -1,0 +1,29 @@
+{
+  "name": "Pilot-Server - GitHub Copilot Chat",
+  "short_name": "Pilot-Server",
+  "description": "A modern GitHub Copilot chat interface with advanced AI model selection and conversation management",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "system/icons.logo/pilot.card.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "system/icons.logo/pilot.card.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "developer-tools"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "prefer_related_applications": false
+}
