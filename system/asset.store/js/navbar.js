@@ -87,24 +87,6 @@ class NavbarComponent {
       </div>
       <ul class="copilot-nav-menu">
         <li><a href="index.html" class="copilot-nav-link">Home</a></li>
-        <li><a href="books.html" class="copilot-nav-link">Books</a></li>
-        <li><a href="notes.html" class="copilot-nav-link">Notes</a></li>
-        <li class="copilot-nav-section">
-          <div class="copilot-nav-section-title">Trades</div>
-          <ul>
-            <li><a href="all-trades.html" class="copilot-nav-link">All Trades</a></li>
-            <li><a href="all-weeks.html" class="copilot-nav-link">All Summaries</a></li>
-            <li><a href="analytics.html" class="copilot-nav-link">Analytics</a></li>
-            <li><a href="import.html" class="copilot-nav-link">Import CSV</a></li>
-          </ul>
-        </li>
-        <li class="copilot-nav-section">
-          <div class="copilot-nav-section-title">Mentors</div>
-          <ul>
-            <li><a href="https://www.timothysykes.com/" target="_blank" rel="noopener noreferrer" class="copilot-nav-link">Timothy Sykes</a></li>
-            <li><a href="https://www.stockstotrade.com/" target="_blank" rel="noopener noreferrer" class="copilot-nav-link">Tim Bohen</a></li>
-          </ul>
-        </li>
       </ul>
     `;
     
