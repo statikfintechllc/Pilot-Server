@@ -220,7 +220,7 @@ class CopilotChat {
     // Listen for loadChat event from navbar
     document.addEventListener('loadChat', (e) => {
       if (e.detail && e.detail.chatId) {
-        this.loadChatById(e.detail.chatId);
+        this.loadChat(e.detail.chatId);
       }
     });
   }
@@ -828,10 +828,6 @@ Could you provide more details about what you'd like to know?
     
     // Update model selector
     this.switchModel(this.currentModel);
-  }
-  
-  loadChatById(chatId) {
-    this.loadChat(chatId);
   }
   
   updateHistorySelect() {
