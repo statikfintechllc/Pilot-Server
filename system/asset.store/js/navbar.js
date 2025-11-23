@@ -23,19 +23,19 @@ class NavbarComponent {
     
     nav.innerHTML = `
       <div class="nav-container">
-        <!-- Profile Bubble -->
+        <!-- Profile Bubble - Icon only on mobile -->
         <div class="nav-bubble profile-bubble">
           <select class="nav-native-select profile-select" id="profile-select" aria-label="Profile menu">
             <option value="" disabled selected>Profile</option>
             <option value="${this.isAuthenticated ? 'logout' : 'login'}">${this.isAuthenticated ? 'Logout' : 'Sign In'}</option>
             <option value="preferences">Preferences</option>
           </select>
-          <svg class="bubble-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="bubble-icon profile-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
           </svg>
         </div>
         
-        <!-- Model Selector Bubble -->
+        <!-- Model Selector Bubble - No icon, dynamically sized -->
         <div class="nav-bubble model-bubble">
           <select class="nav-native-select model-select" id="model-selector" aria-label="Select AI model">
             <optgroup label="Fast & Efficient">
@@ -56,15 +56,12 @@ class NavbarComponent {
               <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
             </optgroup>
           </select>
-          <svg class="bubble-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-          </svg>
         </div>
         
-        <!-- Recent Chats Bubble -->
+        <!-- Recent Chats Bubble - Icon only on mobile -->
         <div class="nav-bubble history-bubble">
           <button class="nav-bubble-button" id="history-button" aria-label="Recent chats">
-            <svg class="bubble-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="bubble-icon history-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <span class="bubble-label">History</span>
@@ -77,10 +74,10 @@ class NavbarComponent {
           </div>
         </div>
         
-        <!-- New Chat Bubble -->
+        <!-- New Chat Bubble - Icon only on mobile -->
         <div class="nav-bubble new-chat-bubble">
           <button class="nav-bubble-button" id="copilot-new-chat" aria-label="New Chat">
-            <svg class="bubble-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="bubble-icon new-chat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             <span class="bubble-label">New Chat</span>
