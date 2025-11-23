@@ -11,87 +11,81 @@ class CopilotChat {
     this.chatHistory = this.loadChatHistory();
     this.currentChatId = null;
     
-    // Available GitHub Copilot models with GitHub routing
+    // Available GitHub Models (via GitHub Models API)
+    // These are the actual model identifiers supported by GitHub
     this.models = [
-      // Fast & Efficient
+      // Fast & Efficient - OpenAI GPT-4o Mini
       {
-        id: 'gpt-5-mini',
-        name: 'GPT-5-mini',
+        id: 'gpt-4o-mini',
+        name: 'GPT-4o Mini',
         description: 'Fast & Efficient',
         category: 'fast',
-        route: 'github/gpt-5-mini'
+        provider: 'OpenAI'
       },
       {
-        id: 'grok-code-fast-1',
-        name: 'Grok Code Fast 1',
+        id: 'gpt-3.5-turbo',
+        name: 'GPT-3.5 Turbo',
         description: 'Fast & Efficient',
         category: 'fast',
-        route: 'github/grok-code-fast-1'
+        provider: 'OpenAI'
       },
       // Versatile and Highly Intelligent
       {
-        id: 'gpt-4.1',
-        name: 'GPT-4.1',
+        id: 'gpt-4',
+        name: 'GPT-4',
         description: 'Versatile and Highly Intelligent',
         category: 'versatile',
-        route: 'github/gpt-4.1'
+        provider: 'OpenAI'
       },
       {
-        id: 'gpt-5',
-        name: 'GPT-5',
+        id: 'gpt-4-turbo',
+        name: 'GPT-4 Turbo',
         description: 'Versatile and Highly Intelligent',
         category: 'versatile',
-        route: 'github/gpt-5'
+        provider: 'OpenAI'
       },
       {
         id: 'gpt-4o',
         name: 'GPT-4o',
         description: 'Versatile and Highly Intelligent',
         category: 'versatile',
-        route: 'github/gpt-4o'
+        provider: 'OpenAI'
       },
       {
-        id: 'claude-sonnet-3.5',
-        name: 'Claude Sonnet 3.5',
+        id: 'claude-3-5-sonnet',
+        name: 'Claude 3.5 Sonnet',
         description: 'Versatile and Highly Intelligent',
         category: 'versatile',
-        route: 'github/claude-sonnet-3.5'
+        provider: 'Anthropic'
       },
       {
-        id: 'claude-sonnet-4',
-        name: 'Claude Sonnet 4',
-        description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        route: 'github/claude-sonnet-4'
+        id: 'claude-3-opus',
+        name: 'Claude 3 Opus',
+        description: 'Most Powerful at Complex Tasks',
+        category: 'powerful',
+        provider: 'Anthropic'
       },
       {
-        id: 'claude-sonnet-4.5',
-        name: 'Claude Sonnet 4.5',
-        description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        route: 'github/claude-sonnet-4.5'
-      },
-      {
-        id: 'claude-haiku-4.5',
-        name: 'Claude Haiku 4.5',
-        description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        route: 'github/claude-haiku-4.5'
+        id: 'claude-3-haiku',
+        name: 'Claude 3 Haiku',
+        description: 'Fast & Efficient',
+        category: 'fast',
+        provider: 'Anthropic'
       },
       // Most Powerful at Complex Tasks
       {
-        id: 'claude-opus-4.1',
-        name: 'Claude Opus 4.1',
+        id: 'gemini-1.5-pro',
+        name: 'Gemini 1.5 Pro',
         description: 'Most Powerful at Complex Tasks',
         category: 'powerful',
-        route: 'github/claude-opus-4.1'
+        provider: 'Google'
       },
       {
-        id: 'gemini-2.5-pro',
-        name: 'Gemini 2.5 Pro',
-        description: 'Most Powerful at Complex Tasks',
-        category: 'powerful',
-        route: 'github/gemini-2.5-pro'
+        id: 'gemini-1.5-flash',
+        name: 'Gemini 1.5 Flash',
+        description: 'Fast & Efficient',
+        category: 'fast',
+        provider: 'Google'
       }
     ];
     
@@ -262,13 +256,16 @@ class CopilotChat {
       modelSelect.value = modelId;
     }
     
-    // Log GitHub routing for debugging
-    if (model && model.route) {
-      console.log(`Switched to ${model.name} using GitHub route: ${model.route}`);
+    // Log model info for debugging
+    if (model) {
+      console.log(`Switched to ${model.name} (${model.provider}) - Model ID: ${modelId}`);
+      
+      // Show notification with provider info
+      this.addSystemMessage(`Switched to ${model.name} by ${model.provider}`);
+    } else {
+      console.log(`Switched to model: ${modelId}`);
+      this.addSystemMessage(`Switched to ${modelId}`);
     }
-    
-    // Show notification
-    this.addSystemMessage(`Switched to ${model ? model.name : modelId}`);
   }
   
   async sendMessage() {
@@ -346,78 +343,106 @@ class CopilotChat {
       throw new Error('GitHub authentication required. Please sign in with your GitHub Personal Access Token.');
     }
     
-    // Get current model
+    // Get current model info
     const model = this.models.find(m => m.id === this.currentModel);
-    const modelId = model ? model.id : 'gpt-4o';
+    const modelId = this.currentModel; // Use the actual model ID
+    const modelName = model ? `${model.name} (${model.provider})` : modelId;
     
-    console.log(`Using GitHub model: ${modelId} for query: "${userMessage}"`);
+    console.log(`🤖 Sending message to ${modelName}`);
+    console.log(`📝 Model ID: ${modelId}`);
+    console.log(`💬 User message: "${userMessage}"`);
     
     try {
-      // GitHub Copilot Chat API endpoint
-      // Note: This uses GitHub's Models API which provides access to various AI models
-      const apiUrl = 'https://api.github.com/chat/completions';
+      // GitHub Models API endpoint
+      // This endpoint provides access to various AI models through GitHub
+      const apiUrl = 'https://models.github.com/chat/completions';
+      
+      // Build conversation history for context
+      const conversationMessages = [
+        {
+          role: 'system',
+          content: 'You are a helpful AI trading assistant for SFTi-Pennies, specializing in penny stock trading, technical analysis, and trading journal insights. Help users analyze their trades, improve their strategies, and track their progress.'
+        }
+      ];
+      
+      // Add previous messages for context (last 10 messages to avoid token limits)
+      const recentMessages = this.messages.slice(-10);
+      conversationMessages.push(...recentMessages.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      })));
+      
+      // Add current user message
+      conversationMessages.push({
+        role: 'user',
+        content: userMessage
+      });
       
       const requestBody = {
-        model: modelId,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful AI trading assistant for SFTi-Pennies, specializing in penny stock trading, technical analysis, and trading journal insights. Help users analyze their trades, improve their strategies, and track their progress.'
-          },
-          ...this.messages.map(msg => ({
-            role: msg.role === 'user' ? 'user' : 'assistant',
-            content: msg.content
-          })),
-          {
-            role: 'user',
-            content: userMessage
-          }
-        ],
+        model: modelId, // Use the selected model ID
+        messages: conversationMessages,
         temperature: 0.7,
-        max_tokens: 1000
+        max_tokens: 2000,
+        top_p: 0.95
       };
+      
+      console.log(`📤 API Request:`, {
+        url: apiUrl,
+        model: modelId,
+        messageCount: conversationMessages.length
+      });
       
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-GitHub-Api-Version': '2022-11-28'
+          'Accept': 'application/json'
         },
         body: JSON.stringify(requestBody)
       });
       
+      console.log(`📥 API Response Status: ${response.status} ${response.statusText}`);
+      
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('GitHub API Error:', response.status, errorData);
+        console.error('❌ GitHub API Error:', response.status, errorData);
         
         if (response.status === 401) {
-          throw new Error('GitHub authentication failed. Please check your Personal Access Token and ensure it has the required permissions.');
+          throw new Error('GitHub authentication failed. Please check your Personal Access Token and ensure it has the required permissions (model:read).');
         } else if (response.status === 403) {
-          throw new Error('GitHub Copilot access denied. Please ensure your account has GitHub Copilot enabled.');
+          throw new Error('Access denied. Please ensure your GitHub account has access to GitHub Models. You may need to request access at https://github.com/marketplace/models');
         } else if (response.status === 404) {
-          throw new Error(`Model "${modelId}" not found. This model may not be available with your GitHub account.`);
+          throw new Error(`Model "${modelId}" not found. This model may not be available with your GitHub account. Try a different model.`);
+        } else if (response.status === 429) {
+          throw new Error('Rate limit exceeded. Please wait a moment and try again.');
         }
         
-        throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+        throw new Error(`GitHub API error: ${response.status} ${response.statusText}. ${errorData.message || ''}`);
       }
       
       const data = await response.json();
+      console.log(`✅ Received response from ${modelName}`);
       
       // Extract response from GitHub's API format
       if (data.choices && data.choices.length > 0) {
-        return data.choices[0].message.content;
+        const aiResponse = data.choices[0].message.content;
+        console.log(`💭 Response length: ${aiResponse.length} characters`);
+        return aiResponse;
       }
       
       throw new Error('No response from GitHub AI model');
       
     } catch (error) {
-      console.error('Error calling GitHub Copilot API:', error);
+      console.error('❌ Error calling GitHub Models API:', error);
       
       // Provide helpful error messages
       if (error.message.includes('authentication')) {
         throw new Error('Authentication required. Please sign in with your GitHub account to use AI models.');
+      }
+      
+      if (error.message.includes('fetch')) {
+        throw new Error('Network error. Please check your internet connection and try again.');
       }
       
       throw error;
