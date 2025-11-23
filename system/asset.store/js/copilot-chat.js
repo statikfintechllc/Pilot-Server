@@ -278,6 +278,18 @@ class CopilotChat {
     if (!input || !input.value.trim()) return;
     
     const userMessage = input.value.trim();
+    
+    // Check authentication before proceeding
+    const token = localStorage.getItem('github_pat');
+    if (!token) {
+      // Show authentication prompt
+      this.addSystemMessage('Please sign in with your GitHub account to use AI models. Click the Profile button to sign in.');
+      if (window.showAuthPrompt) {
+        window.showAuthPrompt();
+      }
+      return;
+    }
+    
     input.value = '';
     input.style.height = 'auto';
     
@@ -291,7 +303,7 @@ class CopilotChat {
     // Show loading indicator
     this.showLoadingIndicator();
     
-    // Simulated AI response (Ensure this no longer calls a fake response. Implement the True native github chat from vscode so then users have access to GitHub hosted models, look at the VSCode repository to implement this)
+    // Call GitHub Copilot API with user's token
     try {
       const response = await this.getAIResponse(userMessage);
       this.removeLoadingIndicator();
@@ -301,7 +313,21 @@ class CopilotChat {
       this.saveToHistory(userMessage, response);
     } catch (error) {
       this.removeLoadingIndicator();
-      this.addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+      
+      // Show user-friendly error messages
+      let errorMessage = 'Sorry, I encountered an error. ';
+      
+      if (error.message.includes('authentication') || error.message.includes('401')) {
+        errorMessage += 'Please check your GitHub authentication and try again. You may need to sign in again.';
+      } else if (error.message.includes('Copilot')) {
+        errorMessage += error.message;
+      } else if (error.message.includes('not found') || error.message.includes('404')) {
+        errorMessage += 'The selected AI model is not available. Please try a different model.';
+      } else {
+        errorMessage += 'Please try again or select a different model.';
+      }
+      
+      this.addMessage('assistant', errorMessage);
       console.error('Error getting AI response:', error);
     }
     
@@ -313,109 +339,89 @@ class CopilotChat {
   }
   
   async getAIResponse(userMessage) {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Get authentication token
+    const token = localStorage.getItem('github_pat');
     
-    // Get current model route
+    if (!token) {
+      throw new Error('GitHub authentication required. Please sign in with your GitHub Personal Access Token.');
+    }
+    
+    // Get current model
     const model = this.models.find(m => m.id === this.currentModel);
-    const modelRoute = model ? model.route : 'github/gpt-4o';
+    const modelId = model ? model.id : 'gpt-4o';
     
-    // In production, this would call the GitHub Copilot API using the model route
-    // Example: await fetch(`https://api.github.com/copilot/chat/${modelRoute}`, {...})
-    console.log(`Using GitHub model route: ${modelRoute} for query: "${userMessage}"`);
+    console.log(`Using GitHub model: ${modelId} for query: "${userMessage}"`);
     
-    // For now, return intelligent mock responses based on context
-    const lowerMessage = userMessage.toLowerCase();
-    
-    if (lowerMessage.includes('trade') || lowerMessage.includes('trading')) {
-      return `I can help you analyze your trades! Here are some things I can do:
-
-**Trade Analysis:**
-- Review your win/loss patterns
-- Identify profitable setups
-- Analyze risk management
-
-**Strategy Help:**
-- 7-Step Framework guidance
-- GSTRWT workflow tips
-- Pattern recognition assistance
-
-**Journal Insights:**
-- Track your progress over time
-- Identify improvement areas
-- Calculate key metrics
-
-What specific aspect of your trading would you like to explore?`;
+    try {
+      // GitHub Copilot Chat API endpoint
+      // Note: This uses GitHub's Models API which provides access to various AI models
+      const apiUrl = 'https://api.github.com/chat/completions';
+      
+      const requestBody = {
+        model: modelId,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful AI trading assistant for SFTi-Pennies, specializing in penny stock trading, technical analysis, and trading journal insights. Help users analyze their trades, improve their strategies, and track their progress.'
+          },
+          ...this.messages.map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'assistant',
+            content: msg.content
+          })),
+          {
+            role: 'user',
+            content: userMessage
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000
+      };
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-GitHub-Api-Version': '2022-11-28'
+        },
+        body: JSON.stringify(requestBody)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('GitHub API Error:', response.status, errorData);
+        
+        if (response.status === 401) {
+          throw new Error('GitHub authentication failed. Please check your Personal Access Token and ensure it has the required permissions.');
+        } else if (response.status === 403) {
+          throw new Error('GitHub Copilot access denied. Please ensure your account has GitHub Copilot enabled.');
+        } else if (response.status === 404) {
+          throw new Error(`Model "${modelId}" not found. This model may not be available with your GitHub account.`);
+        }
+        
+        throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Extract response from GitHub's API format
+      if (data.choices && data.choices.length > 0) {
+        return data.choices[0].message.content;
+      }
+      
+      throw new Error('No response from GitHub AI model');
+      
+    } catch (error) {
+      console.error('Error calling GitHub Copilot API:', error);
+      
+      // Provide helpful error messages
+      if (error.message.includes('authentication')) {
+        throw new Error('Authentication required. Please sign in with your GitHub account to use AI models.');
+      }
+      
+      throw error;
     }
-    
-    if (lowerMessage.includes('help') || lowerMessage.includes('how')) {
-      return `I'm here to help! I can assist with:
-
-1. **Trade Analysis** - Review your trading performance
-2. **Strategy Guidance** - Help with the 7-Step Framework and GSTRWT
-3. **Risk Management** - Calculate position sizes and stop losses
-4. **Pattern Recognition** - Identify chart patterns in your trades
-5. **Journal Insights** - Analyze your trading journal data
-
-Just ask me anything related to trading or your journal!`;
-    }
-    
-    if (lowerMessage.includes('pattern') || lowerMessage.includes('setup')) {
-      return `Let me help you with trading patterns!
-
-**Common Penny Stock Patterns:**
-- **Morning Panic Dip Buys** - Buy the panic, sell into strength
-- **Afternoon Breakouts** - Consolidation breaks with volume
-- **Red-to-Green Moves** - Reversal plays
-- **Parabolic Short Squeezes** - High-risk momentum plays
-
-**Pattern Checklist:**
-✅ Volume spike (2x+ average)
-✅ Clear support/resistance levels
-✅ News catalyst present
-✅ Float under 100M shares
-✅ Price action confirms pattern
-
-Would you like me to analyze a specific pattern or trade setup?`;
-    }
-    
-    if (lowerMessage.includes('risk') || lowerMessage.includes('position size')) {
-      return `**Risk Management Guidelines:**
-
-**Position Sizing:**
-- Never risk more than 2% of total capital per trade
-- For a $10,000 account, max risk = $200
-- Calculate: Position Size = Risk Amount / (Entry - Stop Loss)
-
-**Stop Loss Rules:**
-- Always set before entering
-- Use support/resistance levels
-- Mental stops can fail - use hard stops
-- Never move stop loss against you
-
-**Example:**
-- Account: $10,000
-- Risk: 2% = $200
-- Entry: $2.00
-- Stop: $1.80
-- Risk per share: $0.20
-- Max shares: $200 / $0.20 = 1,000 shares
-
-Would you like help calculating position size for a specific trade?`;
-    }
-    
-    // Default response
-    return `I understand you're asking about: "${userMessage}"
-
-As your AI trading assistant, I'm here to help with:
-- **Trading Analysis** - Review performance and patterns
-- **Strategy Development** - Improve your trading plan
-- **Risk Management** - Calculate position sizes
-- **Journal Insights** - Track and analyze progress
-
-Could you provide more details about what you'd like to know?
-
-*Note: This is a demo response. In production, I would connect to GitHub Copilot's actual AI models for real-time, intelligent responses.*`;
   }
   
   addMessage(role, content) {
