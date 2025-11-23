@@ -353,9 +353,9 @@ class CopilotChat {
     console.log(`💬 User message: "${userMessage}"`);
     
     try {
-      // GitHub Models API endpoint
-      // This endpoint provides access to various AI models through GitHub
-      const apiUrl = 'https://models.github.com/chat/completions';
+      // GitHub Models API endpoint - model-specific path
+      // Format: https://models.inference.ai.azure.com/{model-name}/chat/completions
+      const apiUrl = `https://models.inference.ai.azure.com/${modelId}/chat/completions`;
       
       // Build conversation history for context
       const conversationMessages = [
@@ -379,7 +379,6 @@ class CopilotChat {
       });
       
       const requestBody = {
-        model: modelId, // Use the selected model ID
         messages: conversationMessages,
         temperature: 0.7,
         max_tokens: 2000,
@@ -406,19 +405,19 @@ class CopilotChat {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('❌ GitHub API Error:', response.status, errorData);
+        console.error('❌ GitHub Models API Error:', response.status, errorData);
         
         if (response.status === 401) {
-          throw new Error('GitHub authentication failed. Please check your Personal Access Token and ensure it has the required permissions (model:read).');
+          throw new Error('GitHub authentication failed. Please check your Personal Access Token. Note: Your token needs access to GitHub Models - sign in at github.com/features/copilot to set up access.');
         } else if (response.status === 403) {
-          throw new Error('Access denied. Please ensure your GitHub account has access to GitHub Models. You may need to request access at https://github.com/marketplace/models');
+          throw new Error('Access denied. GitHub Models requires GitHub Copilot subscription. Visit github.com/features/copilot to sign up.');
         } else if (response.status === 404) {
-          throw new Error(`Model "${modelId}" not found. This model may not be available with your GitHub account. Try a different model.`);
+          throw new Error(`Model "${modelId}" not found or not available. Try a different model like gpt-4o or claude-3-5-sonnet.`);
         } else if (response.status === 429) {
           throw new Error('Rate limit exceeded. Please wait a moment and try again.');
         }
         
-        throw new Error(`GitHub API error: ${response.status} ${response.statusText}. ${errorData.message || ''}`);
+        throw new Error(`GitHub Models API error: ${response.status} ${response.statusText}. ${errorData.message || ''}`);
       }
       
       const data = await response.json();
