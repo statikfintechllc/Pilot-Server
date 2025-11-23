@@ -159,10 +159,33 @@ body {
 .model-select {
   padding: 0 0.5rem;
   text-align: center;
+  text-align-last: center; /* Center the selected option text */
+  -moz-text-align-last: center;
 }
 
-/* History and New Chat Bubbles */
-.history-bubble,
+/* History Bubble */
+.history-bubble {
+  flex-shrink: 0;
+}
+
+.history-select {
+  padding-left: 2rem;
+  padding-right: 0.5rem;
+  min-width: 90px;
+}
+
+.history-icon {
+  position: absolute;
+  left: 0.625rem;
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  color: rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+}
+
+/* New Chat Bubble */
 .new-chat-bubble {
   flex-shrink: 0;
 }
@@ -263,20 +286,22 @@ body {
     width: 40px;
     height: 40px;
     padding: 0.5rem;
+    justify-content: center;
   }
   
-  .history-bubble .nav-bubble-button {
-    width: auto;
+  .history-select {
+    position: absolute;
+    opacity: 0;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
     padding: 0;
-  }
-  
-  .history-bubble .bubble-label {
-    display: none;
+    min-width: auto;
   }
   
   .history-icon {
-    width: 20px;
-    height: 20px;
+    position: static;
+    pointer-events: none;
   }
   
   /* New Chat - Icon only */

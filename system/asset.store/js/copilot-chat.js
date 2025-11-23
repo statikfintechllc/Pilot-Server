@@ -211,23 +211,18 @@ class CopilotChat {
       }
     });
     
-    // History button
-    const historyButton = document.getElementById('history-button');
-    const historyDropdown = document.getElementById('history-dropdown');
-    if (historyButton && historyDropdown) {
-      historyButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.updateHistoryDropdown();
-        historyDropdown.classList.toggle('active');
-      });
-      
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!historyDropdown.contains(e.target) && e.target !== historyButton) {
-          historyDropdown.classList.remove('active');
-        }
-      });
+    // History select (native dropdown)
+    const historySelect = document.getElementById('history-select');
+    if (historySelect) {
+      this.updateHistorySelect();
     }
+    
+    // Listen for loadChat event from navbar
+    document.addEventListener('loadChat', (e) => {
+      if (e.detail && e.detail.chatId) {
+        this.loadChatById(e.detail.chatId);
+      }
+    });
   }
   
   newChat() {
@@ -833,6 +828,30 @@ Could you provide more details about what you'd like to know?
     
     // Update model selector
     this.switchModel(this.currentModel);
+  }
+  
+  loadChatById(chatId) {
+    this.loadChat(chatId);
+  }
+  
+  updateHistorySelect() {
+    const historySelect = document.getElementById('history-select');
+    if (!historySelect) return;
+    
+    // Remove all options except the default
+    while (historySelect.options.length > 1) {
+      historySelect.remove(1);
+    }
+    
+    // Add history items as options
+    if (this.chatHistory.length > 0) {
+      this.chatHistory.forEach(chat => {
+        const option = document.createElement('option');
+        option.value = chat.id;
+        option.textContent = chat.title || 'Untitled Chat';
+        historySelect.appendChild(option);
+      });
+    }
   }
   
   getTimeAgo(date) {

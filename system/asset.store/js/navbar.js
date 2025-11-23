@@ -58,20 +58,15 @@ class NavbarComponent {
           </select>
         </div>
         
-        <!-- Recent Chats Bubble - Icon only on mobile -->
+        <!-- Recent Chats Bubble - Native select on mobile, button on desktop -->
         <div class="nav-bubble history-bubble">
-          <button class="nav-bubble-button" id="history-button" aria-label="Recent chats">
-            <svg class="bubble-icon history-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <span class="bubble-label">History</span>
-          </button>
-          
-          <div class="copilot-history-dropdown" id="history-dropdown">
-            <div id="history-list">
-              <div class="copilot-history-empty">No chat history yet</div>
-            </div>
-          </div>
+          <select class="nav-native-select history-select" id="history-select" aria-label="Recent chats">
+            <option value="" disabled selected>History</option>
+            <!-- History items will be populated by JavaScript -->
+          </select>
+          <svg class="bubble-icon history-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
         </div>
         
         <!-- New Chat Bubble - Icon only on mobile -->
@@ -126,6 +121,21 @@ class NavbarComponent {
         if (modelId) {
           this.handleModelChange(modelId);
         }
+      });
+    }
+
+    // History select handler
+    const historySelect = document.getElementById('history-select');
+    if (historySelect) {
+      historySelect.addEventListener('change', (e) => {
+        const chatId = e.target.value;
+        if (chatId) {
+          // Dispatch event for loading chat
+          const event = new CustomEvent('loadChat', { detail: { chatId } });
+          document.dispatchEvent(event);
+        }
+        // Reset select to default
+        e.target.value = '';
       });
     }
   }
