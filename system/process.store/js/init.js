@@ -32,6 +32,12 @@
           messageHandler.init();
         }
 
+        // Initialize Copilot Chat
+        if (window.CopilotChat) {
+          const copilotChat = new window.CopilotChat();
+          copilotChat.init();
+        }
+
         console.log('Application initialized successfully');
       }).catch((error) => {
         console.error('Failed to initialize application:', error);
