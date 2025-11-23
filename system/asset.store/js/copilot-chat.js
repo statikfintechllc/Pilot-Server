@@ -11,81 +11,76 @@ class CopilotChat {
     this.chatHistory = this.loadChatHistory();
     this.currentChatId = null;
     
-    // Available GitHub Models (via GitHub Models API)
-    // These are the actual model identifiers supported by GitHub
+    // Available GitHub Models - EXACT list from GitHub Mobile App
     this.models = [
-      // Fast & Efficient - OpenAI GPT-4o Mini
+      // Fast & Efficient
       {
-        id: 'gpt-4o-mini',
-        name: 'GPT-4o Mini',
+        id: 'gpt-5-mini',
+        name: 'GPT-5-mini',
         description: 'Fast & Efficient',
-        category: 'fast',
-        provider: 'OpenAI'
+        category: 'fast'
       },
       {
-        id: 'gpt-3.5-turbo',
-        name: 'GPT-3.5 Turbo',
+        id: 'grok-code-fast-1',
+        name: 'Grok Code Fast 1',
         description: 'Fast & Efficient',
-        category: 'fast',
-        provider: 'OpenAI'
+        category: 'fast'
       },
       // Versatile and Highly Intelligent
       {
-        id: 'gpt-4',
-        name: 'GPT-4',
+        id: 'gpt-4.1',
+        name: 'GPT-4.1',
         description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        provider: 'OpenAI'
+        category: 'versatile'
       },
       {
-        id: 'gpt-4-turbo',
-        name: 'GPT-4 Turbo',
+        id: 'gpt-5',
+        name: 'GPT-5',
         description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        provider: 'OpenAI'
+        category: 'versatile'
       },
       {
         id: 'gpt-4o',
         name: 'GPT-4o',
         description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        provider: 'OpenAI'
+        category: 'versatile'
       },
       {
-        id: 'claude-3-5-sonnet',
-        name: 'Claude 3.5 Sonnet',
+        id: 'claude-sonnet-3.5',
+        name: 'Claude Sonnet 3.5',
         description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        provider: 'Anthropic'
+        category: 'versatile'
       },
       {
-        id: 'claude-3-opus',
-        name: 'Claude 3 Opus',
-        description: 'Most Powerful at Complex Tasks',
-        category: 'powerful',
-        provider: 'Anthropic'
+        id: 'claude-sonnet-4',
+        name: 'Claude Sonnet 4',
+        description: 'Versatile and Highly Intelligent',
+        category: 'versatile'
       },
       {
-        id: 'claude-3-haiku',
-        name: 'Claude 3 Haiku',
-        description: 'Fast & Efficient',
-        category: 'fast',
-        provider: 'Anthropic'
+        id: 'claude-sonnet-4.5',
+        name: 'Claude Sonnet 4.5',
+        description: 'Versatile and Highly Intelligent',
+        category: 'versatile'
+      },
+      {
+        id: 'claude-haiku-4.5',
+        name: 'Claude Haiku 4.5',
+        description: 'Versatile and Highly Intelligent',
+        category: 'versatile'
       },
       // Most Powerful at Complex Tasks
       {
-        id: 'gemini-1.5-pro',
-        name: 'Gemini 1.5 Pro',
+        id: 'claude-opus-4.1',
+        name: 'Claude Opus 4.1',
         description: 'Most Powerful at Complex Tasks',
-        category: 'powerful',
-        provider: 'Google'
+        category: 'powerful'
       },
       {
-        id: 'gemini-1.5-flash',
-        name: 'Gemini 1.5 Flash',
-        description: 'Fast & Efficient',
-        category: 'fast',
-        provider: 'Google'
+        id: 'gemini-2.5-pro',
+        name: 'Gemini 2.5 Pro',
+        description: 'Most Powerful at Complex Tasks',
+        category: 'powerful'
       }
     ];
     
@@ -258,10 +253,10 @@ class CopilotChat {
     
     // Log model info for debugging
     if (model) {
-      console.log(`Switched to ${model.name} (${model.provider}) - Model ID: ${modelId}`);
+      console.log(`Switched to ${model.name} - Model ID: ${modelId}`);
       
-      // Show notification with provider info
-      this.addSystemMessage(`Switched to ${model.name} by ${model.provider}`);
+      // Show notification
+      this.addSystemMessage(`Switched to ${model.name}`);
     } else {
       console.log(`Switched to model: ${modelId}`);
       this.addSystemMessage(`Switched to ${modelId}`);
@@ -345,17 +340,16 @@ class CopilotChat {
     
     // Get current model info
     const model = this.models.find(m => m.id === this.currentModel);
-    const modelId = this.currentModel; // Use the actual model ID
-    const modelName = model ? `${model.name} (${model.provider})` : modelId;
+    const modelId = this.currentModel;
+    const modelName = model ? model.name : modelId;
     
     console.log(`🤖 Sending message to ${modelName}`);
     console.log(`📝 Model ID: ${modelId}`);
     console.log(`💬 User message: "${userMessage}"`);
     
     try {
-      // GitHub Models API endpoint - model-specific path
-      // Format: https://models.inference.ai.azure.com/{model-name}/chat/completions
-      const apiUrl = `https://models.inference.ai.azure.com/${modelId}/chat/completions`;
+      // GitHub Copilot Chat API endpoint
+      const apiUrl = `https://api.githubcopilot.com/chat/completions`;
       
       // Build conversation history for context
       const conversationMessages = [
@@ -379,10 +373,12 @@ class CopilotChat {
       });
       
       const requestBody = {
+        model: modelId,
         messages: conversationMessages,
         temperature: 0.7,
         max_tokens: 2000,
-        top_p: 0.95
+        top_p: 0.95,
+        stream: false
       };
       
       console.log(`📤 API Request:`, {
@@ -396,7 +392,10 @@ class CopilotChat {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Editor-Version': 'vscode/1.95.0',
+          'Editor-Plugin-Version': 'copilot-chat/0.22.0',
+          'User-Agent': 'GitHubCopilotChat/1.0'
         },
         body: JSON.stringify(requestBody)
       });
@@ -405,19 +404,19 @@ class CopilotChat {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('❌ GitHub Models API Error:', response.status, errorData);
+        console.error('❌ GitHub Copilot API Error:', response.status, errorData);
         
         if (response.status === 401) {
-          throw new Error('GitHub authentication failed. Please check your Personal Access Token. Note: Your token needs access to GitHub Models - sign in at github.com/features/copilot to set up access.');
+          throw new Error('GitHub authentication failed. Please check your Personal Access Token. Ensure you have GitHub Copilot access.');
         } else if (response.status === 403) {
-          throw new Error('Access denied. GitHub Models requires GitHub Copilot subscription. Visit github.com/features/copilot to sign up.');
+          throw new Error('Access denied. GitHub Copilot subscription required. Visit github.com/features/copilot to sign up.');
         } else if (response.status === 404) {
-          throw new Error(`Model "${modelId}" not found or not available. Try a different model like gpt-4o or claude-3-5-sonnet.`);
+          throw new Error(`Model "${modelId}" not found or not available. Try a different model.`);
         } else if (response.status === 429) {
           throw new Error('Rate limit exceeded. Please wait a moment and try again.');
         }
         
-        throw new Error(`GitHub Models API error: ${response.status} ${response.statusText}. ${errorData.message || ''}`);
+        throw new Error(`GitHub Copilot API error: ${response.status} ${response.statusText}. ${errorData.message || ''}`);
       }
       
       const data = await response.json();
@@ -433,7 +432,7 @@ class CopilotChat {
       throw new Error('No response from GitHub AI model');
       
     } catch (error) {
-      console.error('❌ Error calling GitHub Models API:', error);
+      console.error('❌ Error calling GitHub Copilot API:', error);
       
       // Provide helpful error messages
       if (error.message.includes('authentication')) {
@@ -447,7 +446,6 @@ class CopilotChat {
       throw error;
     }
   }
-  
   addMessage(role, content) {
     const messagesContainer = document.getElementById('chat-messages');
     if (!messagesContainer) return;

@@ -39,20 +39,21 @@ class NavbarComponent {
         <div class="nav-bubble model-bubble">
           <select class="nav-native-select model-select" id="model-selector" aria-label="Select AI model">
             <optgroup label="Fast & Efficient">
-              <option value="gpt-4o-mini">GPT-4o Mini</option>
-              <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-              <option value="claude-3-haiku">Claude 3 Haiku</option>
-              <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+              <option value="gpt-5-mini">GPT-5-mini</option>
+              <option value="grok-code-fast-1">Grok Code Fast 1</option>
             </optgroup>
             <optgroup label="Versatile and Highly Intelligent">
-              <option value="gpt-4">GPT-4</option>
-              <option value="gpt-4-turbo">GPT-4 Turbo</option>
+              <option value="gpt-4.1">GPT-4.1</option>
+              <option value="gpt-5">GPT-5</option>
               <option value="gpt-4o" selected>GPT-4o</option>
-              <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+              <option value="claude-sonnet-3.5">Claude Sonnet 3.5</option>
+              <option value="claude-sonnet-4">Claude Sonnet 4</option>
+              <option value="claude-sonnet-4.5">Claude Sonnet 4.5</option>
+              <option value="claude-haiku-4.5">Claude Haiku 4.5</option>
             </optgroup>
             <optgroup label="Most Powerful at Complex Tasks">
-              <option value="claude-3-opus">Claude 3 Opus</option>
-              <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+              <option value="claude-opus-4.1">Claude Opus 4.1</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
             </optgroup>
           </select>
         </div>
