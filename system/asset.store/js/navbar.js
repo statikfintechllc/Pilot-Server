@@ -153,24 +153,12 @@ class NavbarComponent {
     // TODO: Replace with custom modal dialog to match glassmorphic design
     if (confirm('Are you sure you want to logout?')) {
       localStorage.removeItem('github_pat');
-      this.isAuthenticated = false;
+      this.checkAuthStatus(); // Update authentication state
       
-      // Update UI to show logged out state
-      const profileSelect = document.getElementById('profile-select');
-      if (profileSelect) {
-        // Update the login/logout option
-        const loginOption = profileSelect.querySelector('option[value="logout"]');
-        if (loginOption) {
-          loginOption.value = 'login';
-          loginOption.textContent = 'Sign In';
-        }
-      }
-      
-      // Reset model selector to default
-      const modelSelect = document.getElementById('model-selector');
-      if (modelSelect) {
-        modelSelect.value = 'gpt-4o';
-      }
+      // Re-render navbar to update all options
+      const container = this.element.parentElement;
+      this.element.remove();
+      this.mount(container);
       
       console.log('Logged out successfully');
     }
