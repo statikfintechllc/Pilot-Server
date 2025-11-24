@@ -359,8 +359,8 @@ class CopilotChat {
         }
       ];
       
-      // Add previous messages for context (last 10 messages to avoid token limits)
-      const recentMessages = this.messages.slice(-10);
+      // Add previous messages for context (last 9 messages + system = 10 total before current)
+      const recentMessages = this.messages.slice(-9);
       conversationMessages.push(...recentMessages.map(msg => ({
         role: msg.role === 'user' ? 'user' : 'assistant',
         content: msg.content
@@ -579,6 +579,9 @@ class CopilotChat {
     }
     
     localStorage.setItem('copilot_chat_history', JSON.stringify(this.chatHistory));
+    
+    // Update navbar history dropdown to sync with new chat history
+    this.updateHistorySelect();
   }
   
   loadChatHistory() {
@@ -896,11 +899,5 @@ class CopilotChat {
   }
 }
 
-// Initialize Copilot Chat when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.copilotChat = new CopilotChat();
-  });
-} else {
-  window.copilotChat = new CopilotChat();
-}
+// Note: CopilotChat is initialized in init.js to avoid duplicate instances
+// This ensures proper initialization order after all components are loaded

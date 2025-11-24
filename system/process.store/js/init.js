@@ -32,10 +32,10 @@
           messageHandler.init();
         }
 
-        // Initialize Copilot Chat
-        if (window.CopilotChat) {
-          const copilotChat = new window.CopilotChat();
-          copilotChat.init();
+        // Initialize Copilot Chat (singleton pattern)
+        if (!window.copilotChat && window.CopilotChat) {
+          window.copilotChat = new window.CopilotChat();
+          window.copilotChat.init();
         }
 
         console.log('Application initialized successfully');

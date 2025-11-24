@@ -96,9 +96,11 @@ class NavbarComponent {
   }
 
   attachEventListeners() {
+    // Use dataset to prevent duplicate listener attachment
+    
     // Profile select handler
     const profileSelect = document.getElementById('profile-select');
-    if (profileSelect) {
+    if (profileSelect && !profileSelect.dataset.listenersAttached) {
       profileSelect.addEventListener('change', (e) => {
         const value = e.target.value;
         if (value === 'login') {
@@ -111,22 +113,24 @@ class NavbarComponent {
         // Reset select to default
         e.target.value = '';
       });
+      profileSelect.dataset.listenersAttached = 'true';
     }
 
     // Model selector handler
     const modelSelect = document.getElementById('model-selector');
-    if (modelSelect) {
+    if (modelSelect && !modelSelect.dataset.listenersAttached) {
       modelSelect.addEventListener('change', (e) => {
         const modelId = e.target.value;
         if (modelId) {
           this.handleModelChange(modelId);
         }
       });
+      modelSelect.dataset.listenersAttached = 'true';
     }
 
     // History select handler
     const historySelect = document.getElementById('history-select');
-    if (historySelect) {
+    if (historySelect && !historySelect.dataset.listenersAttached) {
       historySelect.addEventListener('change', (e) => {
         const chatId = e.target.value;
         if (chatId) {
@@ -137,6 +141,7 @@ class NavbarComponent {
         // Reset select to default
         e.target.value = '';
       });
+      historySelect.dataset.listenersAttached = 'true';
     }
   }
 
