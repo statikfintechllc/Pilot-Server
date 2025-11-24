@@ -349,7 +349,7 @@ class CopilotChat {
     
     try {
       // GitHub Copilot Chat API endpoint
-      const apiUrl = `https://api.githubcopilot.com/chat/completions`;
+      const apiUrl = `https://api.githubcopilot.com/v1/chat/completions`;
       
       // Build conversation history for context
       const conversationMessages = [
