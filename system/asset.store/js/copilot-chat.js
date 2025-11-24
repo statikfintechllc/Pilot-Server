@@ -11,87 +11,76 @@ class CopilotChat {
     this.chatHistory = this.loadChatHistory();
     this.currentChatId = null;
     
-    // Available GitHub Copilot models with GitHub routing
+    // Available GitHub Models - EXACT list from GitHub Mobile App
     this.models = [
       // Fast & Efficient
       {
         id: 'gpt-5-mini',
         name: 'GPT-5-mini',
         description: 'Fast & Efficient',
-        category: 'fast',
-        route: 'github/gpt-5-mini'
+        category: 'fast'
       },
       {
         id: 'grok-code-fast-1',
         name: 'Grok Code Fast 1',
         description: 'Fast & Efficient',
-        category: 'fast',
-        route: 'github/grok-code-fast-1'
+        category: 'fast'
       },
       // Versatile and Highly Intelligent
       {
         id: 'gpt-4.1',
         name: 'GPT-4.1',
         description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        route: 'github/gpt-4.1'
+        category: 'versatile'
       },
       {
         id: 'gpt-5',
         name: 'GPT-5',
         description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        route: 'github/gpt-5'
+        category: 'versatile'
       },
       {
         id: 'gpt-4o',
         name: 'GPT-4o',
         description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        route: 'github/gpt-4o'
+        category: 'versatile'
       },
       {
         id: 'claude-sonnet-3.5',
         name: 'Claude Sonnet 3.5',
         description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        route: 'github/claude-sonnet-3.5'
+        category: 'versatile'
       },
       {
         id: 'claude-sonnet-4',
         name: 'Claude Sonnet 4',
         description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        route: 'github/claude-sonnet-4'
+        category: 'versatile'
       },
       {
         id: 'claude-sonnet-4.5',
         name: 'Claude Sonnet 4.5',
         description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        route: 'github/claude-sonnet-4.5'
+        category: 'versatile'
       },
       {
         id: 'claude-haiku-4.5',
         name: 'Claude Haiku 4.5',
         description: 'Versatile and Highly Intelligent',
-        category: 'versatile',
-        route: 'github/claude-haiku-4.5'
+        category: 'versatile'
       },
       // Most Powerful at Complex Tasks
       {
         id: 'claude-opus-4.1',
         name: 'Claude Opus 4.1',
         description: 'Most Powerful at Complex Tasks',
-        category: 'powerful',
-        route: 'github/claude-opus-4.1'
+        category: 'powerful'
       },
       {
         id: 'gemini-2.5-pro',
         name: 'Gemini 2.5 Pro',
         description: 'Most Powerful at Complex Tasks',
-        category: 'powerful',
-        route: 'github/gemini-2.5-pro'
+        category: 'powerful'
       }
     ];
     
@@ -134,16 +123,8 @@ class CopilotChat {
     if (!isCopilotPage) {
       this.createCopilotButton();
     } else {
-      // On copilot.html or index.html, populate the model dropdown and attach event listeners
-      this.populateModelDropdown();
+      // On copilot.html or index.html, attach event listeners
       this.attachEventListeners();
-    }
-  }
-  
-  populateModelDropdown() {
-    const modelDropdown = document.getElementById('model-dropdown');
-    if (modelDropdown) {
-      modelDropdown.innerHTML = this.renderModelsWithCategories();
     }
   }
   
@@ -172,33 +153,7 @@ class CopilotChat {
   }
   
   attachEventListeners() {
-    // Menu toggle
-    const menuToggle = document.getElementById('copilot-menu-toggle');
-    const navSidebar = document.getElementById('copilot-nav-sidebar');
-    const navOverlay = document.getElementById('copilot-nav-overlay');
-    const navClose = document.getElementById('copilot-nav-close');
-    
-    if (menuToggle && navSidebar && navOverlay) {
-      menuToggle.addEventListener('click', () => {
-        navSidebar.classList.add('active');
-        navOverlay.classList.add('active');
-        menuToggle.classList.add('active');
-      });
-      
-      const closeNav = () => {
-        navSidebar.classList.remove('active');
-        navOverlay.classList.remove('active');
-        menuToggle.classList.remove('active');
-      };
-      
-      if (navClose) {
-        navClose.addEventListener('click', closeNav);
-      }
-      
-      navOverlay.addEventListener('click', closeNav);
-    }
-    
-    // Trigger button
+    // Trigger button (for FAB on other pages)
     const triggerButton = document.getElementById('copilot-trigger');
     if (triggerButton) {
       triggerButton.addEventListener('click', () => this.openChat());
@@ -227,50 +182,36 @@ class CopilotChat {
       });
     }
     
-    // Model selector
-    const modelButton = document.getElementById('model-selector-button');
-    const modelDropdown = document.getElementById('model-dropdown');
-    if (modelButton && modelDropdown) {
-      modelButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        modelDropdown.classList.toggle('active');
-      });
-      
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!modelDropdown.contains(e.target) && e.target !== modelButton) {
-          modelDropdown.classList.remove('active');
-        }
-      });
-      
-      // Model selection
-      const modelOptions = modelDropdown.querySelectorAll('.copilot-model-option');
-      modelOptions.forEach(option => {
-        option.addEventListener('click', () => {
-          const modelId = option.dataset.model;
+    // Model selector (native select)
+    const modelSelect = document.getElementById('model-selector');
+    if (modelSelect) {
+      modelSelect.addEventListener('change', (e) => {
+        const modelId = e.target.value;
+        if (modelId) {
           this.switchModel(modelId);
-          modelDropdown.classList.remove('active');
-        });
+        }
       });
     }
     
-    // History button
-    const historyButton = document.getElementById('history-button');
-    const historyDropdown = document.getElementById('history-dropdown');
-    if (historyButton && historyDropdown) {
-      historyButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.updateHistoryDropdown();
-        historyDropdown.classList.toggle('active');
-      });
-      
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!historyDropdown.contains(e.target) && e.target !== historyButton) {
-          historyDropdown.classList.remove('active');
-        }
-      });
+    // Listen for model changes from navbar
+    document.addEventListener('modelChanged', (e) => {
+      if (e.detail && e.detail.modelId) {
+        this.switchModel(e.detail.modelId);
+      }
+    });
+    
+    // History select (native dropdown)
+    const historySelect = document.getElementById('history-select');
+    if (historySelect) {
+      this.updateHistorySelect();
     }
+    
+    // Listen for loadChat event from navbar
+    document.addEventListener('loadChat', (e) => {
+      if (e.detail && e.detail.chatId) {
+        this.loadChat(e.detail.chatId);
+      }
+    });
   }
   
   newChat() {
@@ -304,29 +245,22 @@ class CopilotChat {
     this.currentModel = modelId;
     const model = this.models.find(m => m.id === modelId);
     
-    // Update button text
-    const currentModelName = document.getElementById('current-model-name');
-    if (currentModelName && model) {
-      currentModelName.textContent = model.name;
+    // Update native select
+    const modelSelect = document.getElementById('model-selector');
+    if (modelSelect) {
+      modelSelect.value = modelId;
     }
     
-    // Update active state
-    const modelOptions = document.querySelectorAll('.copilot-model-option');
-    modelOptions.forEach(option => {
-      if (option.dataset.model === modelId) {
-        option.classList.add('active');
-      } else {
-        option.classList.remove('active');
-      }
-    });
-    
-    // Log GitHub routing for debugging
-    if (model && model.route) {
-      console.log(`Switched to ${model.name} using GitHub route: ${model.route}`);
+    // Log model info for debugging
+    if (model) {
+      console.log(`Switched to ${model.name} - Model ID: ${modelId}`);
+      
+      // Show notification
+      this.addSystemMessage(`Switched to ${model.name}`);
+    } else {
+      console.log(`Switched to model: ${modelId}`);
+      this.addSystemMessage(`Switched to ${modelId}`);
     }
-    
-    // Show notification
-    this.addSystemMessage(`Switched to ${model ? model.name : modelId}`);
   }
   
   async sendMessage() {
@@ -336,6 +270,18 @@ class CopilotChat {
     if (!input || !input.value.trim()) return;
     
     const userMessage = input.value.trim();
+    
+    // Check authentication before proceeding
+    const token = localStorage.getItem('github_pat');
+    if (!token) {
+      // Show authentication prompt
+      this.addSystemMessage('Please sign in with your GitHub account to use AI models. Click the Profile button to sign in.');
+      if (window.showAuthPrompt) {
+        window.showAuthPrompt();
+      }
+      return;
+    }
+    
     input.value = '';
     input.style.height = 'auto';
     
@@ -349,7 +295,7 @@ class CopilotChat {
     // Show loading indicator
     this.showLoadingIndicator();
     
-    // Simulated AI response (Ensure this no longer calls a fake response. Implement the True native github chat from vscode so then users have access to GitHub hosted models, look at the VSCode repository to implement this)
+    // Call GitHub Copilot API with user's token
     try {
       const response = await this.getAIResponse(userMessage);
       this.removeLoadingIndicator();
@@ -359,7 +305,21 @@ class CopilotChat {
       this.saveToHistory(userMessage, response);
     } catch (error) {
       this.removeLoadingIndicator();
-      this.addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+      
+      // Show user-friendly error messages
+      let errorMessage = 'Sorry, I encountered an error. ';
+      
+      if (error.message.includes('authentication') || error.message.includes('401')) {
+        errorMessage += 'Please check your GitHub authentication and try again. You may need to sign in again.';
+      } else if (error.message.includes('Copilot')) {
+        errorMessage += error.message;
+      } else if (error.message.includes('not found') || error.message.includes('404')) {
+        errorMessage += 'The selected AI model is not available. Please try a different model.';
+      } else {
+        errorMessage += 'Please try again or select a different model.';
+      }
+      
+      this.addMessage('assistant', errorMessage);
       console.error('Error getting AI response:', error);
     }
     
@@ -371,111 +331,128 @@ class CopilotChat {
   }
   
   async getAIResponse(userMessage) {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Get authentication token
+    // For GitHub Pages static sites, we use the same approach as VS Code Chat:
+    // - User provides GitHub Personal Access Token (PAT)
+    // - Token must have GitHub Copilot access enabled
+    // - API endpoint: api.githubcopilot.com (same as VS Code)
+    const token = localStorage.getItem('github_pat');
     
-    // Get current model route
+    if (!token) {
+      throw new Error('GitHub authentication required. Please sign in with your GitHub Personal Access Token.');
+    }
+    
+    // Get current model info
     const model = this.models.find(m => m.id === this.currentModel);
-    const modelRoute = model ? model.route : 'github/gpt-4o';
+    const modelId = this.currentModel;
+    const modelName = model ? model.name : modelId;
     
-    // In production, this would call the GitHub Copilot API using the model route
-    // Example: await fetch(`https://api.github.com/copilot/chat/${modelRoute}`, {...})
-    console.log(`Using GitHub model route: ${modelRoute} for query: "${userMessage}"`);
+    console.log(`🤖 Sending message to ${modelName}`);
+    console.log(`📝 Model ID: ${modelId}`);
+    console.log(`💬 User message: "${userMessage}"`);
     
-    // For now, return intelligent mock responses based on context
-    const lowerMessage = userMessage.toLowerCase();
-    
-    if (lowerMessage.includes('trade') || lowerMessage.includes('trading')) {
-      return `I can help you analyze your trades! Here are some things I can do:
-
-**Trade Analysis:**
-- Review your win/loss patterns
-- Identify profitable setups
-- Analyze risk management
-
-**Strategy Help:**
-- 7-Step Framework guidance
-- GSTRWT workflow tips
-- Pattern recognition assistance
-
-**Journal Insights:**
-- Track your progress over time
-- Identify improvement areas
-- Calculate key metrics
-
-What specific aspect of your trading would you like to explore?`;
+    try {
+      // GitHub Copilot API endpoint (same as VS Code Chat)
+      // This works for static sites hosted on GitHub Pages
+      const apiUrl = `https://api.githubcopilot.com/chat/completions`;
+      
+      // Build conversation history for context
+      const conversationMessages = [
+        {
+          role: 'system',
+          content: 'You are a helpful AI trading assistant for SFTi-Pennies, specializing in penny stock trading, technical analysis, and trading journal insights. Help users analyze their trades, improve their strategies, and track their progress.'
+        }
+      ];
+      
+      // Add previous messages for context (last 9 messages + system = 10 total before current)
+      const recentMessages = this.messages.slice(-9);
+      conversationMessages.push(...recentMessages.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      })));
+      
+      // Add current user message
+      conversationMessages.push({
+        role: 'user',
+        content: userMessage
+      });
+      
+      const requestBody = {
+        model: modelId,
+        messages: conversationMessages,
+        temperature: 0.7,
+        max_tokens: 2000,
+        top_p: 0.95,
+        stream: false
+      };
+      
+      console.log(`📤 API Request:`, {
+        url: apiUrl,
+        model: modelId,
+        messageCount: conversationMessages.length
+      });
+      
+      // Headers match VS Code Chat extension format
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Editor-Version': 'vscode/1.95.0',
+          'Editor-Plugin-Version': 'copilot-chat/0.22.0',
+          'User-Agent': 'GitHubCopilotChat/1.0',
+          'Copilot-Integration-Id': 'vscode-chat'
+        },
+        body: JSON.stringify(requestBody)
+      });
+      
+      console.log(`📥 API Response Status: ${response.status} ${response.statusText}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ GitHub Copilot API Error:', response.status, errorData);
+        
+        if (response.status === 401) {
+          throw new Error('GitHub authentication failed. Please check your Personal Access Token and ensure you have GitHub Copilot access enabled on your account.');
+        } else if (response.status === 403) {
+          throw new Error('Access denied. GitHub Copilot subscription required. Visit github.com/features/copilot to sign up.');
+        } else if (response.status === 404) {
+          throw new Error(`Model "${modelId}" not found or not available. Try a different model.`);
+        } else if (response.status === 429) {
+          throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+        }
+        
+        throw new Error(`GitHub Copilot API error: ${response.status} ${response.statusText}. ${errorData.message || ''}`);
+      }
+      
+      const data = await response.json();
+      console.log(`✅ Received response from ${modelName}`);
+      
+      // Extract response from GitHub's API format (same as VS Code Chat)
+      if (data.choices && data.choices.length > 0) {
+        const aiResponse = data.choices[0].message.content;
+        console.log(`💭 Response length: ${aiResponse.length} characters`);
+        return aiResponse;
+      }
+      
+      throw new Error('No response from GitHub AI model');
+      
+    } catch (error) {
+      console.error('❌ Error calling GitHub Copilot API:', error);
+      
+      // Provide helpful error messages
+      if (error.message.includes('authentication')) {
+        throw new Error('Authentication required. Please sign in with your GitHub account to use AI models.');
+      }
+      
+      if (error.message.includes('fetch')) {
+        throw new Error('Network error. Please check your internet connection and try again.');
+      }
+      
+      throw error;
     }
-    
-    if (lowerMessage.includes('help') || lowerMessage.includes('how')) {
-      return `I'm here to help! I can assist with:
-
-1. **Trade Analysis** - Review your trading performance
-2. **Strategy Guidance** - Help with the 7-Step Framework and GSTRWT
-3. **Risk Management** - Calculate position sizes and stop losses
-4. **Pattern Recognition** - Identify chart patterns in your trades
-5. **Journal Insights** - Analyze your trading journal data
-
-Just ask me anything related to trading or your journal!`;
-    }
-    
-    if (lowerMessage.includes('pattern') || lowerMessage.includes('setup')) {
-      return `Let me help you with trading patterns!
-
-**Common Penny Stock Patterns:**
-- **Morning Panic Dip Buys** - Buy the panic, sell into strength
-- **Afternoon Breakouts** - Consolidation breaks with volume
-- **Red-to-Green Moves** - Reversal plays
-- **Parabolic Short Squeezes** - High-risk momentum plays
-
-**Pattern Checklist:**
-✅ Volume spike (2x+ average)
-✅ Clear support/resistance levels
-✅ News catalyst present
-✅ Float under 100M shares
-✅ Price action confirms pattern
-
-Would you like me to analyze a specific pattern or trade setup?`;
-    }
-    
-    if (lowerMessage.includes('risk') || lowerMessage.includes('position size')) {
-      return `**Risk Management Guidelines:**
-
-**Position Sizing:**
-- Never risk more than 2% of total capital per trade
-- For a $10,000 account, max risk = $200
-- Calculate: Position Size = Risk Amount / (Entry - Stop Loss)
-
-**Stop Loss Rules:**
-- Always set before entering
-- Use support/resistance levels
-- Mental stops can fail - use hard stops
-- Never move stop loss against you
-
-**Example:**
-- Account: $10,000
-- Risk: 2% = $200
-- Entry: $2.00
-- Stop: $1.80
-- Risk per share: $0.20
-- Max shares: $200 / $0.20 = 1,000 shares
-
-Would you like help calculating position size for a specific trade?`;
-    }
-    
-    // Default response
-    return `I understand you're asking about: "${userMessage}"
-
-As your AI trading assistant, I'm here to help with:
-- **Trading Analysis** - Review performance and patterns
-- **Strategy Development** - Improve your trading plan
-- **Risk Management** - Calculate position sizes
-- **Journal Insights** - Track and analyze progress
-
-Could you provide more details about what you'd like to know?
-
-*Note: This is a demo response. In production, I would connect to GitHub Copilot's actual AI models for real-time, intelligent responses.*`;
   }
-  
   addMessage(role, content) {
     const messagesContainer = document.getElementById('chat-messages');
     if (!messagesContainer) return;
@@ -609,6 +586,9 @@ Could you provide more details about what you'd like to know?
     }
     
     localStorage.setItem('copilot_chat_history', JSON.stringify(this.chatHistory));
+    
+    // Update navbar history dropdown to sync with new chat history
+    this.updateHistorySelect();
   }
   
   loadChatHistory() {
@@ -888,6 +868,26 @@ Could you provide more details about what you'd like to know?
     this.switchModel(this.currentModel);
   }
   
+  updateHistorySelect() {
+    const historySelect = document.getElementById('history-select');
+    if (!historySelect) return;
+    
+    // Remove all options except the default
+    while (historySelect.options.length > 1) {
+      historySelect.remove(1);
+    }
+    
+    // Add history items as options
+    if (this.chatHistory.length > 0) {
+      this.chatHistory.forEach(chat => {
+        const option = document.createElement('option');
+        option.value = chat.id;
+        option.textContent = chat.title || 'Untitled Chat';
+        historySelect.appendChild(option);
+      });
+    }
+  }
+  
   getTimeAgo(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
     
@@ -906,11 +906,5 @@ Could you provide more details about what you'd like to know?
   }
 }
 
-// Initialize Copilot Chat when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.copilotChat = new CopilotChat();
-  });
-} else {
-  window.copilotChat = new CopilotChat();
-}
+// Note: CopilotChat is initialized in init.js to avoid duplicate instances
+// This ensures proper initialization order after all components are loaded

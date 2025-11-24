@@ -32,6 +32,12 @@
           messageHandler.init();
         }
 
+        // Initialize Copilot Chat (singleton pattern)
+        if (!window.copilotChat && window.CopilotChat) {
+          window.copilotChat = new window.CopilotChat();
+          window.copilotChat.init();
+        }
+
         console.log('Application initialized successfully');
       }).catch((error) => {
         console.error('Failed to initialize application:', error);
