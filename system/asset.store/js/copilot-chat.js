@@ -332,6 +332,10 @@ class CopilotChat {
   
   async getAIResponse(userMessage) {
     // Get authentication token
+    // For GitHub Pages static sites, we use the same approach as VS Code Chat:
+    // - User provides GitHub Personal Access Token (PAT)
+    // - Token must have GitHub Copilot access enabled
+    // - API endpoint: api.githubcopilot.com (same as VS Code)
     const token = localStorage.getItem('github_pat');
     
     if (!token) {
@@ -348,8 +352,9 @@ class CopilotChat {
     console.log(`💬 User message: "${userMessage}"`);
     
     try {
-      // GitHub Copilot Chat API endpoint
-      const apiUrl = `https://api.githubcopilot.com/v1/chat/completions`;
+      // GitHub Copilot API endpoint (same as VS Code Chat)
+      // This works for static sites hosted on GitHub Pages
+      const apiUrl = `https://api.githubcopilot.com/chat/completions`;
       
       // Build conversation history for context
       const conversationMessages = [
@@ -387,6 +392,7 @@ class CopilotChat {
         messageCount: conversationMessages.length
       });
       
+      // Headers match VS Code Chat extension format
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -395,7 +401,8 @@ class CopilotChat {
           'Accept': 'application/json',
           'Editor-Version': 'vscode/1.95.0',
           'Editor-Plugin-Version': 'copilot-chat/0.22.0',
-          'User-Agent': 'GitHubCopilotChat/1.0'
+          'User-Agent': 'GitHubCopilotChat/1.0',
+          'Copilot-Integration-Id': 'vscode-chat'
         },
         body: JSON.stringify(requestBody)
       });
@@ -407,7 +414,7 @@ class CopilotChat {
         console.error('❌ GitHub Copilot API Error:', response.status, errorData);
         
         if (response.status === 401) {
-          throw new Error('GitHub authentication failed. Please check your Personal Access Token. Ensure you have GitHub Copilot access.');
+          throw new Error('GitHub authentication failed. Please check your Personal Access Token and ensure you have GitHub Copilot access enabled on your account.');
         } else if (response.status === 403) {
           throw new Error('Access denied. GitHub Copilot subscription required. Visit github.com/features/copilot to sign up.');
         } else if (response.status === 404) {
@@ -422,7 +429,7 @@ class CopilotChat {
       const data = await response.json();
       console.log(`✅ Received response from ${modelName}`);
       
-      // Extract response from GitHub's API format
+      // Extract response from GitHub's API format (same as VS Code Chat)
       if (data.choices && data.choices.length > 0) {
         const aiResponse = data.choices[0].message.content;
         console.log(`💭 Response length: ${aiResponse.length} characters`);
